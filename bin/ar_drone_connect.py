@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import sys,os
 from subprocess import Popen,PIPE,call
 import re
 
@@ -14,6 +14,10 @@ def runCmd(c):
     elif retcode!=0:
         print >>sys.stderr, "Child returned", retcode
         sys.exit(1)
+
+if os.getuid()!=0:
+    print >>sys.stderr, "Not enough privilidges"
+    sys.exit(1)
 
 print "Detecting AR Drone"
 
