@@ -2,12 +2,12 @@
 
 import sys,os
 from subprocess import Popen,PIPE,call
-import re
+import re,string
 
 INTF="wlan0"
 
-def runCmd(c):
-    retcode = call(cmd, shell=True)
+def runCmd(cmd):
+    retcode = call(string.join(cmd, " "), shell=True)
     if retcode < 0:
         print >>sys.stderr, "Child was terminated by signal", -retcode
         sys.exit(1)
@@ -41,3 +41,20 @@ else:
     print >>sys.stderr, "Ar.Drone not found"
     sys.exit(1)
 
+print "Configuring WiFi interface"
+
+runCmd(["/sbin/ifconfig", INTF ,"up"])
+runCmd(["/sbin/iwconfig", INTF ,"mode","ad-hoc"])
+runCmd(["/sbin/iwconfig", INTF ,"channel",str(CHANNEL)])
+runCmd(["/sbin/iwconfig", INTF ,"Bit","54Mb/s"])
+runCmd(["/sbin/iwconfig", INTF ,"essid",SSID])
+
+print "Connecting to Ar.Drone"
+
+runCmd(["/sbin/dhclient", INTF])
+runCmd(["/sbin/route", "delete", "default", "gw", "192.168.1.1"])
+
+print "Checking connectivity"
+runCmd(["/bin/ping", "-c3", "192.168.1.1"])
+
+print "Ar.Drone is ready with IP 192.168.1.1" 
