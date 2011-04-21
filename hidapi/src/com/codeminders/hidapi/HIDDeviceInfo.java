@@ -1,6 +1,14 @@
 
 package com.codeminders.hidapi;
 
+import java.io.IOException;
+
+/**
+ * HID device info
+ * 
+ * @author lord
+ *
+ */
 public class HIDDeviceInfo
 {
     private String path;
@@ -63,4 +71,7 @@ public class HIDDeviceInfo
     {
         return interface_number;
     }
+   
+    public native HIDDevice open() throws IOException;
+    
 }
