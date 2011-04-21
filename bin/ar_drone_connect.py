@@ -21,6 +21,7 @@ if os.getuid()!=0:
 
 print "Detecting AR Drone"
 
+runCmd(["/sbin/ifconfig", INTF ,"up"])
 scanres = Popen(["/sbin/iwlist", INTF, "scan"], stdout=PIPE).communicate()[0]
 SSID=None
 cells = re.split(r'\s+Cell [0-9]+',scanres)
