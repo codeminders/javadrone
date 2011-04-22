@@ -22,6 +22,28 @@ public class HIDDeviceInfo
     private int    usage;
     private int    interface_number;
 
+    /**
+     * Protected constructor, used from JNI
+     */
+    HIDDeviceInfo()
+    {
+    }
+
+    public HIDDeviceInfo(String path, int vendor_id, int product_id, String serial_number, int release_number,
+            String manufacturer_string, String product_string, int usage_page, int usage, int interface_number)
+    {
+        this.path = path;
+        this.vendor_id = vendor_id;
+        this.product_id = product_id;
+        this.serial_number = serial_number;
+        this.release_number = release_number;
+        this.manufacturer_string = manufacturer_string;
+        this.product_string = product_string;
+        this.usage_page = usage_page;
+        this.usage = usage;
+        this.interface_number = interface_number;
+    }    
+    
     public String getPath()
     {
         return path;
