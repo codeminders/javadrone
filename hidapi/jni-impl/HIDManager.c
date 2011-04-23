@@ -41,7 +41,7 @@ static void setUStringField(JNIEnv *env,
         /* Something went wrong.  */
         //TODO: error handling
     }
-    size_t len = wstrlen(val);
+    size_t len = wcslen(val);
     size_t ulen = len*sizeof(wchar_t);
     char *uval = (char *)val;
     
