@@ -29,21 +29,6 @@ public class HIDDeviceInfo
     {
     }
 
-    public HIDDeviceInfo(String path, int vendor_id, int product_id, String serial_number, int release_number,
-            String manufacturer_string, String product_string, int usage_page, int usage, int interface_number)
-    {
-        this.path = path;
-        this.vendor_id = vendor_id;
-        this.product_id = product_id;
-        this.serial_number = serial_number;
-        this.release_number = release_number;
-        this.manufacturer_string = manufacturer_string;
-        this.product_string = product_string;
-        this.usage_page = usage_page;
-        this.usage = usage;
-        this.interface_number = interface_number;
-    }    
-    
     public String getPath()
     {
         return path;
@@ -95,5 +80,34 @@ public class HIDDeviceInfo
     }
    
     public native HIDDevice open() throws IOException;
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("HIDDeviceInfo [path=");
+        builder.append(path);
+        builder.append(", vendor_id=");
+        builder.append(vendor_id);
+        builder.append(", product_id=");
+        builder.append(product_id);
+        builder.append(", serial_number=");
+        builder.append(serial_number);
+        builder.append(", release_number=");
+        builder.append(release_number);
+        builder.append(", manufacturer_string=");
+        builder.append(manufacturer_string);
+        builder.append(", product_string=");
+        builder.append(product_string);
+        builder.append(", usage_page=");
+        builder.append(usage_page);
+        builder.append(", usage=");
+        builder.append(usage);
+        builder.append(", interface_number=");
+        builder.append(interface_number);
+        builder.append("]");
+        return builder.toString();
+    }
+    
     
 }
