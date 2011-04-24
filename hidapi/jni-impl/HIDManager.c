@@ -60,16 +60,20 @@ static void setUStringField(JNIEnv *env,
 
 static jobject createHIDDeviceInfo(JNIEnv *env, struct hid_device_info *dev)
 {
-    jclass cls = (*env)->FindClass(env, DEVINFO_CLASS);
-    if (cls == NULL) {
+    if (dev == NULL) 
         return NULL; /* exception thrown */
-    }
+    if (dev->path == NULL) 
+        return NULL; /* exception thrown */
+
+    jclass cls = (*env)->FindClass(env, DEVINFO_CLASS);
+    if (cls == NULL) 
+        return NULL; /* exception thrown */
 
     jmethodID cid = (*env)->GetMethodID(env, cls,
                                         "<init>", "()V");
-    if (cid == NULL) {
+    if (cid == NULL) 
         return NULL; /* exception thrown */
-    }
+
     jobject result = (*env)->NewObject(env, cls, cid);
 
     setIntField(env, cls, result, "vendor_id", dev->vendor_id);
