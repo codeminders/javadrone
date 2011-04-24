@@ -104,7 +104,7 @@ Java_com_codeminders_hidapi_HIDManager_listDevices(JNIEnv *env, jclass cls)
 		cur_dev = cur_dev->next;
 	}
 
-    jclass arrCls = (*env)->FindClass(env, "[" DEVINFO_CLASS);
+    jclass arrCls = (*env)->FindClass(env, DEVINFO_CLASS);
     if (arrCls == NULL) {
         return NULL; /* exception thrown */
     }
