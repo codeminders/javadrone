@@ -4,7 +4,7 @@ public class HIDAPITest
 {
     static
     {
-        System.loadLibrary("hdiapi-jni");
+        System.loadLibrary("hidapi-jni");
     }
 
     /**
