@@ -1,9 +1,37 @@
+#include <stdio.h>
+#include <assert.h>
 
 #include <jni-stubs/com_codeminders_hidapi_HIDDevice.h>
+#include "hid-java.h"
+
+static long getPeer(JNIEnv *env, jobject self)
+{
+    jclass cls = (*env)->FindClass(env, DEV_CLASS);
+    assert(cls!=NULL);
+    if (cls == NULL) 
+        return 0;
+    jfieldID fid = (*env)->GetFieldID(env, cls, "peer", "J");
+    return (*env)->GetLongField(env, self, fid); 
+}
+
+static void setPeer(JNIEnv *env, jobject self, long peer)
+{
+    jclass cls = (*env)->FindClass(env, DEV_CLASS);
+    assert(cls!=NULL);
+    if (cls == NULL) 
+        return; //TODO: error handling
+    jfieldID fid = (*env)->GetFieldID(env, cls, "peer", "J");
+    (*env)->SetLongField(env, self, fid, peer);     
+}
 
 JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_close
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject self)
 {
+    long peer = getPeer(env, self);
+    if (peer == 0) 
+        return; /* not an error, freed previously */ 
+    hid_close(peer);
+    setPeer(env, self, 0);
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_write

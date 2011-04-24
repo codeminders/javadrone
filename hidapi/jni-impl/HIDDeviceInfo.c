@@ -6,7 +6,6 @@
 JNIEXPORT jobject JNICALL Java_com_codeminders_hidapi_HIDDeviceInfo_open
   (JNIEnv *env, jobject obj)
 {
-
     jclass thiscls = (*env)->FindClass(env, DEVINFO_CLASS);
     if (!thiscls)
         return NULL;
