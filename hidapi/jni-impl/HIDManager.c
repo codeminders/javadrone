@@ -4,8 +4,8 @@
 
 #include "jni-stubs/com_codeminders_hidapi_HIDManager.h"
 #include "hidapi/hidapi.h"
+#include "hid-java.h"
 
-#define DEVINFO_CLASS "com/codeminders/hidapi/HIDDeviceInfo"
 
 static void setIntField(JNIEnv *env,
                         jclass cls,
