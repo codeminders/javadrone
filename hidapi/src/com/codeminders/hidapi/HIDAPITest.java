@@ -18,8 +18,10 @@ public class HIDAPITest
         HIDDeviceInfo[] devs = HIDManager.listDevices();
         System.out.println("Devices:\n\n");
         for(int i=0;i<devs.length;i++)
-            System.out.println(devs[i]);
-        System.out.println("\n---------------\n");       
+        {
+            System.out.println(""+i+".\t"+devs[i]);
+            System.out.println("---------------------------------------------\n");
+        }
     }
 
 }
