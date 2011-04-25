@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class HIDAPITest
 {
-    private static final long READ_UPDATE_DELAY_MS = 100L;
+    private static final long READ_UPDATE_DELAY_MS = 50L;
 
     static
     {
