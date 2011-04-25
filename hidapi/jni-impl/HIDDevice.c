@@ -2,36 +2,38 @@
 #include <assert.h>
 
 #include <jni-stubs/com_codeminders_hidapi_HIDDevice.h>
+#include "hidapi/hidapi.h"
 #include "hid-java.h"
 
-static long getPeer(JNIEnv *env, jobject self)
+static hid_device* getPeer(JNIEnv *env, jobject self)
 {
     jclass cls = (*env)->FindClass(env, DEV_CLASS);
     assert(cls!=NULL);
     if (cls == NULL) 
-        return 0;
+        return NULL;
     jfieldID fid = (*env)->GetFieldID(env, cls, "peer", "J");
-    return (*env)->GetLongField(env, self, fid); 
+    return (hid_device*)((*env)->GetLongField(env, self, fid));
 }
 
-static void setPeer(JNIEnv *env, jobject self, long peer)
+static void setPeer(JNIEnv *env, jobject self, hid_device *peer)
 {
     jclass cls = (*env)->FindClass(env, DEV_CLASS);
     assert(cls!=NULL);
     if (cls == NULL) 
         return; //TODO: error handling
     jfieldID fid = (*env)->GetFieldID(env, cls, "peer", "J");
-    (*env)->SetLongField(env, self, fid, peer);     
+    jlong peerj = (jlong)peer;
+    (*env)->SetLongField(env, self, fid, peerj);     
 }
 
 JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_close
   (JNIEnv *env, jobject self)
 {
-    long peer = getPeer(env, self);
-    if (peer == 0) 
+    hid_device *peer = getPeer(env, self);
+    if(!peer) 
         return; /* not an error, freed previously */ 
     hid_close(peer);
-    setPeer(env, self, 0);
+    setPeer(env, self, NULL);
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_write
@@ -45,13 +47,29 @@ JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_read
 }
 
 JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_enableBlocking
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject self)
 {
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+        return; //TODO: error handling (throw exception)
+    int res = hid_set_nonblocking(peer,0);
+    if(res!=0)
+    {
+        //TODO: error handling. Throw exception
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_disableBlocking
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject self)
 {
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+        return; //TODO: error handling (throw exception)
+    int res = hid_set_nonblocking(peer,1);
+    if(res!=0)
+    {
+        //TODO: error handling. Throw exception
+    }
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_sendFeatureReport

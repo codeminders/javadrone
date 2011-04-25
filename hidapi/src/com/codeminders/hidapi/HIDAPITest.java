@@ -4,13 +4,17 @@ import java.io.IOException;
 
 public class HIDAPITest
 {
+    private static final long READ_UPDATE_DELAY_MS = 100L;
+
     static
     {
         System.loadLibrary("hidapi-jni");
     }
 
-    static final int VENDOR_ID = 1452; //Apple
-    static final int PRODUCT_ID = 566; // Keyboard/trackpad
+    // "Afterglow" controller for PS3
+    static final int VENDOR_ID = 3695;
+    static final int PRODUCT_ID = 25346;
+    private static final int BUFSIZE = 2048; 
     
     /**
      * @param args
@@ -27,7 +31,37 @@ public class HIDAPITest
         try
         {
             dev = HIDManager.openById(VENDOR_ID, PRODUCT_ID, null);
-            dev.close();
+            try
+            {
+                byte[] buf = new byte[BUFSIZE];
+                dev.enableBlocking();
+                while(true)
+                {
+                    int n = dev.read(buf);
+                    System.err.print(""+n+" bytes read:\n\t");
+                    for(int i=0; i<n; i++)
+                    {
+                        int v = buf[i];
+                        if (v<0) v = n+256;
+                        String hs = Integer.toHexString(v);
+                        if (v<16) 
+                            System.err.print("0");
+                        System.err.print(hs + " ");
+                    }
+                    System.out.println("");
+                    
+                    try
+                    {
+                        Thread.sleep(READ_UPDATE_DELAY_MS);
+                    } catch(InterruptedException e)
+                    {
+                        //Ignore
+                    }
+                }
+            } finally
+            {
+                dev.close();
+            }
         } catch(IOException e)
         {
             e.printStackTrace();
