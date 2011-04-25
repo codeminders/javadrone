@@ -42,8 +42,19 @@ JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_write
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_read
-  (JNIEnv *env, jobject obj, jbyteArray data)
+  (JNIEnv *env, jobject self, jbyteArray data)
 {
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+        return 0; //TODO: error handling (throw exception)
+
+    jsize bufsize = (*env)->GetArrayLength(env, data);
+    jbyte *buf = (*env)->GetByteArrayElements(env, data, NULL);
+    int read = hid_read(peer, buf, bufsize);
+    (*env)->ReleaseByteArrayElements(env, data, buf, read==-1?JNI_ABORT:0);
+    if(read==-1)
+        return 0; //TODO: error handling (throw exception)
+    return read;
 }
 
 JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_enableBlocking
