@@ -48,7 +48,7 @@ public class HIDAPITest
                             System.err.print("0");
                         System.err.print(hs + " ");
                     }
-                    System.out.println("");
+                    System.err.println("");
                     
                     try
                     {
@@ -74,11 +74,11 @@ public class HIDAPITest
         System.err.println(property);
         
         HIDDeviceInfo[] devs = HIDManager.listDevices();
-        System.out.println("Devices:\n\n");
+        System.err.println("Devices:\n\n");
         for(int i=0;i<devs.length;i++)
         {
-            System.out.println(""+i+".\t"+devs[i]);
-            System.out.println("---------------------------------------------\n");
+            System.err.println(""+i+".\t"+devs[i]);
+            System.err.println("---------------------------------------------\n");
         }
     }
 
