@@ -59,7 +59,4 @@ public class HIDDevice
     public native String getSerialNumberString() throws IOException;
 
     public native String getIndexedString(int string_index) throws IOException;
-
-    public native String getLastError() throws IOException;
-
 }

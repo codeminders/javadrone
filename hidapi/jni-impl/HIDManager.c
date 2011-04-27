@@ -58,21 +58,11 @@ static void setUStringField(JNIEnv *env,
     free(u8);
 }
 
-static jobject createHIDDeviceInfo(JNIEnv *env, struct hid_device_info *dev)
+static jobject createHIDDeviceInfo(JNIEnv *env, jclass cls, struct hid_device_info *dev)
 {
-    if (dev == NULL) 
-        return NULL; /* exception thrown */
-    if (dev->path == NULL) 
-        return NULL; /* exception thrown */
-
-    jclass cls = (*env)->FindClass(env, DEVINFO_CLASS);
-    if (cls == NULL) 
-        return NULL; /* exception thrown */
-
-    jmethodID cid = (*env)->GetMethodID(env, cls,
-                                        "<init>", "()V");
+    jmethodID cid = (*env)->GetMethodID(env, cls, "<init>", "()V");
     if (cid == NULL) 
-        return NULL; /* exception thrown */
+        return NULL; /* exception thrown. */ 
 
     jobject result = (*env)->NewObject(env, cls, cid);
 
@@ -112,13 +102,15 @@ Java_com_codeminders_hidapi_HIDManager_listDevices(JNIEnv *env, jclass cls)
     if (arrCls == NULL) {
         return NULL; /* exception thrown */
     }
-    jobjectArray result= (*env)->NewObjectArray(env, size, arrCls,
-                                                NULL);
+    jobjectArray result= (*env)->NewObjectArray(env, size, arrCls, NULL);
 	cur_dev = devs;
     int i=0;
 	while(cur_dev)
     {
-        jobject x = createHIDDeviceInfo(env, cur_dev);
+        jobject x = createHIDDeviceInfo(env, arrCls, cur_dev);
+        if(x == NULL)
+            return; /* exception thrown */ 
+
         (*env)->SetObjectArrayElement(env, result, i, x);
         (*env)->DeleteLocalRef(env, x);
         i++;
