@@ -20,7 +20,7 @@ public class HIDManager
      * @return
      * @throws IOException
      */
-    public static HIDDevice openByPath(String path) throws IOException
+    public static HIDDevice openByPath(String path) throws IOException, HIDDeviceNotFoundException
     {
         HIDDeviceInfo[] devs = listDevices();
         for(HIDDeviceInfo d : devs)
@@ -28,7 +28,7 @@ public class HIDManager
             if(d.getPath().equals(path))
                 return d.open();
         }
-        return null; // not found
+        throw new HIDDeviceNotFoundException(); 
     }
 
     /**
@@ -41,7 +41,7 @@ public class HIDManager
      * @return
      * @throws IOException
      */
-    public static HIDDevice openById(int vendor_id, int product_id, String serial_number) throws IOException
+    public static HIDDevice openById(int vendor_id, int product_id, String serial_number) throws IOException, HIDDeviceNotFoundException
     {
         HIDDeviceInfo[] devs = listDevices();
         for(HIDDeviceInfo d : devs)
@@ -50,7 +50,7 @@ public class HIDManager
                     && (serial_number == null || d.getSerial_number().equals(serial_number)))
                 return d.open();
         }
-        return null; // not found
+        throw new HIDDeviceNotFoundException(); 
     }
 
 }
