@@ -31,7 +31,10 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_close
 {
     hid_device *peer = getPeer(env, self);
     if(!peer) 
+    {
+        throwIOException(env, "Error getting peer");
         return; /* not an error, freed previously */ 
+    }
     hid_close(peer);
     setPeer(env, self, NULL);
 }
@@ -39,21 +42,28 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_close
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_write
   (JNIEnv *env, jobject obj, jbyteArray data)
 {
+    //TODO: implement
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_read
   (JNIEnv *env, jobject self, jbyteArray data)
 {
     hid_device *peer = getPeer(env, self);
-    if(!peer)
-        return 0; //TODO: error handling (throw exception)
+    if(!peer) 
+    {
+        throwIOException(env, "Error getting peer");
+        return; /* not an error, freed previously */ 
+    }
 
     jsize bufsize = (*env)->GetArrayLength(env, data);
     jbyte *buf = (*env)->GetByteArrayElements(env, data, NULL);
     int read = hid_read(peer, buf, bufsize);
     (*env)->ReleaseByteArrayElements(env, data, buf, read==-1?JNI_ABORT:0);
     if(read==-1)
-        return 0; //TODO: error handling (throw exception)
+    {
+        throwIOException(env, "Error reading from device"); //TODO: get the actual error message
+        return; /* not an error, freed previously */ 
+    }
     return read;
 }
 
@@ -62,11 +72,15 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_enableBlocking
 {
     hid_device *peer = getPeer(env, self);
     if(!peer)
-        return; //TODO: error handling (throw exception)
+    {
+        throwIOException(env, "Error getting peer");
+        return; /* not an error, freed previously */ 
+    }
     int res = hid_set_nonblocking(peer,0);
     if(res!=0)
     {
-        //TODO: error handling. Throw exception
+        throwIOException(env, "Error enabling blocking mode"); //TODO: get the actual error message
+        return; /* not an error, freed previously */ 
     }
 }
 
@@ -75,11 +89,15 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_disableBlocking
 {
     hid_device *peer = getPeer(env, self);
     if(!peer)
-        return; //TODO: error handling (throw exception)
+    {
+        throwIOException(env, "Error getting peer");
+        return; /* not an error, freed previously */ 
+    }
     int res = hid_set_nonblocking(peer,1);
     if(res!=0)
     {
-        //TODO: error handling. Throw exception
+        throwIOException(env, "Error enabling non-blocking mode"); //TODO: get the actual error message
+        return; /* not an error, freed previously */ 
     }
 }
 

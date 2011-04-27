@@ -3,7 +3,7 @@
 
 
 CFLAGS=-I.. -I/System/Library/Frameworks/JavaVM.framework/Headers 
-OBJS=HIDManager.o HIDDeviceInfo.o HIDDevice.o
+OBJS=HIDManager.o HIDDeviceInfo.o HIDDevice.o hid-java.o
 EXTRAOBJS=../mac/hid.o
 SHAREDLIB=libhidapi-jni.jnilib
 SHAREDLIBVER=1.0
