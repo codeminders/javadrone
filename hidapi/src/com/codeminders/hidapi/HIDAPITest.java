@@ -73,12 +73,20 @@ public class HIDAPITest
         String property = System.getProperty("java.library.path");
         System.err.println(property);
         
-        HIDDeviceInfo[] devs = HIDManager.listDevices();
-        System.err.println("Devices:\n\n");
-        for(int i=0;i<devs.length;i++)
+        try
         {
-            System.err.println(""+i+".\t"+devs[i]);
-            System.err.println("---------------------------------------------\n");
+            HIDDeviceInfo[] devs = HIDManager.listDevices();
+            System.err.println("Devices:\n\n");
+            for(int i=0;i<devs.length;i++)
+            {
+                System.err.println(""+i+".\t"+devs[i]);
+                System.err.println("---------------------------------------------\n");
+            }
+        }
+        catch(IOException e)
+        {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 

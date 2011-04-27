@@ -11,7 +11,7 @@ import java.io.IOException;
  */
 public class HIDManager
 {
-    public static native HIDDeviceInfo[] listDevices();
+    public static native HIDDeviceInfo[] listDevices() throws IOException;
 
     /**
      * Convenience method to find and open device by path

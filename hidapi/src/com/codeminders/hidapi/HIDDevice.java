@@ -44,9 +44,9 @@ public class HIDDevice
 
     public native int read(byte[] buf) throws IOException;
 
-    public native void enableBlocking();
+    public native void enableBlocking() throws IOException;
 
-    public native void disableBlocking();
+    public native void disableBlocking() throws IOException;
 
     public native int sendFeatureReport(byte[] data) throws IOException;
 
