@@ -4,7 +4,7 @@
 #include "hidapi/hidapi.h"
 #include "hid-java.h"
 
-void throwIOException(JNIEnv *env, const char *message)
+void throwIOException(JNIEnv *env)
 {
     jclass exceptionClass;
     
@@ -16,5 +16,5 @@ void throwIOException(JNIEnv *env, const char *message)
         return;
     }
     
-    (*env)->ThrowNew(env, exceptionClass, message);
+    (*env)->ThrowNew(env, exceptionClass, ""); //TODO: use hid_error() here
 }

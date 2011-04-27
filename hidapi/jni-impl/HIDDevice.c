@@ -32,7 +32,7 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_close
     hid_device *peer = getPeer(env, self);
     if(!peer) 
     {
-        throwIOException(env, "Error getting peer");
+        throwIOException(env);
         return; /* not an error, freed previously */ 
     }
     hid_close(peer);
@@ -51,7 +51,7 @@ JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_read
     hid_device *peer = getPeer(env, self);
     if(!peer) 
     {
-        throwIOException(env, "Error getting peer");
+        throwIOException(env);
         return; /* not an error, freed previously */ 
     }
 
@@ -61,7 +61,7 @@ JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_read
     (*env)->ReleaseByteArrayElements(env, data, buf, read==-1?JNI_ABORT:0);
     if(read==-1)
     {
-        throwIOException(env, "Error reading from device"); //TODO: get the actual error message
+        throwIOException(env);
         return; /* not an error, freed previously */ 
     }
     return read;
@@ -73,13 +73,13 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_enableBlocking
     hid_device *peer = getPeer(env, self);
     if(!peer)
     {
-        throwIOException(env, "Error getting peer");
+        throwIOException(env);
         return; /* not an error, freed previously */ 
     }
     int res = hid_set_nonblocking(peer,0);
     if(res!=0)
     {
-        throwIOException(env, "Error enabling blocking mode"); //TODO: get the actual error message
+        throwIOException(env);
         return; /* not an error, freed previously */ 
     }
 }
@@ -90,13 +90,13 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_disableBlocking
     hid_device *peer = getPeer(env, self);
     if(!peer)
     {
-        throwIOException(env, "Error getting peer");
+        throwIOException(env);
         return; /* not an error, freed previously */ 
     }
     int res = hid_set_nonblocking(peer,1);
     if(res!=0)
     {
-        throwIOException(env, "Error enabling non-blocking mode"); //TODO: get the actual error message
+        throwIOException(env);
         return; /* not an error, freed previously */ 
     }
 }
@@ -127,10 +127,5 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getSerialNumberS
 }
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getIndexedString
   (JNIEnv *env, jobject obj, jint ind)
-{
-}
-
-JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getLastError
-  (JNIEnv *env, jobject obj)
 {
 }
