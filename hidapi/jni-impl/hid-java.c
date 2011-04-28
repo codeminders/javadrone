@@ -1,12 +1,15 @@
+#include <stdlib.h>
+#include <iconv.h>
 #include <assert.h>
 #include <jni.h>
 
 #include "hidapi/hidapi.h"
 #include "hid-java.h"
 
-void throwIOException(JNIEnv *env, const char *message)
+void throwIOException(JNIEnv *env, hid_device *device)
 {
     jclass exceptionClass;
+    char *message;
     
     exceptionClass = (*env)->FindClass(env, "java/io/IOException");
     if (exceptionClass == NULL) 
@@ -16,5 +19,35 @@ void throwIOException(JNIEnv *env, const char *message)
         return;
     }
     
-    (*env)->ThrowNew(env, exceptionClass, message);
+    if(device != NULL)
+        message = convertToUTF8(hid_error(device));
+    else 
+        message = "";
+        
+    (*env)->ThrowNew(env, exceptionClass, message); 
+    
+    if(device != NULL)
+        free(message);
+}
+
+char* convertToUTF8(const wchar_t *str)
+{
+    iconv_t cd = iconv_open ("UTF-8", "WCHAR_T");
+    if (cd == (iconv_t) -1)
+    {
+        /* Something went wrong.  */
+        //TODO: error handling
+        return NULL;
+    }
+    size_t len = wcslen(str);
+    size_t ulen = len*sizeof(wchar_t);
+    char *uval = (char *)str;
+    
+    size_t u8l;
+    char *u8 = malloc(len*6+1);
+    char *u8p = u8;
+    iconv(cd, &uval, &ulen, &u8p, &u8l);
+    *u8p='\0';
+
+    return u8;
 }
