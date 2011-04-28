@@ -31,6 +31,7 @@ public class HIDAPITest
         try
         {
             dev = HIDManager.openById(VENDOR_ID, PRODUCT_ID, null);
+            //dev.close();
             try
             {
                 byte[] buf = new byte[BUFSIZE];

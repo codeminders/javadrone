@@ -1,5 +1,4 @@
 
-#include <iconv.h>
 #include <stdlib.h>
 
 #include "jni-stubs/com_codeminders_hidapi_HIDManager.h"
@@ -24,7 +23,7 @@ static void setStringField(JNIEnv *env,
                            const char *val)
 {
     jfieldID fid = (*env)->GetFieldID(env, cls, name, "Ljava/lang/String;");
-    (*env)->SetObjectField(env, obj, fid,  (*env)->NewStringUTF(env, val));
+    (*env)->SetObjectField(env, obj, fid,  val ? (*env)->NewStringUTF(env, val) : NULL);
 }
 
 static void setUStringField(JNIEnv *env,
@@ -35,27 +34,14 @@ static void setUStringField(JNIEnv *env,
 {
     jfieldID fid = (*env)->GetFieldID(env, cls, name, "Ljava/lang/String;");
 
-    iconv_t cd = iconv_open ("UTF-8", "WCHAR_T");
-    if (cd == (iconv_t) -1)
+    if(val)
     {
-        /* Something went wrong.  */
-        //TODO: error handling
+        char *u8 = convertToUTF8(val);
+        (*env)->SetObjectField(env, obj, fid, (*env)->NewStringUTF(env, u8));
+        free(u8);
     }
-    size_t len = wcslen(val);
-    size_t ulen = len*sizeof(wchar_t);
-    char *uval = (char *)val;
-    
-    size_t u8l;
-    char *u8 = malloc(len*6+1);
-    char *u8p = u8;
-    iconv(cd,
-          &uval, &ulen,
-          &u8p, &u8l
-    );
-    *u8p='\0';
-    
-    (*env)->SetObjectField(env, obj, fid, (*env)->NewStringUTF(env, u8));
-    free(u8);
+    else
+        (*env)->SetObjectField(env, obj, fid, NULL);
 }
 
 static jobject createHIDDeviceInfo(JNIEnv *env, jclass cls, struct hid_device_info *dev)
@@ -78,8 +64,6 @@ static jobject createHIDDeviceInfo(JNIEnv *env, jclass cls, struct hid_device_in
     setUStringField(env, cls, result, "manufacturer_string", dev->manufacturer_string);
     setUStringField(env, cls, result, "product_string", dev->product_string);
 
-    /* Free local references */
-    (*env)->DeleteLocalRef(env, cls);
     return result;
 }
 
@@ -98,16 +82,16 @@ Java_com_codeminders_hidapi_HIDManager_listDevices(JNIEnv *env, jclass cls)
 		cur_dev = cur_dev->next;
 	}
 
-    jclass arrCls = (*env)->FindClass(env, DEVINFO_CLASS);
-    if (arrCls == NULL) {
+    jclass infoCls = (*env)->FindClass(env, DEVINFO_CLASS);
+    if (infoCls == NULL) {
         return NULL; /* exception thrown */
     }
-    jobjectArray result= (*env)->NewObjectArray(env, size, arrCls, NULL);
+    jobjectArray result= (*env)->NewObjectArray(env, size, infoCls, NULL);
 	cur_dev = devs;
     int i=0;
 	while(cur_dev)
     {
-        jobject x = createHIDDeviceInfo(env, arrCls, cur_dev);
+        jobject x = createHIDDeviceInfo(env, infoCls, cur_dev);
         if(x == NULL)
             return; /* exception thrown */ 
 
@@ -117,6 +101,10 @@ Java_com_codeminders_hidapi_HIDManager_listDevices(JNIEnv *env, jclass cls)
 		cur_dev = cur_dev->next;
 	}
 	hid_free_enumeration(devs);
+	
+    /* Free local references */
+    (*env)->DeleteLocalRef(env, cls);
+    
     return result;
 }
 
