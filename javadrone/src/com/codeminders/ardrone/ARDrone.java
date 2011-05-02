@@ -122,9 +122,22 @@ public class ARDrone implements Runnable
                     // Terminating
                     break;
                 }
+
+                if(c instanceof ATCommand)
+                {
+                    ATCommand cmd = (ATCommand) c;
+                    byte[] pdata = cmd.getPacket();
+                    DatagramPacket p = new DatagramPacket(pdata, pdata.length, drone_addr, CMD_PORT);
+                    cmd_socket.send(p);
+                }
             } catch(InterruptedException e)
             {
                 // ignoring
+            } catch(IOException e)
+            {
+                // TODO Auto-generated catch block
+                // TODO: handle error
+                e.printStackTrace();
             }
         }
     }
