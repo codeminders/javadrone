@@ -5,6 +5,8 @@
 #include "hidapi/hidapi.h"
 #include "hid-java.h"
 
+#define MAX_BUFFER_SIZE 2014
+
 static hid_device* getPeer(JNIEnv *env, jobject self)
 {
     jclass cls = (*env)->FindClass(env, DEV_CLASS);
@@ -147,9 +149,28 @@ JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_getFeatureReport
 }
 
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getManufacturerString
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject self)
 {
-    return NULL;
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+
+    wchar_t data[MAX_BUFFER_SIZE];
+    int res = hid_get_manufacturer_string(peer, data, MAX_BUFFER_SIZE);
+    if(res!=0)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+        
+    char *u8 = convertToUTF8(data);
+    jstring string = (*env)->NewStringUTF(env, u8);
+    free(u8);
+    
+    return string;
 }
 
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getProductString
