@@ -162,8 +162,11 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getManufacturerS
     int res = hid_get_manufacturer_string(peer, data, MAX_BUFFER_SIZE);
     if(res < 0)
     {
+        /* We decided not to treat this as an error, but return an empty string in this case
         throwIOException(env, peer);
-        return NULL; /* not an error, freed previously */ 
+        return NULL;
+        */
+        data[0] = 0;
     }
         
     char *u8 = convertToUTF8(data);
@@ -189,8 +192,11 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getProductString
     int res = hid_get_product_string(peer, data, MAX_BUFFER_SIZE);
     if(res < 0)
     {
+        /* We decided not to treat this as an error, but return an empty string in this case
         throwIOException(env, peer);
-        return NULL; 
+        return NULL;
+        */
+        data[0] = 0;
     }
        
     char *u8 = convertToUTF8(data);
@@ -214,8 +220,11 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getSerialNumberS
     int res = hid_get_serial_number_string(peer, data, MAX_BUFFER_SIZE);
     if(res < 0)
     {
+        /* We decided not to treat this as an error, but return an empty string in this case
         throwIOException(env, peer);
-        return NULL; /* not an error, freed previously */ 
+        return NULL;
+        */
+        data[0] = 0;
     }
         
     char *u8 = convertToUTF8(data);
@@ -239,8 +248,11 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getIndexedString
     int res = hid_get_indexed_string(peer, index, data, MAX_BUFFER_SIZE);
     if(res < 0)
     {
+        /* We decided not to treat this as an error, but return an empty string in this case
         throwIOException(env, peer);
-        return NULL; /* not an error, freed previously */ 
+        return NULL;
+        */
+        data[0] = 0;
     }
         
     char *u8 = convertToUTF8(data);

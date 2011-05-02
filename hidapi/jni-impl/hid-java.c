@@ -9,7 +9,7 @@
 void throwIOException(JNIEnv *env, hid_device *device)
 {
     jclass exceptionClass;
-    char *message;
+    char *message = NULL;
     
     exceptionClass = (*env)->FindClass(env, "java/io/IOException");
     if (exceptionClass == NULL) 
@@ -19,15 +19,16 @@ void throwIOException(JNIEnv *env, hid_device *device)
         return;
     }
     
-    if(device != NULL)
-        message = convertToUTF8(hid_error(device));
-    else 
-        message = "";
-        
-    (*env)->ThrowNew(env, exceptionClass, message); 
+    if(device)
+    {
+        wchar_t *error = hid_error(device);
+        if(error) 
+            message = convertToUTF8(error);
+    }
     
-    if(device != NULL)
-        free(message);
+    (*env)->ThrowNew(env, exceptionClass, message ? message : ""); 
+    
+    free(message);
 }
 
 char* convertToUTF8(const wchar_t *str)
