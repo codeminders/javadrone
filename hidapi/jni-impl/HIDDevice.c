@@ -160,7 +160,7 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getManufacturerS
 
     wchar_t data[MAX_BUFFER_SIZE];
     int res = hid_get_manufacturer_string(peer, data, MAX_BUFFER_SIZE);
-    if(res!=0)
+    if(res < 0)
     {
         throwIOException(env, peer);
         return NULL; /* not an error, freed previously */ 
@@ -173,20 +173,79 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getManufacturerS
     return string;
 }
 
+#include <stdlib.h>
+
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getProductString
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject self)
 {
-    return NULL;
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+
+    wchar_t data[MAX_BUFFER_SIZE];
+    int res = hid_get_product_string(peer, data, MAX_BUFFER_SIZE);
+    if(res < 0)
+    {
+        throwIOException(env, peer);
+        return NULL; 
+    }
+       
+    char *u8 = convertToUTF8(data);
+    jstring string = (*env)->NewStringUTF(env, u8);
+    free(u8);
+    
+    return string;
 }
 
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getSerialNumberString
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject self)
 {
-    return NULL;
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+
+    wchar_t data[MAX_BUFFER_SIZE];
+    int res = hid_get_serial_number_string(peer, data, MAX_BUFFER_SIZE);
+    if(res < 0)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+        
+    char *u8 = convertToUTF8(data);
+    jstring string = (*env)->NewStringUTF(env, u8);
+    free(u8);
+    
+    return string;
 }
 
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getIndexedString
-  (JNIEnv *env, jobject obj, jint ind)
+  (JNIEnv *env, jobject self, jint index)
 {
-    return NULL;
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+
+    wchar_t data[MAX_BUFFER_SIZE];
+    int res = hid_get_indexed_string(peer, index, data, MAX_BUFFER_SIZE);
+    if(res < 0)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+        
+    char *u8 = convertToUTF8(data);
+    jstring string = (*env)->NewStringUTF(env, u8);
+    free(u8);
+    
+    return string;
 }

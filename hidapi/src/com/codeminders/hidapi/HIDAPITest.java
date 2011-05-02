@@ -31,7 +31,9 @@ public class HIDAPITest
         try
         {
             dev = HIDManager.openById(VENDOR_ID, PRODUCT_ID, null);
-            //dev.close();
+            System.err.print("Manufacturer: " + dev.getManufacturerString() + "\n");
+            System.err.print("Product: " + dev.getProductString() + "\n");
+            System.err.print("Serial Number: " + dev.getSerialNumberString() + "\n");
             try
             {
                 byte[] buf = new byte[BUFSIZE];
