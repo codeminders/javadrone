@@ -3,21 +3,25 @@ package com.codeminders.ardrone;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.concurrent.*;
 
-public class ARDrone
+public class ARDrone implements Runnable
 {
-    private static final int CMD_PORT         = 5556;
-    private static final int NAVDATA_PORT     = 5554;
-    private static final int VIDEO_PORT       = 5555;
-    private static final int CONTROL_PORT     = 5559;
+    private static final int                    CMD_PORT         = 5556;
+    private static final int                    NAVDATA_PORT     = 5554;
+    private static final int                    VIDEO_PORT       = 5555;
+    private static final int                    CONTROL_PORT     = 5559;
 
-    private static byte[]    DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
+    private static byte[]                       DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
-    private InetAddress      drone_addr;
-    private DatagramSocket   navdata_socket;
-    private DatagramSocket   video_socket;
-    private DatagramSocket   cmd_socket;
-    private Socket           control_socket;
+    private InetAddress                         drone_addr;
+    private DatagramSocket                      navdata_socket;
+    private DatagramSocket                      video_socket;
+    private DatagramSocket                      cmd_socket;
+    private Socket                              control_socket;
+
+    private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>();
+    private Thread                              cmd_sending_thread;
 
     public ARDrone() throws UnknownHostException
     {
@@ -27,6 +31,7 @@ public class ARDrone
     public ARDrone(InetAddress drone_addr)
     {
         this.drone_addr = drone_addr;
+        cmd_sending_thread = new Thread(this);
     }
 
     public void connect() throws IOException
@@ -35,10 +40,12 @@ public class ARDrone
         video_socket = new DatagramSocket(VIDEO_PORT);
         cmd_socket = new DatagramSocket();
         control_socket = new Socket(drone_addr, CONTROL_PORT);
+        cmd_sending_thread.start();
     }
 
     public void disconnect() throws IOException
     {
+        cmd_queue.add(new QuitCommand());
         cmd_socket.close();
         video_socket.close();
         navdata_socket.close();
@@ -100,6 +107,26 @@ public class ARDrone
 
     public void playAnimation(int animation_no, int duration) throws IOException
     {
+    }
+
+    @Override
+    public void run()
+    {
+        while(true)
+        {
+            try
+            {
+                DroneCommand c = cmd_queue.take();
+                if(c instanceof QuitCommand)
+                {
+                    // Terminating
+                    break;
+                }
+            } catch(InterruptedException e)
+            {
+                // ignoring
+            }
+        }
     }
 
 }
