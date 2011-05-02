@@ -5,6 +5,8 @@
 #include "hidapi/hidapi.h"
 #include "hid-java.h"
 
+#define MAX_BUFFER_SIZE 2014
+
 static hid_device* getPeer(JNIEnv *env, jobject self)
 {
     jclass cls = (*env)->FindClass(env, DEV_CLASS);
@@ -93,7 +95,7 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_disableBlocking
         throwIOException(env, peer);
         return; /* not an error, freed previously */ 
     }
-    int res = hid_set_nonblocking(peer,1);
+    int res = hid_set_nonblocking(peer, 1);
     if(res!=0)
     {
         throwIOException(env, peer);
@@ -102,30 +104,89 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_disableBlocking
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_sendFeatureReport
-  (JNIEnv *env, jobject obj, jbyteArray data)
+  (JNIEnv *env, jobject self, jbyteArray data)
 {
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+    {
+        throwIOException(env, peer);
+        return; /* not an error, freed previously */ 
+    }
+    jsize bufsize = (*env)->GetArrayLength(env, data);
+    jbyte *buf = (*env)->GetByteArrayElements(env, data, NULL);
+    int res = hid_send_feature_report(peer, buf, bufsize);
+    if(res!=0)
+    {
+        throwIOException(env, peer);
+        return; /* not an error, freed previously */ 
+    }
+    
+    return res;
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_getFeatureReport
-  (JNIEnv *env, jobject obj, jbyteArray data)
+  (JNIEnv *env, jobject self, jbyteArray data)
 {
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+    {
+        throwIOException(env, peer);
+        return; /* not an error, freed previously */ 
+    }
+
+    jsize bufsize = (*env)->GetArrayLength(env, data);
+    jbyte *buf = (*env)->GetByteArrayElements(env, data, NULL);
+    int res = hid_read(peer, buf, bufsize);
+    (*env)->ReleaseByteArrayElements(env, data, buf, res==-1?JNI_ABORT:0);
+
+    if(res!=0)
+    {
+        throwIOException(env, peer);
+        return; /* not an error, freed previously */ 
+    }
+    
+    return res;
 }
 
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getManufacturerString
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject self)
 {
+    hid_device *peer = getPeer(env, self);
+    if(!peer)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+
+    wchar_t data[MAX_BUFFER_SIZE];
+    int res = hid_get_manufacturer_string(peer, data, MAX_BUFFER_SIZE);
+    if(res!=0)
+    {
+        throwIOException(env, peer);
+        return NULL; /* not an error, freed previously */ 
+    }
+        
+    char *u8 = convertToUTF8(data);
+    jstring string = (*env)->NewStringUTF(env, u8);
+    free(u8);
+    
+    return string;
 }
 
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getProductString
   (JNIEnv *env, jobject obj)
 {
+    return NULL;
 }
 
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getSerialNumberString
   (JNIEnv *env, jobject obj)
 {
+    return NULL;
 }
+
 JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getIndexedString
   (JNIEnv *env, jobject obj, jint ind)
 {
+    return NULL;
 }
