@@ -11,6 +11,8 @@ LIBS=-framework IOKit -framework CoreFoundation -l iconv
 
 all: $(SHAREDLIB)
 
+$(OBJS): hid-java.h
+
 $(SHAREDLIB): $(OBJS)
 	gcc -dynamiclib -current_version $(SHAREDLIBVER) $(OBJS) $(EXTRAOBJS) $(LIBS) -o $(SHAREDLIB)
 
