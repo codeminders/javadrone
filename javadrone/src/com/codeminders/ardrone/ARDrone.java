@@ -21,6 +21,11 @@ public class ARDrone implements Runnable
     private Socket                              control_socket;
 
     private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>();
+    private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
+
+    private NavDataReader                       nav_data_reader;
+
+    private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
 
     public ARDrone() throws UnknownHostException
@@ -31,7 +36,6 @@ public class ARDrone implements Runnable
     public ARDrone(InetAddress drone_addr)
     {
         this.drone_addr = drone_addr;
-        cmd_sending_thread = new Thread(this);
     }
 
     public void connect() throws IOException
@@ -40,12 +44,19 @@ public class ARDrone implements Runnable
         video_socket = new DatagramSocket(VIDEO_PORT);
         cmd_socket = new DatagramSocket();
         control_socket = new Socket(drone_addr, CONTROL_PORT);
+
+        nav_data_reader = new NavDataReader(navdata_socket, navdata_queue);
+        nav_data_reader_thread = new Thread(nav_data_reader);
+        nav_data_reader_thread.start();
+
+        cmd_sending_thread = new Thread(this);
         cmd_sending_thread.start();
     }
 
     public void disconnect() throws IOException
     {
         cmd_queue.add(new QuitCommand());
+        nav_data_reader.stop();
         cmd_socket.close();
         video_socket.close();
         navdata_socket.close();
