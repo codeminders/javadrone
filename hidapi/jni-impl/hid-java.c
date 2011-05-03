@@ -21,7 +21,7 @@ void throwIOException(JNIEnv *env, hid_device *device)
     
     if(device)
     {
-        wchar_t *error = hid_error(device);
+        const wchar_t *error = hid_error(device);
         if(error) 
             message = convertToUTF8(error);
     }
