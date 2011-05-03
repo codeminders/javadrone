@@ -74,6 +74,12 @@ Java_com_codeminders_hidapi_HIDManager_listDevices(JNIEnv *env, jclass cls)
 	struct hid_device_info *devs, *cur_dev;
 	
 	devs = hid_enumerate(0x0, 0x0);
+	if(devs == NULL)
+	{
+        throwIOException(env, NULL);
+	    return NULL;
+	}
+	
 	cur_dev = devs;
     int size=0;
 	while(cur_dev)
