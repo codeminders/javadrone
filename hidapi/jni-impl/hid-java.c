@@ -23,7 +23,7 @@ void throwIOException(JNIEnv *env, hid_device *device)
     {
         const wchar_t *error = hid_error(device);
         if(error) 
-            message = convertToUTF8(error);
+            message = convertToUTF8(env, error);
     }
     
     (*env)->ThrowNew(env, exceptionClass, message ? message : ""); 
@@ -31,13 +31,23 @@ void throwIOException(JNIEnv *env, hid_device *device)
     free(message);
 }
 
-char* convertToUTF8(const wchar_t *str)
+char* convertToUTF8(JNIEnv *env, const wchar_t *str)
 {
     iconv_t cd = iconv_open ("UTF-8", "WCHAR_T");
     if (cd == (iconv_t) -1)
     {
-        /* Something went wrong.  */
-        //TODO: error handling
+        /* Something went wrong. We could not recover from this  */
+        
+        jclass exceptionClass = 
+        exceptionClass = (*env)->FindClass(env, "java/lang/Error");
+        if (exceptionClass == NULL) 
+        {
+            /* Unable to find the exception class, give up. */
+            assert(0);
+            return;
+        }
+    
+        (*env)->ThrowNew(env, exceptionClass, "iconv_open failed"); 
         return NULL;
     }
     size_t len = wcslen(str);

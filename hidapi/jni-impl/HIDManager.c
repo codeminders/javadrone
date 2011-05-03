@@ -36,7 +36,7 @@ static void setUStringField(JNIEnv *env,
 
     if(val)
     {
-        char *u8 = convertToUTF8(val);
+        char *u8 = convertToUTF8(env, val);
         (*env)->SetObjectField(env, obj, fid, (*env)->NewStringUTF(env, u8));
         free(u8);
     }

@@ -12,7 +12,7 @@ void throwIOException(JNIEnv *env, hid_device *device);
 
 /* this call allocate buffer dynamically. return value should be
    released with free() routine */
-char* convertToUTF8(const wchar_t *str); 
+char* convertToUTF8(JNIEnv *env, const wchar_t *str); 
 
 #ifdef __cplusplus
 }
