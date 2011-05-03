@@ -42,9 +42,25 @@ JNIEXPORT void JNICALL Java_com_codeminders_hidapi_HIDDevice_close
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_write
-  (JNIEnv *env, jobject obj, jbyteArray data)
+  (JNIEnv *env, jobject self, jbyteArray data)
 {
-    //TODO: implement
+    hid_device *peer = getPeer(env, self);
+    if(!peer) 
+    {
+        throwIOException(env, peer);
+        return; /* not an error, freed previously */ 
+    }
+
+    jsize bufsize = (*env)->GetArrayLength(env, data);
+    jbyte *buf = (*env)->GetByteArrayElements(env, data, NULL);
+    int res = hid_write(peer, buf, bufsize);
+    (*env)->ReleaseByteArrayElements(env, data, buf, JNI_ABORT);
+    if(res==-1)
+    {
+        throwIOException(env, peer);
+        return; /* not an error, freed previously */ 
+    }
+    return res;
 }
 
 JNIEXPORT jint JNICALL Java_com_codeminders_hidapi_HIDDevice_read
