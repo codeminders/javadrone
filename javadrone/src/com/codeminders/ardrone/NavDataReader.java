@@ -1,11 +1,13 @@
 
 package com.codeminders.ardrone;
 
-import java.net.DatagramSocket;
+import java.io.IOException;
+import java.net.*;
 import java.util.concurrent.BlockingQueue;
 
 public class NavDataReader implements Runnable
 {
+    private static final int       BUFSIZE = 4096;
     private DatagramSocket         navdata_socket;
     private BlockingQueue<NavData> navdata_queue;
 
@@ -18,8 +20,22 @@ public class NavDataReader implements Runnable
     @Override
     public void run()
     {
-        // TODO Auto-generated method stub
-
+        byte[] inbuf = new byte[BUFSIZE];
+        DatagramPacket packet = new DatagramPacket(inbuf, inbuf.length);
+        while(true)
+        {
+            try
+            {
+                navdata_socket.receive(packet);
+            } catch(IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            int numBytesReceived = packet.getLength();
+            NavData nd = NavData.createFromData(inbuf, numBytesReceived);
+            navdata_queue.add(nd);
+        }
     }
 
     public void stop()
