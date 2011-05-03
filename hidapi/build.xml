@@ -51,9 +51,10 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
-    <target name="HIDAPITest">
+    <target name="run">
         <java classname="com.codeminders.hidapi.HIDAPITest" failonerror="true" fork="yes">
             <classpath refid="hidapi.classpath"/>
+            <jvmarg value="-Djava.library.path=${basedir}/jni-impl"/>
         </java>
     </target>
 </project>
