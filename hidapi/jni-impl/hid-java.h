@@ -1,3 +1,6 @@
+#ifndef __HID_JAVA_H__
+#define __HID_JAVA_H__
+
 #define DEV_CLASS "com/codeminders/hidapi/HIDDevice"
 #define DEVINFO_CLASS "com/codeminders/hidapi/HIDDeviceInfo"
 
@@ -14,3 +17,5 @@ char* convertToUTF8(const wchar_t *str);
 #ifdef __cplusplus
 }
 #endif
+
+#endif // __HID_JAVA_H__
