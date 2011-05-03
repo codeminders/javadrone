@@ -22,7 +22,7 @@ static void setPeer(JNIEnv *env, jobject self, hid_device *peer)
     jclass cls = (*env)->FindClass(env, DEV_CLASS);
     assert(cls!=NULL);
     if (cls == NULL) 
-        return; //TODO: error handling
+        return; //TODO: exception will be raised by FindClass
     jfieldID fid = (*env)->GetFieldID(env, cls, "peer", "J");
     jlong peerj = (jlong)peer;
     (*env)->SetLongField(env, self, fid, peerj);     
@@ -185,7 +185,7 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getManufacturerS
         data[0] = 0;
     }
         
-    char *u8 = convertToUTF8(data);
+    char *u8 = convertToUTF8(env, data);
     jstring string = (*env)->NewStringUTF(env, u8);
     free(u8);
     
@@ -215,7 +215,7 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getProductString
         data[0] = 0;
     }
        
-    char *u8 = convertToUTF8(data);
+    char *u8 = convertToUTF8(env, data);
     jstring string = (*env)->NewStringUTF(env, u8);
     free(u8);
     
@@ -243,7 +243,7 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getSerialNumberS
         data[0] = 0;
     }
         
-    char *u8 = convertToUTF8(data);
+    char *u8 = convertToUTF8(env, data);
     jstring string = (*env)->NewStringUTF(env, u8);
     free(u8);
     
@@ -271,7 +271,7 @@ JNIEXPORT jstring JNICALL Java_com_codeminders_hidapi_HIDDevice_getIndexedString
         data[0] = 0;
     }
         
-    char *u8 = convertToUTF8(data);
+    char *u8 = convertToUTF8(env, data);
     jstring string = (*env)->NewStringUTF(env, u8);
     free(u8);
     
