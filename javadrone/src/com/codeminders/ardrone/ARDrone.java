@@ -6,7 +6,7 @@ import java.net.*;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
-public class ARDrone implements Runnable
+public class ARDrone
 {
     public enum State
     {
@@ -17,7 +17,6 @@ public class ARDrone implements Runnable
 
     private State                               state            = State.DISCONNECTED;
 
-    private static final int                    CMD_PORT         = 5556;
     private static final int                    NAVDATA_PORT     = 5554;
     private static final int                    VIDEO_PORT       = 5555;
     private static final int                    CONTROL_PORT     = 5559;
@@ -34,6 +33,7 @@ public class ARDrone implements Runnable
     private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
 
     private NavDataReader                       nav_data_reader;
+    private CmdSender                           cmd_sender;
 
     private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
@@ -50,6 +50,9 @@ public class ARDrone implements Runnable
 
     private void changeState(State newstate)
     {
+        if(newstate == State.ERROR)
+            changeToErrorState(null);
+
         synchronized(state)
         {
             log.fine("State changed from " + state + " to " + newstate);
@@ -57,12 +60,19 @@ public class ARDrone implements Runnable
         }
     }
 
-    private void changeToErrorState(Exception ex)
+    public void changeToErrorState(Exception ex)
     {
         synchronized(state)
         {
-            //TODO: disconnect and stop threads if approriate
-            log.fine("State changed from " + state + " to " + State.ERROR + " with exception " + ex.toString());
+            try
+            {
+                if(state != State.DISCONNECTED)
+                    doDisconnect();
+            } catch(IOException e)
+            {
+                // Ignoring exceptions on disconnection
+            }
+            log.fine("State changed from " + state + " to " + State.ERROR + " with exception " + ex);
             state = State.ERROR;
         }
     }
@@ -80,7 +90,8 @@ public class ARDrone implements Runnable
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.start();
 
-            cmd_sending_thread = new Thread(this);
+            cmd_sender = new CmdSender(cmd_queue, this, drone_addr, cmd_socket);
+            cmd_sending_thread = new Thread(cmd_sender);
             cmd_sending_thread.start();
 
             changeState(State.BOOTSTRAP);
@@ -95,16 +106,25 @@ public class ARDrone implements Runnable
     {
         try
         {
-            cmd_queue.add(new QuitCommand());
-            nav_data_reader.stop();
-            cmd_socket.close();
-            video_socket.close();
-            navdata_socket.close();
-            control_socket.close();
+            doDisconnect();
         } finally
         {
             changeState(State.DISCONNECTED);
         }
+    }
+
+    private void doDisconnect() throws IOException
+    {
+        cmd_queue.add(new QuitCommand());
+        nav_data_reader.stop();
+        cmd_socket.close();
+        video_socket.close();
+        navdata_socket.close();
+
+        // only the following method can throw exception.
+        // we call it last, to ensure it won't prevent other
+        // operation from being completed
+        control_socket.close();
     }
 
     public void trim() throws IOException
@@ -162,38 +182,6 @@ public class ARDrone implements Runnable
 
     public void playAnimation(int animation_no, int duration) throws IOException
     {
-    }
-
-    @Override
-    public void run()
-    {
-        while(true)
-        {
-            try
-            {
-                DroneCommand c = cmd_queue.take();
-                if(c instanceof QuitCommand)
-                {
-                    // Terminating
-                    break;
-                }
-
-                if(c instanceof ATCommand)
-                {
-                    ATCommand cmd = (ATCommand) c;
-                    byte[] pdata = cmd.getPacket();
-                    DatagramPacket p = new DatagramPacket(pdata, pdata.length, drone_addr, CMD_PORT);
-                    cmd_socket.send(p);
-                }
-            } catch(InterruptedException e)
-            {
-                // ignoring
-            } catch(IOException e)
-            {
-                changeToErrorState(e);
-                break;
-            }
-        }
     }
 
 }
