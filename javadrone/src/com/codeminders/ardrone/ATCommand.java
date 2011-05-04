@@ -1,7 +1,5 @@
 package com.codeminders.ardrone;
 
-import com.sun.org.apache.bcel.internal.generic.FLOAD;
-
 import java.io.UnsupportedEncodingException;
 
 public abstract class ATCommand extends DroneCommand
