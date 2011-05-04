@@ -4,10 +4,19 @@ package com.codeminders.ardrone;
 import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.*;
+import java.util.logging.Logger;
 
-public class ARDrone implements Runnable
+public class ARDrone
 {
-    private static final int                    CMD_PORT         = 5556;
+    public enum State
+    {
+        DISCONNECTED, BOOTSTRAP, READY, WATCHDOR, ERROR
+    }
+
+    private Logger                              log              = Logger.getLogger("ARDrone");
+
+    private State                               state            = State.DISCONNECTED;
+
     private static final int                    NAVDATA_PORT     = 5554;
     private static final int                    VIDEO_PORT       = 5555;
     private static final int                    CONTROL_PORT     = 5559;
@@ -21,6 +30,12 @@ public class ARDrone implements Runnable
     private Socket                              control_socket;
 
     private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>();
+    private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
+
+    private NavDataReader                       nav_data_reader;
+    private CmdSender                           cmd_sender;
+
+    private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
 
     public ARDrone() throws UnknownHostException
@@ -31,24 +46,84 @@ public class ARDrone implements Runnable
     public ARDrone(InetAddress drone_addr)
     {
         this.drone_addr = drone_addr;
-        cmd_sending_thread = new Thread(this);
+    }
+
+    private void changeState(State newstate)
+    {
+        if(newstate == State.ERROR)
+            changeToErrorState(null);
+
+        synchronized(state)
+        {
+            log.fine("State changed from " + state + " to " + newstate);
+            state = newstate;
+        }
+    }
+
+    public void changeToErrorState(Exception ex)
+    {
+        synchronized(state)
+        {
+            try
+            {
+                if(state != State.DISCONNECTED)
+                    doDisconnect();
+            } catch(IOException e)
+            {
+                // Ignoring exceptions on disconnection
+            }
+            log.fine("State changed from " + state + " to " + State.ERROR + " with exception " + ex);
+            state = State.ERROR;
+        }
     }
 
     public void connect() throws IOException
     {
-        navdata_socket = new DatagramSocket(NAVDATA_PORT);
-        video_socket = new DatagramSocket(VIDEO_PORT);
-        cmd_socket = new DatagramSocket();
-        control_socket = new Socket(drone_addr, CONTROL_PORT);
-        cmd_sending_thread.start();
+        try
+        {
+            navdata_socket = new DatagramSocket(NAVDATA_PORT);
+            video_socket = new DatagramSocket(VIDEO_PORT);
+            cmd_socket = new DatagramSocket();
+            control_socket = new Socket(drone_addr, CONTROL_PORT);
+
+            nav_data_reader = new NavDataReader(this, navdata_socket, navdata_queue);
+            nav_data_reader_thread = new Thread(nav_data_reader);
+            nav_data_reader_thread.start();
+
+            cmd_sender = new CmdSender(cmd_queue, this, drone_addr, cmd_socket);
+            cmd_sending_thread = new Thread(cmd_sender);
+            cmd_sending_thread.start();
+
+            changeState(State.BOOTSTRAP);
+        } catch(IOException ex)
+        {
+            changeToErrorState(ex);
+            throw ex;
+        }
     }
 
     public void disconnect() throws IOException
     {
+        try
+        {
+            doDisconnect();
+        } finally
+        {
+            changeState(State.DISCONNECTED);
+        }
+    }
+
+    private void doDisconnect() throws IOException
+    {
         cmd_queue.add(new QuitCommand());
+        nav_data_reader.stop();
         cmd_socket.close();
         video_socket.close();
         navdata_socket.close();
+
+        // only the following method can throw exception.
+        // we call it last, to ensure it won't prevent other
+        // operation from being completed
         control_socket.close();
     }
 
@@ -109,6 +184,7 @@ public class ARDrone implements Runnable
     {
     }
 
+<<<<<<< local
     @Override
     public void run()
     {
@@ -142,4 +218,6 @@ public class ARDrone implements Runnable
         }
     }
 
+=======
+>>>>>>> other
 }
