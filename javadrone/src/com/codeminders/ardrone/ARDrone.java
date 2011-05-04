@@ -121,9 +121,9 @@ public class ARDrone
         video_socket.close();
         navdata_socket.close();
 
-        // only the following method can throw exception.
-        // we call it last, to ensure it won't prevent other
-        // operation from being completed
+        // Only the following method can throw an exception.
+        // We call it last, to ensure it won't prevent other
+        // cleanup operations from being completed
         control_socket.close();
     }
 
