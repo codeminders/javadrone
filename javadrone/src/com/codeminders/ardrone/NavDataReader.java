@@ -45,22 +45,7 @@ public class NavDataReader implements Runnable
                 selector.select();
                 if(done)
                 {
-                    try
-                    {
-                        selector.close();
-                    } catch(IOException iox)
-                    {
-                        // Ignore
-                    }
-
-                    try
-                    {
-                        channel.disconnect();
-                    } catch(IOException iox)
-                    {
-                        // Ignore
-                    }
-
+                    disconnect();
                     break;
                 }
                 Set readyKeys = selector.selectedKeys();
@@ -84,6 +69,25 @@ public class NavDataReader implements Runnable
             drone.changeToErrorState(e);
         }
 
+    }
+
+    private void disconnect()
+    {
+        try
+        {
+            selector.close();
+        } catch(IOException iox)
+        {
+            // Ignore
+        }
+
+        try
+        {
+            channel.disconnect();
+        } catch(IOException iox)
+        {
+            // Ignore
+        }
     }
 
     public void stop()
