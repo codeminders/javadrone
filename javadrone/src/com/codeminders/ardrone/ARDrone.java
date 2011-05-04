@@ -6,6 +6,8 @@ import java.net.*;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
+import com.codeminders.ardrone.commands.QuitCommand;
+
 public class ARDrone
 {
     public enum State

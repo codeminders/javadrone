@@ -1,4 +1,4 @@
-package com.codeminders.ardrone;
+package com.codeminders.ardrone.commands;
 
 public class EmergencyCommand extends RefCommand
 {

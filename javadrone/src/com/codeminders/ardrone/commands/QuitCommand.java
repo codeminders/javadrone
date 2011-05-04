@@ -1,4 +1,6 @@
-package com.codeminders.ardrone;
+package com.codeminders.ardrone.commands;
+
+import com.codeminders.ardrone.DroneCommand;
 
 public class QuitCommand extends DroneCommand
 {
