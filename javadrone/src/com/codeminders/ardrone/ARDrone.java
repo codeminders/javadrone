@@ -26,7 +26,6 @@ public class ARDrone
     private static byte[]                       DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
     private InetAddress                         drone_addr;
-    private DatagramSocket                      navdata_socket;
     private DatagramSocket                      video_socket;
     private DatagramSocket                      cmd_socket;
     private Socket                              control_socket;
@@ -83,12 +82,11 @@ public class ARDrone
     {
         try
         {
-            navdata_socket = new DatagramSocket(NAVDATA_PORT);
             video_socket = new DatagramSocket(VIDEO_PORT);
             cmd_socket = new DatagramSocket();
             control_socket = new Socket(drone_addr, CONTROL_PORT);
 
-            nav_data_reader = new NavDataReader(this, navdata_socket, navdata_queue);
+            nav_data_reader = new NavDataReader(this, NAVDATA_PORT, navdata_queue);
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.start();
 
@@ -121,7 +119,6 @@ public class ARDrone
         nav_data_reader.stop();
         cmd_socket.close();
         video_socket.close();
-        navdata_socket.close();
 
         // Only the following method can throw an exception.
         // We call it last, to ensure it won't prevent other

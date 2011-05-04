@@ -3,39 +3,42 @@ package com.codeminders.ardrone;
 
 import java.io.IOException;
 import java.net.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.util.concurrent.BlockingQueue;
 
 public class NavDataReader implements Runnable
 {
     private static final int       BUFSIZE = 4096;
-    private DatagramSocket         navdata_socket;
+    private DatagramChannel        channel;
     private BlockingQueue<NavData> navdata_queue;
     private ARDrone                drone;
 
-    public NavDataReader(ARDrone drone, DatagramSocket navdata_socket, BlockingQueue<NavData> navdata_queue)
+    public NavDataReader(ARDrone drone, int navdata_port, BlockingQueue<NavData> navdata_queue) throws IOException
     {
         this.drone = drone;
-        this.navdata_socket = navdata_socket;
         this.navdata_queue = navdata_queue;
+
+        channel = DatagramChannel.open();
+        channel.socket().bind(new InetSocketAddress(navdata_port));
     }
 
     @Override
     public void run()
     {
-        byte[] inbuf = new byte[BUFSIZE];
-        DatagramPacket packet = new DatagramPacket(inbuf, inbuf.length);
+        ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
         while(true)
         {
+            inbuf.clear();
             try
             {
-                navdata_socket.receive(packet);
+                channel.receive(inbuf);
             } catch(IOException e)
             {
                 drone.changeToErrorState(e);
                 break;
             }
-            int numBytesReceived = packet.getLength();
-            NavData nd = NavData.createFromData(inbuf, numBytesReceived);
+            NavData nd = NavData.createFromData(inbuf.array());
             navdata_queue.add(nd);
         }
     }
