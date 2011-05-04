@@ -183,41 +183,4 @@ public class ARDrone
     public void playAnimation(int animation_no, int duration) throws IOException
     {
     }
-
-<<<<<<< local
-    @Override
-    public void run()
-    {
-        while(true)
-        {
-            try
-            {
-                DroneCommand c = cmd_queue.take();
-                if(c instanceof QuitCommand)
-                {
-                    // Terminating
-                    break;
-                }
-
-                if(c instanceof ATCommand)
-                {
-                    ATCommand cmd = (ATCommand) c;
-                    byte[] pdata = cmd.getPacket(0);
-                    DatagramPacket p = new DatagramPacket(pdata, pdata.length, drone_addr, CMD_PORT);
-                    cmd_socket.send(p);
-                }
-            } catch(InterruptedException e)
-            {
-                // ignoring
-            } catch(IOException e)
-            {
-                // TODO Auto-generated catch block
-                // TODO: handle error
-                e.printStackTrace();
-            }
-        }
-    }
-
-=======
->>>>>>> other
 }
