@@ -2,12 +2,12 @@
 package com.codeminders.ardrone;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 
 public class NavDataReader implements Runnable
 {
