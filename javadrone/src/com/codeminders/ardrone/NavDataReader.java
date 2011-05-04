@@ -14,16 +14,14 @@ public class NavDataReader implements Runnable
     private static final int       BUFSIZE = 4096;
 
     private DatagramChannel        channel;
-    private BlockingQueue<NavData> navdata_queue;
     private ARDrone                drone;
     private Selector               selector;
     private boolean                done;
 
-    public NavDataReader(ARDrone drone, InetAddress drone_addr, int navdata_port, BlockingQueue<NavData> navdata_queue)
+    public NavDataReader(ARDrone drone, InetAddress drone_addr, int navdata_port)
             throws IOException
     {
         this.drone = drone;
-        this.navdata_queue = navdata_queue;
 
         channel = DatagramChannel.open();
         channel.configureBlocking(false);
@@ -60,7 +58,7 @@ public class NavDataReader implements Runnable
                         channel.read(inbuf);
 
                         NavData nd = NavData.createFromData(inbuf.array());
-                        navdata_queue.add(nd);
+                        drone.navDataReceived(nd);
                     }
                 }
             }
