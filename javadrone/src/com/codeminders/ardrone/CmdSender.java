@@ -17,7 +17,6 @@ public class CmdSender implements Runnable
     public CmdSender(PriorityBlockingQueue<DroneCommand> cmd_queue, ARDrone drone, InetAddress drone_addr,
             DatagramSocket cmd_socket)
     {
-        super();
         this.cmd_queue = cmd_queue;
         this.drone = drone;
         this.drone_addr = drone_addr;

@@ -86,7 +86,7 @@ public class ARDrone
             cmd_socket = new DatagramSocket();
             control_socket = new Socket(drone_addr, CONTROL_PORT);
 
-            nav_data_reader = new NavDataReader(navdata_socket, navdata_queue);
+            nav_data_reader = new NavDataReader(this, navdata_socket, navdata_queue);
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.start();
 
