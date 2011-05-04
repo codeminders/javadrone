@@ -10,9 +10,11 @@ public class NavDataReader implements Runnable
     private static final int       BUFSIZE = 4096;
     private DatagramSocket         navdata_socket;
     private BlockingQueue<NavData> navdata_queue;
+    private ARDrone                drone;
 
-    public NavDataReader(DatagramSocket navdata_socket, BlockingQueue<NavData> navdata_queue)
+    public NavDataReader(ARDrone drone, DatagramSocket navdata_socket, BlockingQueue<NavData> navdata_queue)
     {
+        this.drone = drone;
         this.navdata_socket = navdata_socket;
         this.navdata_queue = navdata_queue;
     }
@@ -29,8 +31,8 @@ public class NavDataReader implements Runnable
                 navdata_socket.receive(packet);
             } catch(IOException e)
             {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                drone.changeToErrorState(e);
+                break;
             }
             int numBytesReceived = packet.getLength();
             NavData nd = NavData.createFromData(inbuf, numBytesReceived);
