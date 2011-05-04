@@ -1,6 +1,8 @@
-package com.codeminders.ardrone;
+package com.codeminders.ardrone.commands;
 
 import java.io.UnsupportedEncodingException;
+
+import com.codeminders.ardrone.DroneCommand;
 
 public abstract class ATCommand extends DroneCommand
 {

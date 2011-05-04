@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import com.codeminders.ardrone.commands.ATCommand;
+import com.codeminders.ardrone.commands.QuitCommand;
+
 public class CmdSender implements Runnable
 {
     private static final int                    CMD_PORT = 5556;
