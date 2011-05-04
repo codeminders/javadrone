@@ -40,7 +40,7 @@ public class CmdSender implements Runnable
                 if(c instanceof ATCommand)
                 {
                     ATCommand cmd = (ATCommand) c;
-                    byte[] pdata = cmd.getPacket();
+                    byte[] pdata = cmd.getPacket(0); //TODO: pass sequence number
                     DatagramPacket p = new DatagramPacket(pdata, pdata.length, drone_addr, CMD_PORT);
                     cmd_socket.send(p);
                 }
