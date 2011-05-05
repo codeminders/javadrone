@@ -57,6 +57,7 @@ public class NavDataReader implements Runnable
                         byte[] trigger_bytes = {0x01, 0x00, 0x00, 0x00};
                         ByteBuffer trigger_buf = ByteBuffer.allocate(trigger_bytes.length);
                         trigger_buf.put(trigger_bytes);
+                        trigger_buf.flip();
                         channel.write(trigger_buf);
                         channel.register(selector, SelectionKey.OP_READ);
                     } else if(key.isReadable())
