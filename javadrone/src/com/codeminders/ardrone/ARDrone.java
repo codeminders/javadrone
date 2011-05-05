@@ -13,7 +13,7 @@ public class ARDrone
 {
     public enum State
     {
-        DISCONNECTED, BOOTSTRAP, READY, WATCHDOR, ERROR
+        DISCONNECTED, BOOTSTRAP, READY, WATCHDOG, ERROR
     }
 
     private Logger                              log              = Logger.getLogger("ARDrone");
