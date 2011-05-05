@@ -26,6 +26,8 @@ public class NavDataReader implements Runnable
         channel = DatagramChannel.open();
         channel.configureBlocking(false);
         channel.connect(new InetSocketAddress(drone_addr, navdata_port));
+
+        selector = Selector.open();
     }
 
     @Override
@@ -33,7 +35,6 @@ public class NavDataReader implements Runnable
     {
         try
         {
-            selector = Selector.open();
             channel.register(selector, SelectionKey.OP_READ);
 
             ByteBuffer inbuf = ByteBuffer.allocate(BUFSIZE);
