@@ -85,7 +85,7 @@ public class ARDrone
         {
             video_socket = new DatagramSocket(VIDEO_PORT);
             cmd_socket = new DatagramSocket();
-            //control_socket = new Socket(drone_addr, CONTROL_PORT);
+            // control_socket = new Socket(drone_addr, CONTROL_PORT);
 
             nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
             nav_data_reader_thread = new Thread(nav_data_reader);
@@ -95,12 +95,28 @@ public class ARDrone
             cmd_sending_thread = new Thread(cmd_sender);
             cmd_sending_thread.start();
 
-            changeState(State.BOOTSTRAP);
+            initBootstrap();
+
         } catch(IOException ex)
         {
             changeToErrorState(ex);
             throw ex;
         }
+    }
+
+
+    /**
+     * Sends some random bytes to drone NAVDATA_PORT to initiate bootstrap mode.
+     * @throws IOException
+     */
+    private void initBootstrap() throws IOException
+    {
+        DatagramSocket socket = new DatagramSocket();
+        byte[] buf = new byte[1];
+        DatagramPacket packet = new DatagramPacket(buf, buf.length, drone_addr, NAVDATA_PORT);
+        socket.send(packet);
+
+        changeState(State.BOOTSTRAP);
     }
 
     public void disconnect() throws IOException
@@ -124,7 +140,7 @@ public class ARDrone
         // Only the following method can throw an exception.
         // We call it last, to ensure it won't prevent other
         // cleanup operations from being completed
-        //control_socket.close();
+        // control_socket.close();
     }
 
     public void trim() throws IOException
@@ -188,12 +204,12 @@ public class ARDrone
     // Callback used by receiver
     public void navDataReceived(NavData nd)
     {
-        if(state==State.READY)
+        if(state == State.READY)
         {
             navdata_queue.add(nd);
         } else
         {
-            //TODO:
+            // TODO:
         }
     }
 }
