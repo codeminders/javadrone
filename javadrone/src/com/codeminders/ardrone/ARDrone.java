@@ -111,11 +111,17 @@ public class ARDrone
      */
     private void initBootstrap() throws IOException
     {
-        DatagramSocket socket = new DatagramSocket();
-        byte[] buf = new byte[1];
-        DatagramPacket packet = new DatagramPacket(buf, buf.length, drone_addr, NAVDATA_PORT);
-        socket.send(packet);
-
+        DatagramSocket socket = new DatagramSocket(NAVDATA_PORT);
+        try
+        {
+            byte[] buf = {0x01, 0x00, 0x00, 0x00};
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, drone_addr, NAVDATA_PORT);
+            socket.send(packet);
+        }
+        finally
+        {
+            socket.close();
+        }
         changeState(State.BOOTSTRAP);
     }
 
