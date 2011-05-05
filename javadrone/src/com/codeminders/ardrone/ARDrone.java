@@ -87,42 +87,21 @@ public class ARDrone
             cmd_socket = new DatagramSocket();
             // control_socket = new Socket(drone_addr, CONTROL_PORT);
 
-            nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
-            nav_data_reader_thread = new Thread(nav_data_reader);
-            nav_data_reader_thread.start();
-
             cmd_sender = new CmdSender(cmd_queue, this, drone_addr, cmd_socket);
             cmd_sending_thread = new Thread(cmd_sender);
             cmd_sending_thread.start();
 
-            initBootstrap();
+            nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
+            nav_data_reader_thread = new Thread(nav_data_reader);
+            nav_data_reader_thread.start();
+
+            changeState(State.BOOTSTRAP);
 
         } catch(IOException ex)
         {
             changeToErrorState(ex);
             throw ex;
         }
-    }
-
-
-    /**
-     * Sends some random bytes to drone NAVDATA_PORT to initiate bootstrap mode.
-     * @throws IOException
-     */
-    private void initBootstrap() throws IOException
-    {
-        DatagramSocket socket = new DatagramSocket(NAVDATA_PORT);
-        try
-        {
-            byte[] buf = {0x01, 0x00, 0x00, 0x00};
-            DatagramPacket packet = new DatagramPacket(buf, buf.length, drone_addr, NAVDATA_PORT);
-            socket.send(packet);
-        }
-        finally
-        {
-            socket.close();
-        }
-        changeState(State.BOOTSTRAP);
     }
 
     public void disconnect() throws IOException
