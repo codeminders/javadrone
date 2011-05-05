@@ -63,9 +63,12 @@ public class NavDataReader implements Runnable
                     } else if(key.isReadable())
                     {
                         inbuf.clear();
-                        channel.read(inbuf);
+                        int len = channel.read(inbuf);
+                        byte[] packet = new byte[len];
+                        inbuf.get(packet, 0, len);
 
-                        NavData nd = NavData.createFromData(inbuf.array());
+                        NavData nd = NavData.createFromData(packet);
+
                         drone.navDataReceived(nd);
                     }
                 }
