@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
+import com.codeminders.ardrone.commands.FlatTrimCommand;
 import com.codeminders.ardrone.commands.QuitCommand;
 
 public class ARDrone
@@ -84,7 +85,7 @@ public class ARDrone
         {
             video_socket = new DatagramSocket(VIDEO_PORT);
             cmd_socket = new DatagramSocket();
-            control_socket = new Socket(drone_addr, CONTROL_PORT);
+            //control_socket = new Socket(drone_addr, CONTROL_PORT);
 
             nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
             nav_data_reader_thread = new Thread(nav_data_reader);
@@ -123,11 +124,12 @@ public class ARDrone
         // Only the following method can throw an exception.
         // We call it last, to ensure it won't prevent other
         // cleanup operations from being completed
-        control_socket.close();
+        //control_socket.close();
     }
 
     public void trim() throws IOException
     {
+        cmd_queue.add(new FlatTrimCommand());
     }
 
     public void takeOff() throws IOException
