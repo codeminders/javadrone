@@ -16,6 +16,8 @@ public class CmdSender implements Runnable
     private ARDrone                             drone;
     private InetAddress                         drone_addr;
     private DatagramSocket                      cmd_socket;
+    private int                                 sequence = 1;
+
 
     public CmdSender(PriorityBlockingQueue<DroneCommand> cmd_queue, ARDrone drone, InetAddress drone_addr,
             DatagramSocket cmd_socket)
@@ -43,7 +45,7 @@ public class CmdSender implements Runnable
                 if(c instanceof ATCommand)
                 {
                     ATCommand cmd = (ATCommand) c;
-                    byte[] pdata = cmd.getPacket(0); //TODO: pass sequence number
+                    byte[] pdata = cmd.getPacket(sequence++); //TODO: pass sequence number
                     DatagramPacket p = new DatagramPacket(pdata, pdata.length, drone_addr, CMD_PORT);
                     cmd_socket.send(p);
                 }
