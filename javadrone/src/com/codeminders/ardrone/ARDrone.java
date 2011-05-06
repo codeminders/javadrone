@@ -6,9 +6,7 @@ import java.net.*;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
-import com.codeminders.ardrone.commands.ConfigureCommand;
-import com.codeminders.ardrone.commands.FlatTrimCommand;
-import com.codeminders.ardrone.commands.QuitCommand;
+import com.codeminders.ardrone.commands.*;
 
 public class ARDrone
 {
