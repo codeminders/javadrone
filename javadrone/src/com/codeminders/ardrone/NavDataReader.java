@@ -65,6 +65,7 @@ public class NavDataReader implements Runnable
                         inbuf.clear();
                         int len = channel.read(inbuf);
                         byte[] packet = new byte[len];
+                        inbuf.flip();
                         inbuf.get(packet, 0, len);
 
                         NavData nd = NavData.createFromData(packet);
