@@ -12,7 +12,7 @@ public class ARDrone
 {
     public enum State
     {
-        DISCONNECTED, BOOTSTRAP, DEMO, WATCHDOG, ERROR
+        DISCONNECTED, BOOTSTRAP, DEMO, ERROR
     }
 
     private Logger                              log              = Logger.getLogger("ARDrone");
@@ -22,14 +22,14 @@ public class ARDrone
 
     private static final int                    NAVDATA_PORT     = 5554;
     private static final int                    VIDEO_PORT       = 5555;
-    private static final int                    CONTROL_PORT     = 5559;
+    //private static final int                    CONTROL_PORT     = 5559;
 
     private static byte[]                       DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
     private InetAddress                         drone_addr;
     private DatagramSocket                      video_socket;
     private DatagramSocket                      cmd_socket;
-    private Socket                              control_socket;
+    //private Socket                              control_socket;
 
     private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>();
     private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
@@ -204,6 +204,12 @@ public class ARDrone
             } else if(state != State.DEMO && nd.getMode() == NavData.Mode.DEMO)
             {
                 changeState(State.DEMO);
+            }
+            
+            if(nd.isCommunicationProblemOccurred())
+            {
+                // 50ms communications watchdog has been triggered
+                cmd_queue.add(new KeepAliveCommand());
             }
         }
 

@@ -9,7 +9,7 @@ public abstract class ATCommand extends DroneCommand
     @Override
     public int getPriority()
     {
-        return 10; // All AT commands have same priority.
+        return MIN_PRIORITY; 
     }
 
     public byte[] getPacket(int seq)

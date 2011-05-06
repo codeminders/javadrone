@@ -7,6 +7,6 @@ public class QuitCommand extends DroneCommand
     @Override
     public int getPriority()
     {
-        return 0;
+        return MAX_PRIORITY;
     }
 }
