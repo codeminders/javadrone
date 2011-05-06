@@ -215,11 +215,12 @@ public class ARDrone
 
     private void changeToNavDataDemo()
     {
+        System.err.println("Changing to NAV DEMO");
         // ardroneme.send("AT*CONFIG=1,\"general:navdata_demo\",\"TRUE\"");
         // Thread.sleep(ARDroneME.INTERVAL);
         // ardroneme.send("AT*CTRL=1,5,0");
 
-        // cmd_queue.add(new ConfigureCommand("general:navdata_demo", "TRUE"));
-        // cmd_queue.add(new ControlCommand(5,0));
+        cmd_queue.add(new ConfigureCommand("general:navdata_demo", "TRUE"));
+        cmd_queue.add(new ControlCommand(5, 0));
     }
 }

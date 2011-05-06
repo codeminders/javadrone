@@ -27,7 +27,7 @@ public abstract class ATCommand extends DroneCommand
 
     public String getCommandString(int seq)
     {
-        return "AT*" + getID() + "=" + seq + getParametersString() + "\n";
+        return "AT*" + getID() + "=" + seq + getParametersString() + "\r";
     }
 
     private String getParametersString()

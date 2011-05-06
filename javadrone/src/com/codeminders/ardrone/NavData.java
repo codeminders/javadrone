@@ -270,12 +270,12 @@ public class NavData
 
         parseState(data, state);
 
-        System.err.println();
-        printState(data);
+        //System.err.println();
+        //printState(data);
 
         System.err.println();
 
-/*
+        /*
         int i = 0;
         for(byte b : buf)
         {
@@ -285,7 +285,7 @@ public class NavData
         }
         System.err.println();
         System.err.println();
-*/
+        */
         //TODO: calculate checksum
 
         return data;

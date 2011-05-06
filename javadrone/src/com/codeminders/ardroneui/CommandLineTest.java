@@ -16,7 +16,7 @@ public class CommandLineTest
             drone = new ARDrone();
             drone.connect();
             drone.trim();
-            Thread.sleep(2000);
+            Thread.sleep(10000);
             drone.disconnect();
         } catch(Throwable e)
         {
