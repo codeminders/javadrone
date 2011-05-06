@@ -4,6 +4,7 @@ package com.codeminders.ardrone;
 import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.codeminders.ardrone.commands.*;
@@ -40,6 +41,8 @@ public class ARDrone
     private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
 
+    private boolean                             combinedYawMode;
+
     public ARDrone() throws UnknownHostException
     {
         this(InetAddress.getByAddress(DEFAULT_DRONE_IP));
@@ -51,6 +54,7 @@ public class ARDrone
     }
 
     private void changeState(State newstate)
+        throws IOException
     {
         if(newstate == State.ERROR)
             changeToErrorState(null);
@@ -64,7 +68,7 @@ public class ARDrone
 
                 // We automatically switch to DEMO from bootstrap
                 if(state == State.BOOTSTRAP)
-                    changeToNavDataDemo();
+                    sendDemoNavigationData();
             }
         }
     }
@@ -142,60 +146,103 @@ public class ARDrone
 
     public void takeOff() throws IOException
     {
+        cmd_queue.add(new TakeOffCommand());
     }
 
     public void land() throws IOException
     {
+        cmd_queue.add(new LandCommand());
     }
 
     public void sendEmergencySignal() throws IOException
     {
+        cmd_queue.add(new EmergencyCommand());
     }
 
     public void clearEmergencySignal() throws IOException
     {
+        cmd_queue.add(new ClearEmergencyCommand());
     }
 
     public void hover() throws IOException
     {
+        cmd_queue.add(new HoverCommand());
     }
 
-    public void setCombinedYawMode(boolean v)
+    public void setCombinedYawMode(boolean combinedYawMode)
     {
+        this.combinedYawMode = combinedYawMode;
     }
 
     public boolean isCombinedYawMode()
     {
-        return false;
+        return combinedYawMode;
     }
 
-    public void set(float phi, float theta, float gaz, float yaw) throws IOException
+    /**
+     * Move the drone
+     *
+     * @param left_right_tilt  The left-right tilt (aka. "drone roll" or phi angle) argument is a percentage of the maximum
+inclination as configured here. A negative value makes the drone tilt to its left, thus flying
+leftward. A positive value makes the drone tilt to its right, thus flying rightward.
+     * @param front_back_tilt The front-back tilt (aka. "drone pitch" or theta angle) argument is a percentage of the maximum
+inclination as configured here. A negative value makes the drone lower its nose, thus flying
+frontward. A positive value makes the drone raise its nose, thus flying backward.
+The drone translation speed in the horizontal plane depends on the environment and cannot
+be determined. With roll or pitch values set to 0, the drone will stay horizontal but continue
+sliding in the air because of its inertia. Only the air resistance will then make it stop.
+     * @param vertical_speed The vertical speed (aka. "gaz") argument is a percentage of the maximum vertical speed as
+defined here. A positive value makes the drone rise in the air. A negative value makes it go
+down.
+     * @param angular_speed The angular speed argument is a percentage of the maximum angular speed as defined here.
+A positive value makes the drone spin right; a negative value makes it spin left.
+     * @throws IOException
+     */
+    public void move(float left_right_tilt,
+                     float front_back_tilt,
+                     float vertical_speed,
+                     float angular_speed)
+        throws IOException
     {
+        cmd_queue.add(new MoveCommand(combinedYawMode,
+                                      left_right_tilt,
+                                      front_back_tilt,
+                                      vertical_speed,
+                                      angular_speed));
     }
 
     public void sendAllNavigationData() throws IOException
     {
+        setConfigOption("general:navdata_demo", "FALSE");
+        cmd_queue.add(new ControlCommand(5, 0));
     }
 
-    public void sendADemoNavigationData() throws IOException
+    public void sendDemoNavigationData() throws IOException
     {
+        setConfigOption("general:navdata_demo", "TRUE");
+        cmd_queue.add(new ControlCommand(5, 0));
     }
 
     public void setConfigOption(String name, String value) throws IOException
     {
+        cmd_queue.add(new ConfigureCommand(name, value));
     }
 
     public void playLED(int animation_no, float freq, int duration) throws IOException
     {
+        cmd_queue.add(new PlayLEDCommand(animation_no, freq, duration));
     }
 
     public void playAnimation(int animation_no, int duration) throws IOException
     {
+        cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
     }
 
     // Callback used by receiver
     public void navDataReceived(NavData nd)
     {
+        try
+        {
         synchronized(state_mutex)
         {
             if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
@@ -212,21 +259,15 @@ public class ARDrone
                 cmd_queue.add(new KeepAliveCommand());
             }
         }
+        }
+        catch(IOException e)
+        {
+            log.log(Level.SEVERE, "Error changing the state", e);
+        }
 
         if(state == State.DEMO)
         {
             navdata_queue.add(nd);
         }
-    }
-
-    private void changeToNavDataDemo()
-    {
-        System.err.println("Changing to NAV DEMO");
-        // ardroneme.send("AT*CONFIG=1,\"general:navdata_demo\",\"TRUE\"");
-        // Thread.sleep(ARDroneME.INTERVAL);
-        // ardroneme.send("AT*CTRL=1,5,0");
-
-        cmd_queue.add(new ConfigureCommand("general:navdata_demo", "TRUE"));
-        cmd_queue.add(new ControlCommand(5, 0));
     }
 }
