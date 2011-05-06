@@ -20,6 +20,7 @@ public class ARDrone
     private Logger                              log              = Logger.getLogger("ARDrone");
 
     private State                               state            = State.DISCONNECTED;
+    private Object                              state_mutex      = new Object();
 
     private static final int                    NAVDATA_PORT     = 5554;
     private static final int                    VIDEO_PORT       = 5555;
@@ -56,7 +57,7 @@ public class ARDrone
         if(newstate == State.ERROR)
             changeToErrorState(null);
 
-        synchronized(state)
+        synchronized(state_mutex)
         {
             log.fine("State changed from " + state + " to " + newstate);
             state = newstate;
@@ -65,7 +66,7 @@ public class ARDrone
 
     public void changeToErrorState(Exception ex)
     {
-        synchronized(state)
+        synchronized(state_mutex)
         {
             try
             {
@@ -190,9 +191,9 @@ public class ARDrone
     // Callback used by receiver
     public void navDataReceived(NavData nd)
     {
-        synchronized(state)
+        synchronized(state_mutex)
         {
-            if(state!=State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
+            if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
             {
                 changeState(State.BOOTSTRAP);
             }
@@ -209,11 +210,11 @@ public class ARDrone
 
     private void changeToNavDataDemo()
     {
-//            ardroneme.send("AT*CONFIG=1,\"general:navdata_demo\",\"TRUE\"");
-//            Thread.sleep(ARDroneME.INTERVAL);
-//            ardroneme.send("AT*CTRL=1,5,0");
+        // ardroneme.send("AT*CONFIG=1,\"general:navdata_demo\",\"TRUE\"");
+        // Thread.sleep(ARDroneME.INTERVAL);
+        // ardroneme.send("AT*CTRL=1,5,0");
 
-        //cmd_queue.add(new ConfigureCommand("general:navdata_demo", "TRUE"));
-        //cmd_queue.add(new ControlCommand(5,0));
+        // cmd_queue.add(new ConfigureCommand("general:navdata_demo", "TRUE"));
+        // cmd_queue.add(new ControlCommand(5,0));
     }
 }
