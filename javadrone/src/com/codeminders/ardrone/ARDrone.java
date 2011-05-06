@@ -12,7 +12,7 @@ public class ARDrone
 {
     public enum State
     {
-        DISCONNECTED, BOOTSTRAP, READY, WATCHDOG, ERROR
+        DISCONNECTED, BOOTSTRAP, DEMO, WATCHDOG, ERROR
     }
 
     private Logger                              log              = Logger.getLogger("ARDrone");
@@ -57,8 +57,15 @@ public class ARDrone
 
         synchronized(state_mutex)
         {
-            log.fine("State changed from " + state + " to " + newstate);
-            state = newstate;
+            if(state != newstate)
+            {
+                log.fine("State changed from " + state + " to " + newstate);
+                state = newstate;
+
+                // We automatically switch to DEMO from bootstrap
+                if(state == State.BOOTSTRAP)
+                    changeToNavDataDemo();
+            }
         }
     }
 
@@ -194,15 +201,15 @@ public class ARDrone
             if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
             {
                 changeState(State.BOOTSTRAP);
+            } else if(state != State.DEMO && nd.getMode() == NavData.Mode.DEMO)
+            {
+                changeState(State.DEMO);
             }
         }
 
-        if(state == State.READY)
+        if(state == State.DEMO)
         {
             navdata_queue.add(nd);
-        } else
-        {
-            // TODO:
         }
     }
 
