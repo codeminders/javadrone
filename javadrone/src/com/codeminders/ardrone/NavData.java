@@ -291,6 +291,7 @@ public class NavData
         return data;
     }
 
+    @SuppressWarnings("unused")
     private static void printState(NavData data)
     {
         System.err.println("IsFlying: " + data.isFlying());
