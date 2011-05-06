@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.concurrent.*;
 import java.util.logging.Logger;
 
+import com.codeminders.ardrone.commands.ConfigureCommand;
 import com.codeminders.ardrone.commands.FlatTrimCommand;
 import com.codeminders.ardrone.commands.QuitCommand;
 
@@ -189,6 +190,14 @@ public class ARDrone
     // Callback used by receiver
     public void navDataReceived(NavData nd)
     {
+        synchronized(state)
+        {
+            if(state!=State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
+            {
+                changeState(State.BOOTSTRAP);
+            }
+        }
+
         if(state == State.READY)
         {
             navdata_queue.add(nd);
@@ -196,5 +205,15 @@ public class ARDrone
         {
             // TODO:
         }
+    }
+
+    private void changeToNavDataDemo()
+    {
+//            ardroneme.send("AT*CONFIG=1,\"general:navdata_demo\",\"TRUE\"");
+//            Thread.sleep(ARDroneME.INTERVAL);
+//            ardroneme.send("AT*CTRL=1,5,0");
+
+        //cmd_queue.add(new ConfigureCommand("general:navdata_demo", "TRUE"));
+        //cmd_queue.add(new ControlCommand(5,0));
     }
 }
