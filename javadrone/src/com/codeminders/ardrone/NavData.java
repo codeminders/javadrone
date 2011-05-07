@@ -254,11 +254,11 @@ public class NavData
     {
         NavData data = new NavData();
 
-        log.finest("NavData packet received. len: " + buf.length);
+//        log.finest("NavData packet received. len: " + buf.length);
         int offset = 0;
 
         data.mode = (buf.length == 24) ? NavData.Mode.BOOTSTRAP : NavData.Mode.DEMO;
-        log.finest("Mode: " + data.getMode());
+//        log.finest("Mode: " + data.getMode());
 
         //int header = byteArrayToInt(buf, offset);
         offset += 4;
@@ -266,27 +266,24 @@ public class NavData
         int state = byteArrayToInt(buf, offset);
         offset += 4;
 
-        data.sequence = byteArrayToInt(buf, offset);
-        offset += 4;
-        log.finest("Sequence: " + data.getSequence());
+//        data.sequence = byteArrayToInt(buf, offset);
+//        offset += 4;
+//        log.finest("Sequence: " + data.getSequence());
 
-        int vision = byteArrayToInt(buf, offset);
-        offset += 4;
-        System.err.print("Vision: " + vision);
+//        int vision = byteArrayToInt(buf, offset);
+//        offset += 4;
+//        System.err.print("Vision: " + vision);
 
         parseState(data, state);
 
-        //printState(data);
-
-        /*
-        int i = 0;
-        for(byte b : buf)
-        {
-            System.err.print("0x" + Integer.toHexString((int)b) + " ");
-            if(++i % 24 == 0)
-                System.err.println();
-        }
-        */
+//        printState(data);
+//        int i = 0;
+//        for(byte b : buf)
+//        {
+//            System.err.print("0x" + Integer.toHexString((int)b) + " ");
+//            if(++i % 24 == 0)
+//                System.err.println();
+//        }
 
         //TODO: read options
 
