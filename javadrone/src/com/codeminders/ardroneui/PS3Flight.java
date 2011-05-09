@@ -4,6 +4,8 @@ package com.codeminders.ardroneui;
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.hidapi.*;
 
+import com.codeminders.ardroneui.controllers.AfterGlowController;
+
 import java.io.IOException;
 
 /**
@@ -39,10 +41,7 @@ public class PS3Flight
             drone.connect();
             try
             {
-                dev = HIDManager.openById(AfterGlowController.VENDOR_ID, AfterGlowController.PRODUCT_ID, null);
-                System.err.print("Manufacturer: " + dev.getManufacturerString() + "\n");
-                System.err.print("Product: " + dev.getProductString() + "\n");
-                System.err.print("Serial Number: " + dev.getSerialNumberString() + "\n");
+                dev = AfterGlowController.open();
                 try
                 {
                     byte[] buf = new byte[BUFSIZE];
