@@ -22,9 +22,6 @@ public class PS3Flight
         System.loadLibrary("hidapi-jni");
     }
 
-    // "Afterglow" controller for PS3
-    static final         int VENDOR_ID  = 3695;
-    static final         int PRODUCT_ID = 25346;
     private static final int BUFSIZE    = 2048;
 
 
@@ -33,7 +30,6 @@ public class PS3Flight
      */
     public static void main(String[] args)
     {
-        listDevices();
         readDevice();
     }
 
@@ -46,7 +42,7 @@ public class PS3Flight
             drone = new ARDrone();
             drone.connect();
 
-            dev = HIDManager.openById(VENDOR_ID, PRODUCT_ID, null);
+            dev = HIDManager.openById(AfterGlowController.VENDOR_ID, AfterGlowController.PRODUCT_ID, null);
             System.err.print("Manufacturer: " + dev.getManufacturerString() + "\n");
             System.err.print("Product: " + dev.getProductString() + "\n");
             System.err.print("Serial Number: " + dev.getSerialNumberString() + "\n");
@@ -94,6 +90,10 @@ public class PS3Flight
                         //Ignore
                     }
                 }
+            } catch(HIDDeviceNotFoundException hex)
+            {
+                hex.printStackTrace();
+                listDevices();
             }
             finally
             {
