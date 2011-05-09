@@ -90,15 +90,15 @@ public class PS3Flight
                         //Ignore
                     }
                 }
-            } catch(HIDDeviceNotFoundException hex)
-            {
-                hex.printStackTrace();
-                listDevices();
-            }
+            } 
             finally
             {
                 dev.close();
             }
+        } catch(HIDDeviceNotFoundException hex)
+        {
+            hex.printStackTrace();
+            listDevices();
         }
         catch(Throwable e)
         {
