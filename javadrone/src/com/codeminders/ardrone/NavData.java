@@ -292,6 +292,7 @@ public class NavData
         return data;
     }
 
+    @SuppressWarnings("unused")
     private static void printState(NavData data)
     {
         StringBuffer sb = new StringBuffer();
