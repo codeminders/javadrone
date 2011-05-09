@@ -5,6 +5,7 @@ import com.codeminders.ardrone.ARDrone;
 import com.codeminders.hidapi.*;
 
 import com.codeminders.ardroneui.controllers.AfterGlowController;
+import com.codeminders.ardroneui.controllers.PS3ControllerState;
 
 import java.io.IOException;
 
@@ -21,7 +22,6 @@ public class PS3Flight
         System.loadLibrary("hidapi-jni");
     }
 
-    private static final int  BUFSIZE              = 2048;
 
     /**
      * @param args
@@ -34,46 +34,26 @@ public class PS3Flight
     private static void readDevice()
     {
         ARDrone drone;
-        HIDDevice dev;
+        AfterGlowController dev;
         try
         {
             drone = new ARDrone();
             drone.connect();
             try
             {
-                dev = AfterGlowController.open();
+                dev = new AfterGlowController();
                 try
                 {
-                    byte[] buf = new byte[BUFSIZE];
-                    byte[] prev_buf = new byte[BUFSIZE];
-                    int prev_n = 0;
-                    dev.enableBlocking();
                     while(true)
                     {
-                        int n = dev.read(buf);
-                        printDelta(prev_buf, prev_n, buf, n);
-                        prev_n = n;
-                        System.arraycopy(buf, 0, prev_buf, 0, n);
-
-                        if(n == 0)
+                        PS3ControllerState pad = dev.read();
+                        if(pad == null)
                             continue;
 
-                        if(buf[1] == 2)
+                        if(pad.isStart())
                             drone.takeOff();
-                        else if(buf[1] == 1)
+                        else if(pad.isSelect())
                             drone.land();
-
-                        // System.err.print("" + n + " bytes read:\n\t");
-                        // for(int i = 0; i < n; i++)
-                        // {
-                        // int v = buf[i];
-                        // if(v < 0) v = n + 256;
-                        // String hs = Integer.toHexString(v);
-                        // if(v < 16)
-                        // System.err.print("0");
-                        // System.err.print(hs + " ");
-                        // }
-                        // System.err.println("");
 
                         try
                         {
@@ -122,21 +102,4 @@ public class PS3Flight
         }
     }
 
-    private static void printDelta(byte[] prev, int prev_size, byte[] cur, int cur_size)
-    {
-        if(prev_size != cur_size)
-        {
-            System.err.println("Packet size is different. Prev: " + prev_size + " New: " + cur_size);
-            return;
-        }
-
-        for(int i = 0; i < prev_size; i++)
-        {
-            if(prev[i] != cur[i])
-            {
-                System.err.println("Index: " + i + " Prev value: " + Integer.toHexString((int) prev[i])
-                        + " New value: " + Integer.toHexString((int) cur[i]));
-            }
-        }
-    }
 }
