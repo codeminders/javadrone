@@ -35,7 +35,7 @@ public class AfterGlowController
         {
             throw new IOException("Received packed with unexpected size " + n);
         }
-        return new PS3ControllerState(buf); 
+        return new PS3ControllerState(buf, n); 
     }
 
     public void close() throws IOException

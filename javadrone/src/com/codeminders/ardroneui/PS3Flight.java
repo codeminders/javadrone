@@ -37,8 +37,8 @@ public class PS3Flight
         AfterGlowController dev;
         try
         {
-            drone = new ARDrone();
-            drone.connect();
+            //drone = new ARDrone();
+            //drone.connect();
             try
             {
                 dev = new AfterGlowController();
@@ -50,11 +50,11 @@ public class PS3Flight
                         if(pad == null)
                             continue;
 
-                        if(pad.isStart())
+                        /*if(pad.isStart())
                             drone.takeOff();
                         else if(pad.isSelect())
                             drone.land();
-
+                        */
                         try
                         {
                             Thread.sleep(READ_UPDATE_DELAY_MS);
@@ -69,7 +69,7 @@ public class PS3Flight
                 }
             } finally
             {
-                drone.disconnect();
+                //drone.disconnect();
             }
         } catch(HIDDeviceNotFoundException hex)
         {
