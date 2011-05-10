@@ -82,7 +82,8 @@ public class AfterGlowController extends PS3Controller
                 leftJoystickPress, rightJoystickPress, PS, hatSwitchLeftRight, hatSwitchUpDown, leftJoystickX,
                 leftJoystickY, rightJoystickX, rightJoystickY);
 
-        // System.err.println(res.toString());
+        //System.err.println(res.toString());
+
         return res;
     }
 

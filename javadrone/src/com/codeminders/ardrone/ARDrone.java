@@ -41,7 +41,10 @@ public class ARDrone
     private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
 
-    private boolean                             combinedYawMode;
+    private boolean                             combinedYawMode = true;
+
+    private boolean                             emergencyMode   = true;
+    private Object                              emergency_mutex = new Object();
 
     public ARDrone() throws UnknownHostException
     {
@@ -156,12 +159,20 @@ public class ARDrone
 
     public void sendEmergencySignal() throws IOException
     {
-        cmd_queue.add(new EmergencyCommand());
+        synchronized(emergency_mutex)
+        {
+            if(!isEmergencyMode())
+                cmd_queue.add(new EmergencyCommand());
+        }
     }
 
     public void clearEmergencySignal() throws IOException
     {
-        cmd_queue.add(new ClearEmergencyCommand());
+        synchronized(emergency_mutex)
+        {
+            if(isEmergencyMode())
+                cmd_queue.add(new EmergencyCommand());
+        }
     }
 
     public void hover() throws IOException
@@ -177,6 +188,11 @@ public class ARDrone
     public boolean isCombinedYawMode()
     {
         return combinedYawMode;
+    }
+
+    public boolean isEmergencyMode()
+    {
+        return emergencyMode;
     }
 
     /**
@@ -241,6 +257,11 @@ A positive value makes the drone spin right; a negative value makes it spin left
     // Callback used by receiver
     public void navDataReceived(NavData nd)
     {
+        synchronized(emergency_mutex)
+        {
+            emergencyMode = nd.isEmergency();
+        }
+
         try
         {
         synchronized(state_mutex)

@@ -5,6 +5,7 @@ import com.codeminders.ardrone.ARDrone;
 import com.codeminders.hidapi.*;
 
 import com.codeminders.ardroneui.controllers.*;
+import org.xml.sax.helpers.ParserAdapter;
 
 import java.io.IOException;
 
@@ -36,7 +37,10 @@ public class PS3Flight
         try
         {
             drone = new ARDrone();
+            drone.setCombinedYawMode(true);
+
             drone.connect();
+            System.err.println("Connected to the drone");
             try
             {
                 dev = findController();
@@ -46,6 +50,9 @@ public class PS3Flight
                     listDevices();
                     return;
                 }
+
+                System.err.println("Gamepad controller found");
+
                 try
                 {
                     while(true)
@@ -59,9 +66,71 @@ public class PS3Flight
                         // otherwise multiple drone commands for send/relase
                         // will be sent while button is pressed.
                         if(pad.isStart())
+                        {
+                            System.err.println("Taking off");
                             drone.takeOff();
+                        }
                         else if(pad.isSelect())
+                        {
+                            System.err.println("Landing");
                             drone.land();
+                        }
+                        else if(pad.isPS())
+                        {
+                            System.err.println("Reseting");
+
+                            drone.clearEmergencySignal();
+                            drone.trim();
+
+                            drone.setConfigOption("control:altitude_max",    "1000");
+                            drone.setConfigOption("control:euler_angle_max", "0.2");
+                            drone.setConfigOption("control:control_vz_max",  "2000.0");
+                            drone.setConfigOption("control:control_yaw",     "2.0");
+                        }
+                        else
+                        {
+                            // Detecting if we need to move the drone
+
+                            int leftX = pad.getLeftJoystickX();
+                            int leftY = pad.getLeftJoystickY();
+
+                            int rightX = pad.getRightJoystickX();
+                            int rightY = pad.getRightJoystickY();
+
+                            float left_right_tilt = 0f;
+                            float front_back_tilt = 0f;
+                            float vertical_speed  = 0f;
+                            float angular_speed   = 0f;
+
+                            if(leftX != 0)
+                            {
+                                left_right_tilt = ((float)leftX)/128f;
+                                System.err.println("Left-Right tilt: " + left_right_tilt);
+                            }
+
+                            if(leftY != 0)
+                            {
+                                front_back_tilt = ((float)leftY)/128f;
+                                System.err.println("Front-back tilt: " + front_back_tilt);
+                            }
+
+                            if(rightX != 0)
+                            {
+                                angular_speed = ((float)rightX)/128f;
+                                System.err.println("Angular speed: " + angular_speed);
+                            }
+
+                            if(rightY != 0)
+                            {
+                                vertical_speed = -1*((float)rightY)/128f;
+                                System.err.println("Vertical speed: " + vertical_speed);
+                            }
+
+                            if(leftX != 0 || leftY != 0 || rightX != 0 || rightY != 0)
+                            {
+                                drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);
+                            }
+                        }
 
                         try
                         {
