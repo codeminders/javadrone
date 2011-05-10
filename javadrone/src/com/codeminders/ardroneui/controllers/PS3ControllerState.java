@@ -44,12 +44,36 @@ public class PS3ControllerState
     protected int     rightJoystickX;
     protected int     rightJoystickY;
 
+    
+    public PS3ControllerState(PS3ControllerState o)
+    {
+        this.square = o.square;
+        this.cross = o.cross;
+        this.circle = o.circle;
+        this.triangle = o.triangle;
+        L1 = o.L1;
+        R1 = o.R1;
+        L2 = o.L2;
+        R2 = o.R2;
+        this.select = o.select;
+        this.start = o.start;
+        this.leftJoystickPress = o.leftJoystickPress;
+        this.rightJoystickPress = o.rightJoystickPress;
+        PS = o.PS;
+        this.hatSwitchLeftRight = o.hatSwitchLeftRight;
+        this.hatSwitchUpDown = o.hatSwitchUpDown;
+        this.leftJoystickX = o.leftJoystickX;
+        this.leftJoystickY = o.leftJoystickY;
+        this.rightJoystickX = o.rightJoystickX;
+        this.rightJoystickY = o.rightJoystickY;
+
+    }
+    
     public PS3ControllerState(boolean square, boolean cross, boolean circle, boolean triangle, boolean l1, boolean r1,
             boolean l2, boolean r2, boolean select, boolean start, boolean leftJoystickPress,
             boolean rightJoystickPress, boolean pS, int hatSwitchLeftRight, int hatSwitchUpDown, int leftJoystickX,
             int leftJoystickY, int rightJoystickX, int rightJoystickY)
     {
-        super();
         this.square = square;
         this.cross = cross;
         this.circle = circle;
