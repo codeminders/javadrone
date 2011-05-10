@@ -161,22 +161,22 @@ public class PS3ControllerState
         return dirLeft;
     }
 
-    public float getLeftJoystickX()
+    public int getLeftJoystickX()
     {
         return leftJoystickX;
     }
 
-    public float getLeftJoystickY()
+    public int getLeftJoystickY()
     {
         return leftJoystickY;
     }
 
-    public float getRightJoystickX()
+    public int getRightJoystickX()
     {
         return rightJoystickX;
     }
 
-    public float getRightJoystickY()
+    public int getRightJoystickY()
     {
         return rightJoystickY;
     }
