@@ -30,8 +30,9 @@ public class PS3ControllerState
     protected boolean PS;
 
     // Direction pad (hatswitch)
-    protected boolean dirLeft;
-
+    protected int hatSwitchLeftRight;
+    protected int hatSwitchUpDown;
+    
     // Analog joysticks
 
     protected int   leftJoystickX;
@@ -156,11 +157,6 @@ public class PS3ControllerState
         return R2;
     }
 
-    public boolean isDirLeft()
-    {
-        return dirLeft;
-    }
-
     public int getLeftJoystickX()
     {
         return leftJoystickX;
@@ -179,6 +175,16 @@ public class PS3ControllerState
     public int getRightJoystickY()
     {
         return rightJoystickY;
+    }
+
+    public int getHatSwitchLeftRight()
+    {
+        return hatSwitchLeftRight;
+    }
+
+    public int getHatSwitchUpDown()
+    {
+        return hatSwitchUpDown;
     }
 
     @Override
@@ -211,8 +217,10 @@ public class PS3ControllerState
         builder.append(leftJoystickPress);
         builder.append(", PS=");
         builder.append(PS);
-        builder.append(", dirLeft=");
-        builder.append(dirLeft);
+        builder.append(", hatSwitchLeftRight=");
+        builder.append(hatSwitchLeftRight);
+        builder.append(", hatSwitchUpDown=");
+        builder.append(hatSwitchUpDown);
         builder.append(", leftJoystickX=");
         builder.append(leftJoystickX);
         builder.append(", leftJoystickY=");
@@ -223,7 +231,6 @@ public class PS3ControllerState
         builder.append(rightJoystickY);
         builder.append("]");
         return builder.toString();
-    }
-    
+    }    
     
 }
