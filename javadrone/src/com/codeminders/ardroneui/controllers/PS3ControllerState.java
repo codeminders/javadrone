@@ -1,8 +1,11 @@
 
 package com.codeminders.ardroneui.controllers;
 
-import java.util.BitSet;
-
+/**
+ * Data structure describing state of generic PS-3 compatible game controller.
+ * 
+ * @author lord
+ */
 public class PS3ControllerState
 {
     // buttons with pictures
@@ -41,64 +44,31 @@ public class PS3ControllerState
     protected int     rightJoystickX;
     protected int     rightJoystickY;
 
-    public PS3ControllerState(byte[] hid_data, int hid_data_len)
+    public PS3ControllerState(boolean square, boolean cross, boolean circle, boolean triangle, boolean l1, boolean r1,
+            boolean l2, boolean r2, boolean select, boolean start, boolean leftJoystickPress,
+            boolean rightJoystickPress, boolean pS, int hatSwitchLeftRight, int hatSwitchUpDown, int leftJoystickX,
+            int leftJoystickY, int rightJoystickX, int rightJoystickY)
     {
-        /*
-        for(int i = 0; i < hid_data_len; i++)
-        {
-            int v = hid_data[i];
-            if(v < 0)
-                v = v + 256;
-            String hs = Integer.toHexString(v);
-            if(v < 16)
-                System.err.print("0");
-            System.err.print(hs + " ");
-        }
-        System.err.println("");
-        */
-
-        BitSet bs = new BitSet(13);
-        for(int i = 0; i < 8; i++)
-        {
-            if((1 & (hid_data[0] >> i)) == 1)
-                bs.set(i);
-        }
-        for(int i = 0; i < 5; i++)
-        {
-            if((1 & (hid_data[1] >> i)) == 1)
-                bs.set(8 + i);
-        }
-
-        int i = 0;
-        square = bs.get(i++);
-        cross = bs.get(i++);
-        circle = bs.get(i++);
-        triangle = bs.get(i++);
-        L1 = bs.get(i++);
-        R1 = bs.get(i++);
-        L2 = bs.get(i++);
-        R2 = bs.get(i++);
-        select = bs.get(i++);
-        start = bs.get(i++);
-        leftJoystickPress = bs.get(i++);
-        rightJoystickPress = bs.get(i++);
-        PS = bs.get(i++);
-
-        leftJoystickX = joystickCoordConv(hid_data[3]);
-        leftJoystickY = joystickCoordConv(hid_data[4]);
-        rightJoystickX = joystickCoordConv(hid_data[5]);
-        rightJoystickY = joystickCoordConv(hid_data[6]);
-        
-        //TODO: decode HAT switch
-
-        //System.err.println(toString());
-
-    }
-
-    private int joystickCoordConv(byte b)
-    {
-        int v = b<0?b+256:b;
-        return v - 128;
+        super();
+        this.square = square;
+        this.cross = cross;
+        this.circle = circle;
+        this.triangle = triangle;
+        L1 = l1;
+        R1 = r1;
+        L2 = l2;
+        R2 = r2;
+        this.select = select;
+        this.start = start;
+        this.leftJoystickPress = leftJoystickPress;
+        this.rightJoystickPress = rightJoystickPress;
+        PS = pS;
+        this.hatSwitchLeftRight = hatSwitchLeftRight;
+        this.hatSwitchUpDown = hatSwitchUpDown;
+        this.leftJoystickX = leftJoystickX;
+        this.leftJoystickY = leftJoystickY;
+        this.rightJoystickX = rightJoystickX;
+        this.rightJoystickY = rightJoystickY;
     }
 
     public boolean isTriangle()
