@@ -30,68 +30,78 @@ public class PS3ControllerState
     protected boolean PS;
 
     // Direction pad (hatswitch)
-    protected int hatSwitchLeftRight;
-    protected int hatSwitchUpDown;
-    
+    protected int     hatSwitchLeftRight;
+    protected int     hatSwitchUpDown;
+
     // Analog joysticks
 
-    protected int   leftJoystickX;
-    protected int   leftJoystickY;
+    protected int     leftJoystickX;
+    protected int     leftJoystickY;
 
-    protected int   rightJoystickX;
-    protected int   rightJoystickY;
+    protected int     rightJoystickX;
+    protected int     rightJoystickY;
 
     public PS3ControllerState(byte[] hid_data, int hid_data_len)
     {
-        //TODO: decode hid_data and set instance fields
-        
+        // TODO: decode hid_data and set instance fields
+
         // 13 bit fields (buttons)
         // X,Y,Z,Rz - 4 8bit fields
-        
-        for(int i=0; i<hid_data_len; i++)
+
+        for(int i = 0; i < hid_data_len; i++)
         {
             int v = hid_data[i];
-            if (v<0) v = v+256;
+            if(v < 0)
+                v = v + 256;
             String hs = Integer.toHexString(v);
-            if (v<16)
+            if(v < 16)
                 System.err.print("0");
             System.err.print(hs + " ");
         }
         System.err.println("");
-                
+
         BitSet bs = new BitSet(13);
-        for(int i=0;i<8;i++)
+        for(int i = 0; i < 8; i++)
         {
             if((1 & (hid_data[0] >> i)) == 1)
                 bs.set(i);
         }
-        for(int i=0;i<5;i++)
+        for(int i = 0; i < 5; i++)
         {
             if((1 & (hid_data[1] >> i)) == 1)
-                bs.set(8+i);
+                bs.set(8 + i);
         }
-        
+
         int i = 0;
         square = bs.get(i++);
-        cross  = bs.get(i++);
-        circle  = bs.get(i++);
-        triangle  = bs.get(i++);
-        L1  = bs.get(i++);
-        R1  = bs.get(i++);
-        L2  = bs.get(i++);
-        R2  = bs.get(i++);
+        cross = bs.get(i++);
+        circle = bs.get(i++);
+        triangle = bs.get(i++);
+        L1 = bs.get(i++);
+        R1 = bs.get(i++);
+        L2 = bs.get(i++);
+        R2 = bs.get(i++);
         select = bs.get(i++);
-        start  = bs.get(i++);
-        leftJoystickPress  = bs.get(i++);
-        rightJoystickPress  = bs.get(i++);
-        PS  = bs.get(i++);
-        
-        
+        start = bs.get(i++);
+        leftJoystickPress = bs.get(i++);
+        rightJoystickPress = bs.get(i++);
+        PS = bs.get(i++);
+
+        leftJoystickX = joystickCoordConv(hid_data[3]);
+        leftJoystickY = joystickCoordConv(hid_data[4]);
+        rightJoystickX = joystickCoordConv(hid_data[5]);
+        rightJoystickY = joystickCoordConv(hid_data[6]);
+
         System.err.println(toString());
 
-            
     }
-    
+
+    private int joystickCoordConv(byte b)
+    {
+        int v = b<0?b+256:b;
+        return v - 128;
+    }
+
     public boolean isTriangle()
     {
         return triangle;
@@ -231,6 +241,6 @@ public class PS3ControllerState
         builder.append(rightJoystickY);
         builder.append("]");
         return builder.toString();
-    }    
-    
+    }
+
 }
