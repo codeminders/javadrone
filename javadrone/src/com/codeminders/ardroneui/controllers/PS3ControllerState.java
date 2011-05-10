@@ -22,24 +22,23 @@ public class PS3ControllerState
     // triangular small "start" button
     protected boolean start;
 
-    protected boolean rightJoystickPress;
+    // Pressing on joysticks (button)
     protected boolean leftJoystickPress;
+    protected boolean rightJoystickPress;
 
     // PS3 button (sometimes labeled as Home on 3rd party models)
     protected boolean PS;
-
-
 
     // Direction pad (hatswitch)
     protected boolean dirLeft;
 
     // Analog joysticks
 
-    protected float   leftJoystickX;
-    protected float   leftJoystickY;
+    protected int   leftJoystickX;
+    protected int   leftJoystickY;
 
-    protected float   rightJoystickX;
-    protected float   rightJoystickY;
+    protected int   rightJoystickX;
+    protected int   rightJoystickY;
 
     public PS3ControllerState(byte[] hid_data, int hid_data_len)
     {
@@ -58,8 +57,7 @@ public class PS3ControllerState
             System.err.print(hs + " ");
         }
         System.err.println("");
-        
-        
+                
         BitSet bs = new BitSet(13);
         for(int i=0;i<8;i++)
         {
@@ -83,9 +81,13 @@ public class PS3ControllerState
         R2  = bs.get(i++);
         select = bs.get(i++);
         start  = bs.get(i++);
-        rightJoystickPress  = bs.get(i++);
         leftJoystickPress  = bs.get(i++);
+        rightJoystickPress  = bs.get(i++);
         PS  = bs.get(i++);
+        
+        
+        System.err.println(toString());
+
             
     }
     
@@ -179,4 +181,49 @@ public class PS3ControllerState
         return rightJoystickY;
     }
 
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PS3ControllerState [square=");
+        builder.append(square);
+        builder.append(", cross=");
+        builder.append(cross);
+        builder.append(", circle=");
+        builder.append(circle);
+        builder.append(", triangle=");
+        builder.append(triangle);
+        builder.append(", L1=");
+        builder.append(L1);
+        builder.append(", R1=");
+        builder.append(R1);
+        builder.append(", L2=");
+        builder.append(L2);
+        builder.append(", R2=");
+        builder.append(R2);
+        builder.append(", select=");
+        builder.append(select);
+        builder.append(", start=");
+        builder.append(start);
+        builder.append(", rightJoystickPress=");
+        builder.append(rightJoystickPress);
+        builder.append(", leftJoystickPress=");
+        builder.append(leftJoystickPress);
+        builder.append(", PS=");
+        builder.append(PS);
+        builder.append(", dirLeft=");
+        builder.append(dirLeft);
+        builder.append(", leftJoystickX=");
+        builder.append(leftJoystickX);
+        builder.append(", leftJoystickY=");
+        builder.append(leftJoystickY);
+        builder.append(", rightJoystickX=");
+        builder.append(rightJoystickX);
+        builder.append(", rightJoystickY=");
+        builder.append(rightJoystickY);
+        builder.append("]");
+        return builder.toString();
+    }
+    
+    
 }
