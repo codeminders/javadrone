@@ -4,8 +4,7 @@ package com.codeminders.ardroneui;
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.hidapi.*;
 
-import com.codeminders.ardroneui.controllers.AfterGlowController;
-import com.codeminders.ardroneui.controllers.PS3ControllerState;
+import com.codeminders.ardroneui.controllers.*;
 
 import java.io.IOException;
 
@@ -33,14 +32,20 @@ public class PS3Flight
     private static void readDevice()
     {
         ARDrone drone;
-        AfterGlowController dev;
+        PS3Controller dev;
         try
         {
             drone = new ARDrone();
             drone.connect();
             try
             {
-                dev = new AfterGlowController();
+                dev = findController();
+                if(dev == null)
+                {
+                    System.err.println("No suitable controller found!");
+                    listDevices();
+                    return;
+                }
                 try
                 {
                     while(true)
@@ -49,8 +54,8 @@ public class PS3Flight
                         if(pad == null)
                             continue;
 
-                        //TODO: perhaps save old PS3ControllerState object
-                        // And do diff, detecting button press or release. 
+                        // TODO: perhaps save old PS3ControllerState object
+                        // And do diff, detecting button press or release.
                         // otherwise multiple drone commands for send/relase
                         // will be sent while button is pressed.
                         if(pad.isStart())
@@ -82,6 +87,19 @@ public class PS3Flight
         {
             e.printStackTrace();
         }
+    }
+
+    private static PS3Controller findController() throws IOException
+    {
+        HIDDeviceInfo[] devs = HIDManager.listDevices();
+        for(int i = 0; i < devs.length; i++)
+        {
+            if(AfterGlowController.isA(devs[i]))
+                return new AfterGlowController(devs[i]);
+            if(SonyPS3Controller.isA(devs[i]))
+                return new SonyPS3Controller(devs[i]);
+        }
+        return null;
     }
 
     private static void listDevices()
