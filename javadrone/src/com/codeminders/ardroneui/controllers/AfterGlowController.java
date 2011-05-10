@@ -12,15 +12,14 @@ import com.codeminders.hidapi.*;
  * @author lord
  * 
  */
-public class AfterGlowController
+public class AfterGlowController extends PS3Controller
 {
     private static final int VENDOR_ID        = 3695;
     private static final int PRODUCT_ID       = 25346;
-    private HIDDevice        dev;
 
     private static final int BUFSIZE          = 32;
-    private static final int EXPECTED_BUFSIZE = 27;
-    private byte[]           buf              = new byte[BUFSIZE];
+    static final int         EXPECTED_BUFSIZE = 27;
+    byte[]                   buf              = new byte[BUFSIZE];
 
     public AfterGlowController() throws HIDDeviceNotFoundException, IOException
     {
@@ -28,6 +27,13 @@ public class AfterGlowController
         dev.enableBlocking();
     }
 
+    public AfterGlowController(HIDDeviceInfo hidDeviceInfo) throws IOException
+    {
+        dev = hidDeviceInfo.open();
+        dev.enableBlocking();
+    }
+
+    @Override
     public synchronized PS3ControllerState read() throws IOException
     {
         int n = dev.read(buf);
@@ -86,27 +92,8 @@ public class AfterGlowController
         return v - 128;
     }
 
-    public void close() throws IOException
+    public static boolean isA(HIDDeviceInfo hidDeviceInfo)
     {
-        dev.close();
-    }
-
-    @SuppressWarnings("unused")
-    private static void printDelta(byte[] prev, int prev_size, byte[] cur, int cur_size)
-    {
-        if(prev_size != cur_size)
-        {
-            System.err.println("Packet size is different. Prev: " + prev_size + " New: " + cur_size);
-            return;
-        }
-
-        for(int i = 0; i < prev_size; i++)
-        {
-            if(prev[i] != cur[i])
-            {
-                System.err.println("Index: " + i + " Prev value: " + Integer.toHexString((int) prev[i])
-                        + " New value: " + Integer.toHexString((int) cur[i]));
-            }
-        }
+        return(hidDeviceInfo.getVendor_id() == VENDOR_ID && hidDeviceInfo.getProduct_id() == PRODUCT_ID);
     }
 }
