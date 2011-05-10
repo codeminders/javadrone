@@ -22,7 +22,6 @@ public class PS3Flight
         System.loadLibrary("hidapi-jni");
     }
 
-
     /**
      * @param args
      */
@@ -37,8 +36,8 @@ public class PS3Flight
         AfterGlowController dev;
         try
         {
-            //drone = new ARDrone();
-            //drone.connect();
+            drone = new ARDrone();
+            drone.connect();
             try
             {
                 dev = new AfterGlowController();
@@ -50,11 +49,15 @@ public class PS3Flight
                         if(pad == null)
                             continue;
 
-                        /*if(pad.isStart())
+                        //TODO: perhaps save old PS3ControllerState object
+                        // And do diff, detecting button press or release. 
+                        // otherwise multiple drone commands for send/relase
+                        // will be sent while button is pressed.
+                        if(pad.isStart())
                             drone.takeOff();
                         else if(pad.isSelect())
                             drone.land();
-                        */
+
                         try
                         {
                             Thread.sleep(READ_UPDATE_DELAY_MS);
@@ -69,7 +72,7 @@ public class PS3Flight
                 }
             } finally
             {
-                //drone.disconnect();
+                drone.disconnect();
             }
         } catch(HIDDeviceNotFoundException hex)
         {

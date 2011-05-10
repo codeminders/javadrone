@@ -43,11 +43,7 @@ public class PS3ControllerState
 
     public PS3ControllerState(byte[] hid_data, int hid_data_len)
     {
-        // TODO: decode hid_data and set instance fields
-
-        // 13 bit fields (buttons)
-        // X,Y,Z,Rz - 4 8bit fields
-
+        /*
         for(int i = 0; i < hid_data_len; i++)
         {
             int v = hid_data[i];
@@ -59,6 +55,7 @@ public class PS3ControllerState
             System.err.print(hs + " ");
         }
         System.err.println("");
+        */
 
         BitSet bs = new BitSet(13);
         for(int i = 0; i < 8; i++)
@@ -91,8 +88,10 @@ public class PS3ControllerState
         leftJoystickY = joystickCoordConv(hid_data[4]);
         rightJoystickX = joystickCoordConv(hid_data[5]);
         rightJoystickY = joystickCoordConv(hid_data[6]);
+        
+        //TODO: decode HAT switch
 
-        System.err.println(toString());
+        //System.err.println(toString());
 
     }
 
