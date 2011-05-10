@@ -1,24 +1,15 @@
 
 package com.codeminders.ardroneui.controllers;
 
+import java.util.BitSet;
+
 public class PS3ControllerState
 {
     // buttons with pictures
-    protected boolean triangle;
-    protected boolean circle;
-    protected boolean cross;
     protected boolean square;
-
-    // PS3 button (sometimes labeled as Home on 3rd party models)
-    protected boolean PS;
-
-    // square small "select" button
-    protected boolean select;
-    // triangular small "start" button
-    protected boolean start;
-
-    protected boolean leftJoystickPress;
-    protected boolean rightJoystickPress;
+    protected boolean cross;
+    protected boolean circle;
+    protected boolean triangle;
 
     // Front-side buttons
     protected boolean L1;
@@ -26,7 +17,20 @@ public class PS3ControllerState
     protected boolean L2;
     protected boolean R2;
 
-    // Direction pad
+    // square small "select" button
+    protected boolean select;
+    // triangular small "start" button
+    protected boolean start;
+
+    protected boolean rightJoystickPress;
+    protected boolean leftJoystickPress;
+
+    // PS3 button (sometimes labeled as Home on 3rd party models)
+    protected boolean PS;
+
+
+
+    // Direction pad (hatswitch)
     protected boolean dirLeft;
 
     // Analog joysticks
@@ -37,9 +41,52 @@ public class PS3ControllerState
     protected float   rightJoystickX;
     protected float   rightJoystickY;
 
-    public PS3ControllerState(byte[] hid_data)
+    public PS3ControllerState(byte[] hid_data, int hid_data_len)
     {
         //TODO: decode hid_data and set instance fields
+        
+        // 13 bit fields (buttons)
+        // X,Y,Z,Rz - 4 8bit fields
+        
+        for(int i=0; i<hid_data_len; i++)
+        {
+            int v = hid_data[i];
+            if (v<0) v = v+256;
+            String hs = Integer.toHexString(v);
+            if (v<16)
+                System.err.print("0");
+            System.err.print(hs + " ");
+        }
+        System.err.println("");
+        
+        
+        BitSet bs = new BitSet(13);
+        for(int i=0;i<8;i++)
+        {
+            if((1 & (hid_data[0] >> i)) == 1)
+                bs.set(i);
+        }
+        for(int i=0;i<5;i++)
+        {
+            if((1 & (hid_data[1] >> i)) == 1)
+                bs.set(8+i);
+        }
+        
+        int i = 0;
+        square = bs.get(i++);
+        cross  = bs.get(i++);
+        circle  = bs.get(i++);
+        triangle  = bs.get(i++);
+        L1  = bs.get(i++);
+        R1  = bs.get(i++);
+        L2  = bs.get(i++);
+        R2  = bs.get(i++);
+        select = bs.get(i++);
+        start  = bs.get(i++);
+        rightJoystickPress  = bs.get(i++);
+        leftJoystickPress  = bs.get(i++);
+        PS  = bs.get(i++);
+            
     }
     
     public boolean isTriangle()
