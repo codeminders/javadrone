@@ -84,10 +84,6 @@ public class PS3Flight
                         PS3ControllerStateChange pad_change = new PS3ControllerStateChange(oldpad, pad);
                         oldpad = pad;
 
-                        // TODO: perhaps save old PS3ControllerState object
-                        // And do diff, detecting button press or release.
-                        // otherwise multiple drone commands for send/relase
-                        // will be sent while button is pressed.
                         if(pad_change.isStartChanged() && pad_change.isStart())
                         {
                             System.err.println("Taking off");
@@ -102,7 +98,7 @@ public class PS3Flight
 
                             drone.clearEmergencySignal();
                             drone.trim();
-                        } else
+                        } else if(pad_change.isJoysticksChanged())
                         {
                             // Detecting if we need to move the drone
 
