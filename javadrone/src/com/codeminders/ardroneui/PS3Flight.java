@@ -14,7 +14,7 @@ import com.codeminders.hidapi.*;
  */
 public class PS3Flight
 {
-    private static final long READ_UPDATE_DELAY_MS = 50L;
+    private static final long READ_UPDATE_DELAY_MS = 20L;
     private static final long CONNECT_TIMEOUT      = 3000L;
 
     static
@@ -44,8 +44,9 @@ public class PS3Flight
                 {
                     try
                     {
+                        System.err.println("Configure");
                         drone.trim();
-                        drone.setConfigOption("control:altitude_max", "1000");
+                        drone.setConfigOption("control:altitude_max", "10000");
                         drone.setConfigOption("control:euler_angle_max", "0.2");
                         drone.setConfigOption("control:control_vz_max", "2000.0");
                         drone.setConfigOption("control:control_yaw", "2.0");
@@ -98,7 +99,7 @@ public class PS3Flight
 
                             drone.clearEmergencySignal();
                             drone.trim();
-                        } else if(pad_change.isJoysticksChanged())
+                        } else
                         {
                             // Detecting if we need to move the drone
 
@@ -137,10 +138,10 @@ public class PS3Flight
                                 System.err.println("Vertical speed: " + vertical_speed);
                             }
 
-                            if(leftX != 0 || leftY != 0 || rightX != 0 || rightY != 0)
-                            {
+                           if(leftX != 0 || leftY != 0 || rightX != 0 || rightY != 0)
                                 drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);
-                            }
+                            else
+                               drone.hover();
                         }
 
                         try

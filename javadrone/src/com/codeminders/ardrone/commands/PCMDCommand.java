@@ -27,9 +27,10 @@ public class PCMDCommand extends ATCommand
         if(hover)
             return new Object[] { 0, 0f, 0f, 0f, 0f };
 
-        int mode = combined_yaw_enabled ? 1 : 0;
-//        if(combined_yaw_enabled)
-//            mode |= (1<<1);
+//        int mode = combined_yaw_enabled ? 1 : 0;
+        int mode = 1;
+        if(combined_yaw_enabled)
+            mode |= (1<<1);
 
         return new Object[] { mode, left_right_tilt, front_back_tilt, vertical_speed, angular_speed };
     }
