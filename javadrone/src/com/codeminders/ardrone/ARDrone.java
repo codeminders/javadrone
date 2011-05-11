@@ -105,6 +105,11 @@ public class ARDrone
         }
     }
 
+    /**
+     * Initiate drone connection procedure.
+     * 
+     * @throws IOException
+     */
     public void connect() throws IOException
     {
         try
@@ -127,6 +132,66 @@ public class ARDrone
         {
             changeToErrorState(ex);
             throw ex;
+        }
+    }
+
+    /**
+     * Synchronous connect. Try to connect to drone and get it into DEMO mode. 
+     * Throw exception if this not succeeded within given timeout.
+     * 
+     * @param how_long
+     * @throws IOException
+     */
+    public void syncConnect(long how_long) throws IOException
+    {
+        log.fine("connecting to drone");
+        try
+        {
+            video_socket = new DatagramSocket(VIDEO_PORT);
+            cmd_socket = new DatagramSocket();
+            // control_socket = new Socket(drone_addr, CONTROL_PORT);
+
+            cmd_sender = new CmdSender(cmd_queue, this, drone_addr, cmd_socket);
+            cmd_sending_thread = new Thread(cmd_sender);
+            cmd_sending_thread.start();
+
+            nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
+            nav_data_reader_thread = new Thread(nav_data_reader);
+            nav_data_reader_thread.start();
+        } catch(IOException ex)
+        {
+            changeToErrorState(ex);
+            throw ex;
+        }
+
+        log.fine("Waiting for status change");
+
+        long since = System.currentTimeMillis();
+        synchronized(state_mutex)
+        {
+            changeState(State.CONNECTING);
+            while(true)
+            {
+                long p = Math.min(System.currentTimeMillis() - since, how_long);
+                try
+                {
+                    state_mutex.wait(p);
+                } catch(InterruptedException e)
+                {
+                    // Ignore
+                }
+                if((System.currentTimeMillis() - since) >= how_long)
+                {
+                    // Timeout, too late
+                    throw new IOException("Timeout connecting to ARDrone");
+                } else if(state == State.DEMO)
+                {
+                    return; // OK! We are now connected
+                } else if(state == State.ERROR || state == State.DISCONNECTED)
+                {
+                    throw new IOException("Connection Error");
+                }
+            }
         }
     }
 
