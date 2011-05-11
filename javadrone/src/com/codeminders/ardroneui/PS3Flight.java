@@ -15,6 +15,7 @@ import com.codeminders.hidapi.*;
 public class PS3Flight
 {
     private static final long READ_UPDATE_DELAY_MS = 50L;
+    private static final long CONNECT_TIMEOUT      = 3000L;
 
     static
     {
@@ -55,7 +56,7 @@ public class PS3Flight
                 }
             });
 
-            drone.connect();
+            drone.syncConnect(CONNECT_TIMEOUT);
             System.err.println("Connected to the drone");
             try
             {
