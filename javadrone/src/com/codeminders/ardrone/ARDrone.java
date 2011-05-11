@@ -3,6 +3,8 @@ package com.codeminders.ardrone;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,14 +25,14 @@ public class ARDrone
 
     private static final int                    NAVDATA_PORT     = 5554;
     private static final int                    VIDEO_PORT       = 5555;
-    //private static final int                    CONTROL_PORT     = 5559;
+    // private static final int CONTROL_PORT = 5559;
 
     private static byte[]                       DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
     private InetAddress                         drone_addr;
     private DatagramSocket                      video_socket;
     private DatagramSocket                      cmd_socket;
-    //private Socket                              control_socket;
+    // private Socket control_socket;
 
     private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>();
     private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
@@ -41,10 +43,12 @@ public class ARDrone
     private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
 
-    private boolean                             combinedYawMode = true;
+    private boolean                             combinedYawMode  = true;
 
-    private boolean                             emergencyMode   = true;
-    private Object                              emergency_mutex = new Object();
+    private boolean                             emergencyMode    = true;
+    private Object                              emergency_mutex  = new Object();
+
+    private List<DroneStatusChangeListener>     status_listeners = new LinkedList<DroneStatusChangeListener>();
 
     public ARDrone() throws UnknownHostException
     {
@@ -56,8 +60,7 @@ public class ARDrone
         this.drone_addr = drone_addr;
     }
 
-    private void changeState(State newstate)
-        throws IOException
+    private void changeState(State newstate) throws IOException
     {
         if(newstate == State.ERROR)
             changeToErrorState(null);
@@ -72,6 +75,15 @@ public class ARDrone
                 // We automatically switch to DEMO from bootstrap
                 if(state == State.BOOTSTRAP)
                     sendDemoNavigationData();
+            }
+        }
+
+        if(newstate == State.DEMO)
+        {
+            synchronized(status_listeners)
+            {
+                for(DroneStatusChangeListener l : status_listeners)
+                    l.ready();
             }
         }
     }
@@ -197,34 +209,36 @@ public class ARDrone
 
     /**
      * Move the drone
-     *
-     * @param left_right_tilt  The left-right tilt (aka. "drone roll" or phi angle) argument is a percentage of the maximum
-inclination as configured here. A negative value makes the drone tilt to its left, thus flying
-leftward. A positive value makes the drone tilt to its right, thus flying rightward.
-     * @param front_back_tilt The front-back tilt (aka. "drone pitch" or theta angle) argument is a percentage of the maximum
-inclination as configured here. A negative value makes the drone lower its nose, thus flying
-frontward. A positive value makes the drone raise its nose, thus flying backward.
-The drone translation speed in the horizontal plane depends on the environment and cannot
-be determined. With roll or pitch values set to 0, the drone will stay horizontal but continue
-sliding in the air because of its inertia. Only the air resistance will then make it stop.
-     * @param vertical_speed The vertical speed (aka. "gaz") argument is a percentage of the maximum vertical speed as
-defined here. A positive value makes the drone rise in the air. A negative value makes it go
-down.
-     * @param angular_speed The angular speed argument is a percentage of the maximum angular speed as defined here.
-A positive value makes the drone spin right; a negative value makes it spin left.
+     * 
+     * @param left_right_tilt The left-right tilt (aka. "drone roll" or phi
+     *            angle) argument is a percentage of the maximum inclination as
+     *            configured here. A negative value makes the drone tilt to its
+     *            left, thus flying leftward. A positive value makes the drone
+     *            tilt to its right, thus flying rightward.
+     * @param front_back_tilt The front-back tilt (aka. "drone pitch" or theta
+     *            angle) argument is a percentage of the maximum inclination as
+     *            configured here. A negative value makes the drone lower its
+     *            nose, thus flying frontward. A positive value makes the drone
+     *            raise its nose, thus flying backward. The drone translation
+     *            speed in the horizontal plane depends on the environment and
+     *            cannot be determined. With roll or pitch values set to 0, the
+     *            drone will stay horizontal but continue sliding in the air
+     *            because of its inertia. Only the air resistance will then make
+     *            it stop.
+     * @param vertical_speed The vertical speed (aka. "gaz") argument is a
+     *            percentage of the maximum vertical speed as defined here. A
+     *            positive value makes the drone rise in the air. A negative
+     *            value makes it go down.
+     * @param angular_speed The angular speed argument is a percentage of the
+     *            maximum angular speed as defined here. A positive value makes
+     *            the drone spin right; a negative value makes it spin left.
      * @throws IOException
      */
-    public void move(float left_right_tilt,
-                     float front_back_tilt,
-                     float vertical_speed,
-                     float angular_speed)
-        throws IOException
+    public void move(float left_right_tilt, float front_back_tilt, float vertical_speed, float angular_speed)
+            throws IOException
     {
-        cmd_queue.add(new MoveCommand(combinedYawMode,
-                                      left_right_tilt,
-                                      front_back_tilt,
-                                      vertical_speed,
-                                      angular_speed));
+        cmd_queue
+                .add(new MoveCommand(combinedYawMode, left_right_tilt, front_back_tilt, vertical_speed, angular_speed));
     }
 
     public void sendAllNavigationData() throws IOException
@@ -264,24 +278,23 @@ A positive value makes the drone spin right; a negative value makes it spin left
 
         try
         {
-        synchronized(state_mutex)
-        {
-            if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
+            synchronized(state_mutex)
             {
-                changeState(State.BOOTSTRAP);
-            } else if(state != State.DEMO && nd.getMode() == NavData.Mode.DEMO)
-            {
-                changeState(State.DEMO);
+                if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
+                {
+                    changeState(State.BOOTSTRAP);
+                } else if(state != State.DEMO && nd.getMode() == NavData.Mode.DEMO)
+                {
+                    changeState(State.DEMO);
+                }
+
+                if(nd.isCommunicationProblemOccurred())
+                {
+                    // 50ms communications watchdog has been triggered
+                    cmd_queue.add(new KeepAliveCommand());
+                }
             }
-            
-            if(nd.isCommunicationProblemOccurred())
-            {
-                // 50ms communications watchdog has been triggered
-                cmd_queue.add(new KeepAliveCommand());
-            }
-        }
-        }
-        catch(IOException e)
+        } catch(IOException e)
         {
             log.log(Level.SEVERE, "Error changing the state", e);
         }
@@ -291,4 +304,18 @@ A positive value makes the drone spin right; a negative value makes it spin left
             navdata_queue.add(nd);
         }
     }
+
+    public void addStatusChangeListener(DroneStatusChangeListener l)
+    {
+        synchronized(status_listeners)
+        {
+            status_listeners.add(l);
+        }
+    }
+
+    public List<DroneStatusChangeListener> getStatusChangeListeners()
+    {
+        return status_listeners;
+    }
+
 }

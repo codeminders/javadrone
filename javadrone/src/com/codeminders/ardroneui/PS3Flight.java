@@ -1,13 +1,11 @@
 
 package com.codeminders.ardroneui;
 
-import com.codeminders.ardrone.ARDrone;
-import com.codeminders.hidapi.*;
-
-import com.codeminders.ardroneui.controllers.*;
-import org.xml.sax.helpers.ParserAdapter;
-
 import java.io.IOException;
+
+import com.codeminders.ardrone.ARDrone;
+import com.codeminders.ardroneui.controllers.*;
+import com.codeminders.hidapi.*;
 
 /**
  * Created by IntelliJ IDEA. User: bird Date: 5/6/11 Time: 4:50 PM To change
