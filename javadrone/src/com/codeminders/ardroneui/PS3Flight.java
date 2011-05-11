@@ -4,6 +4,7 @@ package com.codeminders.ardroneui;
 import java.io.IOException;
 
 import com.codeminders.ardrone.ARDrone;
+import com.codeminders.ardrone.DroneStatusChangeListener;
 import com.codeminders.ardroneui.controllers.*;
 import com.codeminders.hidapi.*;
 
@@ -30,12 +31,29 @@ public class PS3Flight
 
     private static void readDevice()
     {
-        ARDrone drone;
         PS3Controller dev;
         try
         {
-            drone = new ARDrone();
+            final ARDrone drone = new ARDrone();
             drone.setCombinedYawMode(true);
+            drone.addStatusChangeListener(new DroneStatusChangeListener() {
+
+                @Override
+                public void ready()
+                {
+                    try
+                    {
+                        drone.trim();
+                        drone.setConfigOption("control:altitude_max", "1000");
+                        drone.setConfigOption("control:euler_angle_max", "0.2");
+                        drone.setConfigOption("control:control_vz_max", "2000.0");
+                        drone.setConfigOption("control:control_yaw", "2.0");
+                    } catch(IOException e)
+                    {
+                        drone.changeToErrorState(e);
+                    }
+                }
+            });
 
             drone.connect();
             System.err.println("Connected to the drone");
@@ -67,25 +85,17 @@ public class PS3Flight
                         {
                             System.err.println("Taking off");
                             drone.takeOff();
-                        }
-                        else if(pad.isSelect())
+                        } else if(pad.isSelect())
                         {
                             System.err.println("Landing");
                             drone.land();
-                        }
-                        else if(pad.isPS())
+                        } else if(pad.isPS())
                         {
                             System.err.println("Reseting");
 
                             drone.clearEmergencySignal();
                             drone.trim();
-
-                            drone.setConfigOption("control:altitude_max",    "1000");
-                            drone.setConfigOption("control:euler_angle_max", "0.2");
-                            drone.setConfigOption("control:control_vz_max",  "2000.0");
-                            drone.setConfigOption("control:control_yaw",     "2.0");
-                        }
-                        else
+                        } else
                         {
                             // Detecting if we need to move the drone
 
@@ -97,30 +107,30 @@ public class PS3Flight
 
                             float left_right_tilt = 0f;
                             float front_back_tilt = 0f;
-                            float vertical_speed  = 0f;
-                            float angular_speed   = 0f;
+                            float vertical_speed = 0f;
+                            float angular_speed = 0f;
 
                             if(leftX != 0)
                             {
-                                left_right_tilt = ((float)leftX)/128f;
+                                left_right_tilt = ((float) leftX) / 128f;
                                 System.err.println("Left-Right tilt: " + left_right_tilt);
                             }
 
                             if(leftY != 0)
                             {
-                                front_back_tilt = ((float)leftY)/128f;
+                                front_back_tilt = ((float) leftY) / 128f;
                                 System.err.println("Front-back tilt: " + front_back_tilt);
                             }
 
                             if(rightX != 0)
                             {
-                                angular_speed = ((float)rightX)/128f;
+                                angular_speed = ((float) rightX) / 128f;
                                 System.err.println("Angular speed: " + angular_speed);
                             }
 
                             if(rightY != 0)
                             {
-                                vertical_speed = -1*((float)rightY)/128f;
+                                vertical_speed = -1 * ((float) rightY) / 128f;
                                 System.err.println("Vertical speed: " + vertical_speed);
                             }
 
