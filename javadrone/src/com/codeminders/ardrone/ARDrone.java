@@ -15,7 +15,7 @@ public class ARDrone
 {
     public enum State
     {
-        DISCONNECTED, BOOTSTRAP, DEMO, ERROR
+        DISCONNECTED, CONNECTING, BOOTSTRAP, DEMO, ERROR
     }
 
     private Logger                              log              = Logger.getLogger("ARDrone");
@@ -121,7 +121,7 @@ public class ARDrone
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.start();
 
-            changeState(State.BOOTSTRAP);
+            changeState(State.CONNECTING);
 
         } catch(IOException ex)
         {
