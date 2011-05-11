@@ -159,6 +159,11 @@ public class ARDrone
             {
                 if((System.currentTimeMillis() - since) >= how_long)
                 {
+                    try
+                    {
+                        disconnect();
+                    }
+                    catch(IOException e) {}
                     // Timeout, too late
                     throw new IOException("Timeout connecting to ARDrone");
                 } else if(state == State.DEMO)
