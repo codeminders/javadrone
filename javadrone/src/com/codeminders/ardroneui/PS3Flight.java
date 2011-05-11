@@ -80,7 +80,7 @@ public class PS3Flight
                         PS3ControllerState pad = dev.read();
                         if(pad == null)
                             continue;
-                        
+
                         PS3ControllerStateChange pad_change = new PS3ControllerStateChange(oldpad, pad);
                         oldpad = pad;
 
