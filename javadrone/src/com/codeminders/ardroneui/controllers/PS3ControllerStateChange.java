@@ -36,10 +36,13 @@ public class PS3ControllerStateChange extends PS3ControllerState
      * @param o Old state
      * @param n New state
      */
-    PS3ControllerStateChange(PS3ControllerState o, PS3ControllerState n)
+    public PS3ControllerStateChange(PS3ControllerState o, PS3ControllerState n)
     {
         super(n);
 
+        if(o==null)
+            o=n;
+        
         squareChanged = o.square != n.square;
         crossChanged = o.cross != n.cross;
         circleChanged = o.circle != n.circle;
