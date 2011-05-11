@@ -172,13 +172,17 @@ public class ARDrone
             changeState(State.CONNECTING);
             while(true)
             {
-                long p = Math.min(System.currentTimeMillis() - since, how_long);
-                try
+                long p = Math.min(how_long - (System.currentTimeMillis() - since), how_long);
+                if(p > 0)
                 {
-                    state_mutex.wait(p);
-                } catch(InterruptedException e)
-                {
-                    // Ignore
+                    try
+                    {
+                        state_mutex.wait(p);
+                    }
+                    catch(InterruptedException e)
+                    {
+                        // Ignore
+                    }
                 }
                 if((System.currentTimeMillis() - since) >= how_long)
                 {
