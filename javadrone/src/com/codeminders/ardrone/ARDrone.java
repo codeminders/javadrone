@@ -20,6 +20,7 @@ public class ARDrone
 
     private Logger                              log              = Logger.getLogger("ARDrone");
 
+    private static final int                    CMD_QUEUE_SIZE   = 64;
     private State                               state            = State.DISCONNECTED;
     private Object                              state_mutex      = new Object();
 
@@ -34,7 +35,7 @@ public class ARDrone
     private DatagramSocket                      cmd_socket;
     // private Socket control_socket;
 
-    private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>();
+    private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>(CMD_QUEUE_SIZE);
     private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
 
     private NavDataReader                       nav_data_reader;
@@ -72,6 +73,8 @@ public class ARDrone
                 log.fine("State changed from " + state + " to " + newstate);
                 state = newstate;
 
+                state_mutex.notifyAll();
+
                 // We automatically switch to DEMO from bootstrap
                 if(state == State.BOOTSTRAP)
                     sendDemoNavigationData();
@@ -88,6 +91,7 @@ public class ARDrone
         }
     }
 
+
     public void changeToErrorState(Exception ex)
     {
         synchronized(state_mutex)
@@ -102,6 +106,7 @@ public class ARDrone
             }
             log.fine("State changed from " + state + " to " + State.ERROR + " with exception " + ex);
             state = State.ERROR;
+            state_mutex.notifyAll();
         }
     }
 
@@ -293,18 +298,17 @@ public class ARDrone
     public void sendAllNavigationData() throws IOException
     {
         setConfigOption("general:navdata_demo", "FALSE");
-        cmd_queue.add(new ControlCommand(5, 0));
     }
 
     public void sendDemoNavigationData() throws IOException
     {
         setConfigOption("general:navdata_demo", "TRUE");
-        cmd_queue.add(new ControlCommand(5, 0));
     }
 
     public void setConfigOption(String name, String value) throws IOException
     {
         cmd_queue.add(new ConfigureCommand(name, value));
+        cmd_queue.add(new ControlCommand(5, 0));
     }
 
     public void playLED(int animation_no, float freq, int duration) throws IOException
