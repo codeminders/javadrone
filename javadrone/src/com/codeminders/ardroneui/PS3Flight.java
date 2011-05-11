@@ -57,7 +57,8 @@ public class PS3Flight
             });
 
             System.err.println("Connecting to the drone");
-            drone.syncConnect(CONNECT_TIMEOUT);
+            drone.connect();
+            drone.waitForReady(CONNECT_TIMEOUT);
             System.err.println("Connected to the drone");
             try
             {
