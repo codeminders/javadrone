@@ -48,4 +48,10 @@ public class VideoReader implements Runnable
             e.printStackTrace();
         }
     }
+
+    public void close()
+    {
+        // TODO Auto-generated method stub
+        
+    }
 }
