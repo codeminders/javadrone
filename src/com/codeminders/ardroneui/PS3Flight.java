@@ -1,12 +1,19 @@
 
 package com.codeminders.ardroneui;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneStatusChangeListener;
+import com.codeminders.ardrone.DroneVideoListener;
 import com.codeminders.ardroneui.controllers.*;
 import com.codeminders.hidapi.*;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 /**
  * Created by IntelliJ IDEA. User: bird Date: 5/6/11 Time: 4:50 PM To change
@@ -22,15 +29,56 @@ public class PS3Flight
         System.loadLibrary("hidapi-jni");
     }
 
+    private static void showVideo(final ARDrone drone)
+    {
+        JFrame frame = new JFrame("Video");
+        final JPanel videoWindow = new JPanel()
+        {
+            protected BufferedImage image = null;
+            {
+                try
+                {
+                    image = ImageIO.read(new File("ardrone_video_frame1.raw.png"));
+                }
+                catch(IOException e)
+                {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                }
+
+                drone.addImageListener(new DroneVideoListener()
+                {
+                    @Override
+                    public void frameReceived(BufferedImage im)
+                    {
+                        image = im;
+                        repaint();
+                    }
+                });
+            }
+
+            @Override
+            public void paintComponent(Graphics g)
+            {
+                if(image != null)
+                    g.drawImage(image, 0, 0, null);
+            }
+        };
+
+//        videoWindow.setPreferredSize(new Dimension(352, 288)); // CIF   TODO: support QCIF and other resolutions
+        videoWindow.setPreferredSize(new Dimension(320, 240));  // QVGA
+
+        frame.getContentPane().add(videoWindow, BorderLayout.CENTER);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
     /**
      * @param args
      */
     public static void main(String[] args)
-    {
-        readDevice();
-    }
-
-    private static void readDevice()
     {
         PS3Controller dev;
         try
@@ -56,23 +104,10 @@ public class PS3Flight
                     }
                 }
             });
-            /*drone.addImageListner(new DroneVideoListener() {
-            	
-            	private JFrame frame;
-            	private JPanel panel;
-				
-				@Override
-				public void onCreate() {
-					
-				}
-				
-				@Override
-				public void draw(BufferedImage image) {
-				
-				}
 
-			});
-            */
+
+            showVideo(drone);
+
             System.err.println("Connecting to the drone");
             drone.connect();
             drone.waitForReady(CONNECT_TIMEOUT);

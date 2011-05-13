@@ -453,12 +453,12 @@ public class ARDrone
         return status_listeners;
     }
 
-    public void addImageListner(DroneVideoListener l)
+    public void addImageListener(DroneVideoListener l)
     {
         image_listeners.add(l);
     }
 
-    public List<DroneVideoListener> getImageReciveListeners()
+    public List<DroneVideoListener> getImageListeners()
     {
         return image_listeners;
     }
