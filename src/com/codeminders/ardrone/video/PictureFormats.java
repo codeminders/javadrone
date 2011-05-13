@@ -23,9 +23,9 @@ public class PictureFormats {
 	// / <summary>
 	// / 176px x 144px
 	// / </summary>
-	public static final int Cif = 1;
+	public static final int CIF = 1;
 	// / <summary>
 	// / 320px x 240px
 	// / </summary>
-	public static final int Vga = 2;
+	public static final int QVGA = 2;
 }
