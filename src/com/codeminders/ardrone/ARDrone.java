@@ -211,8 +211,8 @@ public class ARDrone
     {
         cmd_queue.add(new QuitCommand());
         nav_data_reader.stop();
+        video_reader.stop();
         cmd_socket.close();
-        video_reader.close();
 
         // Only the following method can throw an exception.
         // We call it last, to ensure it won't prevent other
