@@ -1,6 +1,7 @@
 
 package com.codeminders.ardrone;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.*;
 import java.util.LinkedList;
@@ -18,6 +19,11 @@ public class ARDrone
         DISCONNECTED, CONNECTING, BOOTSTRAP, DEMO, ERROR
     }
 
+    public enum VideoChannel
+    {
+        HORIZONTAL_BIG, HORIZONTAL_SMALL, VERTICAL_BIG, VERTICAL_SMALL
+    }
+
     private Logger                              log              = Logger.getLogger("ARDrone");
 
     private static final int                    CMD_QUEUE_SIZE   = 64;
@@ -31,18 +37,20 @@ public class ARDrone
     private static byte[]                       DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
     private InetAddress                         drone_addr;
-    private DatagramSocket                      video_socket;
     private DatagramSocket                      cmd_socket;
     // private Socket control_socket;
 
-    private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>(CMD_QUEUE_SIZE);
+    private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>(
+                                                                         CMD_QUEUE_SIZE);
     private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
 
     private NavDataReader                       nav_data_reader;
+    private VideoReader                         video_reader;
     private CmdSender                           cmd_sender;
 
     private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
+    private Thread                              video_reader_thread;
 
     private boolean                             combinedYawMode  = true;
 
@@ -50,6 +58,8 @@ public class ARDrone
     private Object                              emergency_mutex  = new Object();
 
     private List<DroneStatusChangeListener>     status_listeners = new LinkedList<DroneStatusChangeListener>();
+
+    private List<DroneVideoListener>            image_listeners  = new LinkedList<DroneVideoListener>();
 
     public ARDrone() throws UnknownHostException
     {
@@ -91,7 +101,6 @@ public class ARDrone
         }
     }
 
-
     public void changeToErrorState(Exception ex)
     {
         synchronized(state_mutex)
@@ -119,7 +128,6 @@ public class ARDrone
     {
         try
         {
-            video_socket = new DatagramSocket(VIDEO_PORT);
             cmd_socket = new DatagramSocket();
             // control_socket = new Socket(drone_addr, CONTROL_PORT);
 
@@ -130,6 +138,10 @@ public class ARDrone
             nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.start();
+
+            video_reader = new VideoReader(this, drone_addr, VIDEO_PORT);
+            video_reader_thread = new Thread(video_reader);
+            video_reader_thread.start();
 
             changeState(State.CONNECTING);
 
@@ -205,12 +217,45 @@ public class ARDrone
         cmd_queue.add(new QuitCommand());
         nav_data_reader.stop();
         cmd_socket.close();
-        video_socket.close();
+        video_reader.close();
 
         // Only the following method can throw an exception.
         // We call it last, to ensure it won't prevent other
         // cleanup operations from being completed
         // control_socket.close();
+    }
+
+    public void selectVideoChannel(VideoChannel c) throws IOException
+    {
+        /*
+         * TODO: implement
+         * 
+         * Current implementation supports 4 different channels : -
+         * ARDRONE_VIDEO_CHANNEL_HORI - ARDRONE_VIDEO_CHANNEL_VERT -
+         * ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT -
+         * ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
+         * 
+         * AT command example : AT*CONFIG=605,"video:video_channel","2"
+         */
+    }
+
+    /**
+     * Enables the automatic bitrate control of the video stream. Enabling this
+     * configuration will reduce the bandwith used by the video stream under bad
+     * Wi-Fi conditions, reducing the commands latency. Note : Before enabling
+     * this config, make sure that your video decoder is able to handle the
+     * variable bitrate mode !
+     * 
+     * @throws IOException
+     */
+    public void enableAutomaticVideoBitrate() throws IOException
+    {
+        // TODO: implement
+    }
+
+    public void disableAutomaticVideoBitrate() throws IOException
+    {
+        // TODO: implement
     }
 
     public void trim() throws IOException
@@ -326,6 +371,13 @@ public class ARDrone
         cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
     }
 
+    // Callback used by VideoReciver
+    public void videoFrameReceived(BufferedImage image)
+    {
+        for(DroneVideoListener l : image_listeners)
+            l.frameReceived(image);
+    }
+
     // Callback used by receiver
     public void navDataReceived(NavData nd)
     {
@@ -374,6 +426,16 @@ public class ARDrone
     public List<DroneStatusChangeListener> getStatusChangeListeners()
     {
         return status_listeners;
+    }
+
+    public void addImageListner(DroneVideoListener l)
+    {
+        image_listeners.add(l);
+    }
+
+    public List<DroneVideoListener> getImageReciveListeners()
+    {
+        return image_listeners;
     }
 
 }
