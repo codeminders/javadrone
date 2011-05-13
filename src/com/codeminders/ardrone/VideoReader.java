@@ -17,7 +17,7 @@ public class VideoReader implements Runnable
      * Image data buffer. It should be big enough to hold single full frame
      * (encoded).
      */
-    private static final int BUFSIZE = 512 * 1024 * 1024;
+    private static final int BUFSIZE = 512 * 1024;// * 1024;
 
     private enum State
     {
@@ -84,6 +84,7 @@ public class VideoReader implements Runnable
                             int e = findPSC(inbuf, pos, len);
                             if(e != -1)
                             {
+                                System.err.println("Image start found");
                                 // Found!
                                 inbuf.position(e);
                                 inbuf.compact();
@@ -94,8 +95,9 @@ public class VideoReader implements Runnable
                             int s = findEOS(inbuf, pos, len);
                             if(s != -1)
                             {
+                                System.err.println("Image end found");
                                 // Found!
-                                inbuf.limit(s);
+                                inbuf.limit(s+1);
                                 inbuf.position(0);
                                 byte[] packet = new byte[s+1];
                                 inbuf.get(packet, 0, s+1);
@@ -131,12 +133,18 @@ public class VideoReader implements Runnable
 
         int f = Math.max(0, pos - 2);
         int t = pos + len;
-        if((f - t) < 3)
+        if((t - f) < 3)
             return -1;
-        
+
         for(int i = f; i < (pos + len - 2); i++)
         {
-            if(inbuf.get(i) == 0 && inbuf.get(i + 1) == 0 && (inbuf.get(i) & 3) == -4)
+            byte b0 = inbuf.get(i);
+            byte b1 = inbuf.get(i+1);
+            byte b2 = (byte)(inbuf.get(i+2) >> 2);
+            if(b0==0 && b1 == 0)
+                ;
+
+            if(inbuf.get(i) == 0 && inbuf.get(i + 1) == 0 && (inbuf.get(i + 2) >> 2) == 15)
                 return i;
         }
         return -1;
@@ -158,12 +166,18 @@ public class VideoReader implements Runnable
 
         int f = Math.max(0, pos - 2);
         int t = pos + len;
-        if((f - t) < 3)
+        if((t - f) < 3)
             return -1;
         
         for(int i = f; i < (pos + len - 2); i++)
         {
-            if(inbuf.get(i) == 0 && inbuf.get(i + 1) == 0 && (inbuf.get(i) & 3) == -128)
+            byte b0 = inbuf.get(i);
+            byte b1 = inbuf.get(i+1);
+            byte b2 = (byte)(inbuf.get(i+2) >> 2);
+            if(b0==0 && b1 == 0)
+                ;
+
+            if(inbuf.get(i) == 0 && inbuf.get(i + 1) == 0 && (inbuf.get(i + 2) >> 2) == 8)
                 return i;
         }
         return -1;

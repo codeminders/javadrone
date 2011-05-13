@@ -37,14 +37,6 @@ public class PS3Flight
         {
             protected BufferedImage image = null;
             {
-                try
-                {
-                    image = ImageIO.read(new File("ardrone_video_frame1.raw.png"));
-                }
-                catch(IOException e)
-                {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-                }
 
                 drone.addImageListener(new DroneVideoListener()
                 {
