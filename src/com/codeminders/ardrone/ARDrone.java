@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 
 import com.codeminders.ardrone.commands.*;
 
+import javax.security.auth.login.Configuration;
+
 public class ARDrone
 {
     public enum State
@@ -21,7 +23,7 @@ public class ARDrone
 
     public enum VideoChannel
     {
-        HORIZONTAL_BIG, HORIZONTAL_SMALL, VERTICAL_BIG, VERTICAL_SMALL
+        HORIZONTAL_ONLY, VERTICAL_ONLY, VERTICAL_IN_HORIZONTAL, HORIZONTAL_IN_VERTICAL
     }
 
     private Logger                              log              = Logger.getLogger("ARDrone");
@@ -171,6 +173,11 @@ public class ARDrone
             {
                 if((System.currentTimeMillis() - since) >= how_long)
                 {
+                    try
+                    {
+                        disconnect();
+                    }
+                    catch(IOException e) {}
                     // Timeout, too late
                     throw new IOException("Timeout connecting to ARDrone");
                 } else if(state == State.DEMO)
@@ -223,8 +230,6 @@ public class ARDrone
     public void selectVideoChannel(VideoChannel c) throws IOException
     {
         /*
-         * TODO: implement
-         * 
          * Current implementation supports 4 different channels : -
          * ARDRONE_VIDEO_CHANNEL_HORI - ARDRONE_VIDEO_CHANNEL_VERT -
          * ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT -
@@ -232,6 +237,31 @@ public class ARDrone
          * 
          * AT command example : AT*CONFIG=605,"video:video_channel","2"
          */
+
+        String s;
+        switch(c)
+        {
+            case HORIZONTAL_ONLY: //ARDRONE_VIDEO_CHANNEL_HORI
+                s = "1";
+                break;
+
+            case VERTICAL_ONLY: //ARDRONE_VIDEO_CHANNEL_VERT
+                s = "2";
+                break;
+
+            case VERTICAL_IN_HORIZONTAL: //ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT
+                s = "3";
+                break;
+
+            case HORIZONTAL_IN_VERTICAL: //ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
+                s = "4";
+                break;
+            default:
+                assert(false);
+                return;
+        }
+
+        cmd_queue.add(new ConfigureCommand("video:video_channel", s));
     }
 
     /**
@@ -245,12 +275,12 @@ public class ARDrone
      */
     public void enableAutomaticVideoBitrate() throws IOException
     {
-        // TODO: implement
+        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode","1"));
     }
 
     public void disableAutomaticVideoBitrate() throws IOException
     {
-        // TODO: implement
+        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode","0"));
     }
 
     public void trim() throws IOException
