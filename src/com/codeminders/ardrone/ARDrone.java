@@ -12,8 +12,6 @@ import java.util.logging.Logger;
 
 import com.codeminders.ardrone.commands.*;
 
-import javax.security.auth.login.Configuration;
-
 public class ARDrone
 {
     public enum State
