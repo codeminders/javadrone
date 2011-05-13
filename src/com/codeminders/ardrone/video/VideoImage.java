@@ -340,11 +340,11 @@ public class VideoImage {
 					FrameIndex = (int) ReadStreamData(32).intValue();
 
 					switch (PictureFormat) {
-					case (int) PictureFormats.Cif:
+					case (int) PictureFormats.CIF:
 						Width = _WidthCif << Resolution - 1;
 						Height = _HeightCif << Resolution - 1;
 						break;
-					case (int) PictureFormats.Vga:
+					case (int) PictureFormats.QVGA:
 						Width = _WidthVga << Resolution - 1;
 						Height = _HeightVga << Resolution - 1;
 						break;
