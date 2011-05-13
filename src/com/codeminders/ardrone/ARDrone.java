@@ -1,6 +1,7 @@
 
 package com.codeminders.ardrone;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.*;
 import java.util.LinkedList;
@@ -10,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.codeminders.ardrone.commands.*;
+import com.codeminders.ardrone.video.VideoReader;
 
 public class ARDrone
 {
@@ -39,10 +41,12 @@ public class ARDrone
     private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
 
     private NavDataReader                       nav_data_reader;
+    private VideoReader							video_reader;
     private CmdSender                           cmd_sender;
 
     private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
+    private Thread								video_reader_thread;
 
     private boolean                             combinedYawMode  = true;
 
@@ -50,6 +54,8 @@ public class ARDrone
     private Object                              emergency_mutex  = new Object();
 
     private List<DroneStatusChangeListener>     status_listeners = new LinkedList<DroneStatusChangeListener>();
+    
+    private List<DroneImageReciveListner>     	image_listeners = new LinkedList<DroneImageReciveListner>();
 
     public ARDrone() throws UnknownHostException
     {
@@ -130,6 +136,10 @@ public class ARDrone
             nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.start();
+            
+            video_reader = new VideoReader(this, drone_addr, VIDEO_PORT);
+            video_reader_thread = new Thread (video_reader);
+            video_reader_thread.start();
 
             changeState(State.CONNECTING);
 
@@ -201,6 +211,7 @@ public class ARDrone
         nav_data_reader.stop();
         cmd_socket.close();
         video_socket.close();
+        
 
         // Only the following method can throw an exception.
         // We call it last, to ensure it won't prevent other
@@ -320,6 +331,14 @@ public class ARDrone
     {
         cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
     }
+    
+    // Callback used by VideoReciver
+    public void ImageReceived(BufferedImage image)
+    {
+    	for(DroneImageReciveListner l : image_listeners)
+            l.draw(image);
+    }
+
 
     // Callback used by receiver
     public void navDataReceived(NavData nd)
@@ -369,6 +388,15 @@ public class ARDrone
     public List<DroneStatusChangeListener> getStatusChangeListeners()
     {
         return status_listeners;
+    }
+    
+    public void addImageListner (DroneImageReciveListner l) {
+    	image_listeners.add(l);
+    }
+    
+    public List<DroneImageReciveListner> getImageReciveListeners()
+    {
+        return image_listeners;
     }
 
 }
