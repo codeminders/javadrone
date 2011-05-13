@@ -56,7 +56,7 @@ public class PS3Flight
                     }
                 }
             });
-            /*drone.addImageListner(new DroneImageReciveListner() {
+            /*drone.addImageListner(new DroneVideoListener() {
             	
             	private JFrame frame;
             	private JPanel panel;
