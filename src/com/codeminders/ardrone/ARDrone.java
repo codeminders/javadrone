@@ -223,7 +223,7 @@ public class ARDrone
     public void selectVideoChannel(VideoChannel c) throws IOException
     {
         /*
-         * TODO:
+         * TODO: implement
          * 
          * Current implementation supports 4 different channels : -
          * ARDRONE_VIDEO_CHANNEL_HORI - ARDRONE_VIDEO_CHANNEL_VERT -
@@ -232,6 +232,25 @@ public class ARDrone
          * 
          * AT command example : AT*CONFIG=605,"video:video_channel","2"
          */
+    }
+
+    /**
+     * Enables the automatic bitrate control of the video stream. Enabling this
+     * configuration will reduce the bandwith used by the video stream under bad
+     * Wi-Fi conditions, reducing the commands latency. Note : Before enabling
+     * this config, make sure that your video decoder is able to handle the
+     * variable bitrate mode !
+     * 
+     * @throws IOException
+     */
+    public void enableAutomaticVideoBitrate() throws IOException
+    {
+        // TODO: implement
+    }
+
+    public void disableAutomaticVideoBitrate() throws IOException
+    {
+        // TODO: implement
     }
 
     public void trim() throws IOException
