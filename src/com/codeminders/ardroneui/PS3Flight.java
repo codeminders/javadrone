@@ -56,7 +56,23 @@ public class PS3Flight
                     }
                 }
             });
+            /*drone.addImageListner(new DroneVideoListener() {
+            	
+            	private JFrame frame;
+            	private JPanel panel;
+				
+				@Override
+				public void onCreate() {
+					
+				}
+				
+				@Override
+				public void draw(BufferedImage image) {
+				
+				}
 
+			});
+            */
             System.err.println("Connecting to the drone");
             drone.connect();
             drone.waitForReady(CONNECT_TIMEOUT);
