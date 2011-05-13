@@ -11,7 +11,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.codeminders.ardrone.commands.*;
-import com.codeminders.ardrone.video.VideoReader;
 
 public class ARDrone
 {
@@ -55,7 +54,7 @@ public class ARDrone
 
     private List<DroneStatusChangeListener>     status_listeners = new LinkedList<DroneStatusChangeListener>();
     
-    private List<DroneImageReciveListner>     	image_listeners = new LinkedList<DroneImageReciveListner>();
+    private List<DroneVideoListener>     	image_listeners = new LinkedList<DroneVideoListener>();
 
     public ARDrone() throws UnknownHostException
     {
@@ -333,10 +332,10 @@ public class ARDrone
     }
     
     // Callback used by VideoReciver
-    public void ImageReceived(BufferedImage image)
+    public void videoFrameReceived(BufferedImage image)
     {
-    	for(DroneImageReciveListner l : image_listeners)
-            l.draw(image);
+    	for(DroneVideoListener l : image_listeners)
+            l.frameReceived(image);
     }
 
 
@@ -390,11 +389,11 @@ public class ARDrone
         return status_listeners;
     }
     
-    public void addImageListner (DroneImageReciveListner l) {
+    public void addImageListner (DroneVideoListener l) {
     	image_listeners.add(l);
     }
     
-    public List<DroneImageReciveListner> getImageReciveListeners()
+    public List<DroneVideoListener> getImageReciveListeners()
     {
         return image_listeners;
     }
