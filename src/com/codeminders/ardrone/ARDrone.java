@@ -19,6 +19,11 @@ public class ARDrone
         DISCONNECTED, CONNECTING, BOOTSTRAP, DEMO, ERROR
     }
 
+    public enum VideoChannel
+    {
+        HORIZONTAL_BIG, HORIZONTAL_SMALL, VERTICAL_BIG, VERTICAL_SMALL
+    }
+
     private Logger                              log              = Logger.getLogger("ARDrone");
 
     private static final int                    CMD_QUEUE_SIZE   = 64;
@@ -35,16 +40,17 @@ public class ARDrone
     private DatagramSocket                      cmd_socket;
     // private Socket control_socket;
 
-    private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>(CMD_QUEUE_SIZE);
+    private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>(
+                                                                         CMD_QUEUE_SIZE);
     private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
 
     private NavDataReader                       nav_data_reader;
-    private VideoReader							video_reader;
+    private VideoReader                         video_reader;
     private CmdSender                           cmd_sender;
 
     private Thread                              nav_data_reader_thread;
     private Thread                              cmd_sending_thread;
-    private Thread								video_reader_thread;
+    private Thread                              video_reader_thread;
 
     private boolean                             combinedYawMode  = true;
 
@@ -52,8 +58,8 @@ public class ARDrone
     private Object                              emergency_mutex  = new Object();
 
     private List<DroneStatusChangeListener>     status_listeners = new LinkedList<DroneStatusChangeListener>();
-    
-    private List<DroneVideoListener>     	image_listeners = new LinkedList<DroneVideoListener>();
+
+    private List<DroneVideoListener>            image_listeners  = new LinkedList<DroneVideoListener>();
 
     public ARDrone() throws UnknownHostException
     {
@@ -95,7 +101,6 @@ public class ARDrone
         }
     }
 
-
     public void changeToErrorState(Exception ex)
     {
         synchronized(state_mutex)
@@ -133,9 +138,9 @@ public class ARDrone
             nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.start();
-            
+
             video_reader = new VideoReader(this, drone_addr, VIDEO_PORT);
-            video_reader_thread = new Thread (video_reader);
+            video_reader_thread = new Thread(video_reader);
             video_reader_thread.start();
 
             changeState(State.CONNECTING);
@@ -208,12 +213,25 @@ public class ARDrone
         nav_data_reader.stop();
         cmd_socket.close();
         video_reader.close();
-        
 
         // Only the following method can throw an exception.
         // We call it last, to ensure it won't prevent other
         // cleanup operations from being completed
         // control_socket.close();
+    }
+
+    public void selectVideoChannel(VideoChannel c) throws IOException
+    {
+        /*
+         * TODO:
+         * 
+         * Current implementation supports 4 different channels : -
+         * ARDRONE_VIDEO_CHANNEL_HORI - ARDRONE_VIDEO_CHANNEL_VERT -
+         * ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT -
+         * ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
+         * 
+         * AT command example : AT*CONFIG=605,"video:video_channel","2"
+         */
     }
 
     public void trim() throws IOException
@@ -328,14 +346,13 @@ public class ARDrone
     {
         cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
     }
-    
+
     // Callback used by VideoReciver
     public void videoFrameReceived(BufferedImage image)
     {
-    	for(DroneVideoListener l : image_listeners)
+        for(DroneVideoListener l : image_listeners)
             l.frameReceived(image);
     }
-
 
     // Callback used by receiver
     public void navDataReceived(NavData nd)
@@ -386,11 +403,12 @@ public class ARDrone
     {
         return status_listeners;
     }
-    
-    public void addImageListner (DroneVideoListener l) {
-    	image_listeners.add(l);
+
+    public void addImageListner(DroneVideoListener l)
+    {
+        image_listeners.add(l);
     }
-    
+
     public List<DroneVideoListener> getImageReciveListeners()
     {
         return image_listeners;
