@@ -32,6 +32,7 @@ public class PS3Flight
     private static void showVideo(final ARDrone drone)
     {
         JFrame frame = new JFrame("Video");
+        @SuppressWarnings("serial")
         final JPanel videoWindow = new JPanel()
         {
             protected BufferedImage image = null;
