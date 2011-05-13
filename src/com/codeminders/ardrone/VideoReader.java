@@ -97,8 +97,8 @@ public class VideoReader implements Runnable
                                 // Found!
                                 inbuf.limit(s);
                                 inbuf.position(0);
-                                byte[] packet = new byte[Math.min(inbuf.limit(), s)];
-                                inbuf.get(packet, 0, len);
+                                byte[] packet = new byte[s+1];
+                                inbuf.get(packet, 0, s+1);
                                 BufferedImage image = ImageDecoder.readUINT_RGBImage(packet);
                                 drone.videoFrameReceived(image);
                                 inbuf.compact();
