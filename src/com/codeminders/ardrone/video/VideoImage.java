@@ -34,99 +34,82 @@ package com.codeminders.ardrone.video;
 
 public class VideoImage
 {
-    private static final int BLOCK_WIDTH             = 8;
+    private static final int     BLOCK_WIDTH             = 8;
 
-    private static final int CIF_WIDTH               = 88;
-    private static final int CIF_HEIGHT              = 72;
+    private static final int     CIF_WIDTH               = 88;
+    private static final int     CIF_HEIGHT              = 72;
 
-    private static final int VGA_WIDTH               = 160;
-    private static final int VGA_HEIGHT              = 120;
+    private static final int     VGA_WIDTH               = 160;
+    private static final int     VGA_HEIGHT              = 120;
 
-    private static final int TABLE_QUANTIZATION_MODE = 31;
+    private static final int     TABLE_QUANTIZATION_MODE = 31;
 
-    private static final int FIX_0_298631336         = 2446;
-    private static final int FIX_0_390180644         = 3196;
-    private static final int FIX_0_541196100         = 4433;
-    private static final int FIX_0_765366865         = 6270;
-    private static final int FIX_0_899976223         = 7373;
-    private static final int FIX_1_175875602         = 9633;
-    private static final int FIX_1_501321110         = 12299;
-    private static final int FIX_1_847759065         = 15137;
-    private static final int FIX_1_961570560         = 16069;
-    private static final int FIX_2_053119869         = 16819;
-    private static final int FIX_2_562915447         = 20995;
-    private static final int FIX_3_072711026         = 25172;
+    private static final int     FIX_0_298631336         = 2446;
+    private static final int     FIX_0_390180644         = 3196;
+    private static final int     FIX_0_541196100         = 4433;
+    private static final int     FIX_0_765366865         = 6270;
+    private static final int     FIX_0_899976223         = 7373;
+    private static final int     FIX_1_175875602         = 9633;
+    private static final int     FIX_1_501321110         = 12299;
+    private static final int     FIX_1_847759065         = 15137;
+    private static final int     FIX_1_961570560         = 16069;
+    private static final int     FIX_2_053119869         = 16819;
+    private static final int     FIX_2_562915447         = 20995;
+    private static final int     FIX_3_072711026         = 25172;
 
-    private static final int BITS                    = 13;
-    private static final int PASS1_BITS              = 1;
-    private static final int F1                      = BITS - PASS1_BITS - 1;
-    private static final int F2                      = BITS - PASS1_BITS;
-    private static final int F3                      = BITS + PASS1_BITS + 3;
+    private static final int     BITS                    = 13;
+    private static final int     PASS1_BITS              = 1;
+    private static final int     F1                      = BITS - PASS1_BITS - 1;
+    private static final int     F2                      = BITS - PASS1_BITS;
+    private static final int     F3                      = BITS + PASS1_BITS + 3;
 
     /**
      * 176px x 144px
      */
-    private static final int CIF                     = 1;
+    private static final int     CIF                     = 1;
 
     /**
      * 320px x 240px
      */
-    private static final int QVGA                    = 2;
+    private static final int     QVGA                    = 2;
 
-    private short[]          dataBlockBuffer         = new short[64];
-
-    private short[]          zigZagPositions         = new short[] { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11,
-            4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22,
-            15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63, };
+    private static final short[] ZIGZAG_POSITIONS        = new short[] { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18,
+            11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29,
+            22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63, };
 
     // Cfr. Handbook of Data Compression - Page 529
     // David Salomon
     // Giovanni Motta
 
-    private short[]          quantizerValues         = new short[] { 3, 5, 7, 9, 11, 13, 15, 17, 5, 7, 9, 11, 13, 15,
-            17, 19, 7, 9, 11, 13, 15, 17, 19, 21, 9, 11, 13, 15, 17, 19, 21, 23, 11, 13, 15, 17, 19, 21, 23, 25, 13,
-            15, 17, 19, 21, 23, 25, 27, 15, 17, 19, 21, 23, 25, 27, 29, 17, 19, 21, 23, 25, 27, 29, 31 };
+    private static final short[] QUANTIZER_VALUES        = new short[] { 3, 5, 7, 9, 11, 13, 15, 17, 5, 7, 9, 11, 13,
+            15, 17, 19, 7, 9, 11, 13, 15, 17, 19, 21, 9, 11, 13, 15, 17, 19, 21, 23, 11, 13, 15, 17, 19, 21, 23, 25,
+            13, 15, 17, 19, 21, 23, 25, 27, 15, 17, 19, 21, 23, 25, 27, 29, 17, 19, 21, 23, 25, 27, 29, 31 };
 
-    static byte[]            clzlut                  = new byte[] { 8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3,
-            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    private static final byte[]  CLZLUT                  = new byte[] { 8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4,
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    private uint             StreamField;
-    private int              StreamFieldBitIndex;
-    private int              StreamIndex;
-    private int              SliceCount;
+    private short[]              dataBlockBuffer         = new short[64];
 
-    public int getSliceCount()
-    {
-        return SliceCount;
-    }
+    private uint                 StreamField;
+    private int                  StreamFieldBitIndex;
+    private int                  StreamIndex;
+    private int                  SliceCount;
+
 
     private boolean PictureComplete;
 
     private int     PictureFormat;
     private int     Resolution;
     private int     PictureType;
-
-    public int getPictureType()
-    {
-        return PictureType;
-    }
-
     private int QuantizerMode;
     private int FrameIndex;
-
-    public int getFrameIndex()
-    {
-        return FrameIndex;
-    }
-
     private int SliceIndex;
-
     private int BlockCount;
 
     private int Width;
@@ -137,20 +120,13 @@ public class VideoImage
      */
     private int PixelRowSize;
 
-    public int getPixelRowSize()
-    {
-        return PixelRowSize;
-    }
-
     private byte[]     ImageStream;
 
     private ImageSlice ImageSlice;
+
     private uint[]     PixelData;
 
-    public uint[] getPixelData()
-    {
-        return PixelData;
-    }
+    int numCalls = 0;
 
     public VideoImage()
     {
@@ -162,180 +138,122 @@ public class VideoImage
         ProcessStream();
         return PictureComplete;
     }
-
-    private void ProcessStream()
+    
+    private void AlignStreamData()
     {
-        boolean blockY0HasAcComponents = false;
-        boolean blockY1HasAcComponents = false;
-        boolean blockY2HasAcComponents = false;
-        boolean blockY3HasAcComponents = false;
-        boolean blockCbHasAcComponents = false;
-        boolean blockCrHasAcComponents = false;
+        int alignedLength;
+        int actualLength;
 
-        // Set StreamFieldBitIndex to 32 to make sure that the first call to
-        // ReadStreamData
-        // actually consumes data from the stream
-        StreamFieldBitIndex = 32;
-        StreamField = new uint(0);
-        StreamIndex = 0;
-        SliceIndex = 0;
-        PictureComplete = false;
+        actualLength = StreamFieldBitIndex;
 
-        while(!PictureComplete && StreamIndex < (ImageStream.length >> 2))
+        if(actualLength > 0)
         {
-            ReadHeader();
-
-            if(!PictureComplete)
+            alignedLength = (actualLength & ~7);
+            if(alignedLength != actualLength)
             {
-                for(int count = 0; count < BlockCount; count++)
-                {
-                    uint macroBlockEmpty = ReadStreamData(1);
-
-                    if(macroBlockEmpty.intValue() == (0))
-                    {
-                        uint acCoefficients = ReadStreamData(8);
-
-                        blockY0HasAcComponents = acCoefficients.shiftRight(0).and(1).intValue() == 1;
-                        blockY1HasAcComponents = acCoefficients.shiftRight(1).and(1).intValue() == 1;
-                        blockY2HasAcComponents = acCoefficients.shiftRight(2).and(1).intValue() == 1;
-                        blockY3HasAcComponents = acCoefficients.shiftRight(3).and(1).intValue() == 1;
-                        blockCbHasAcComponents = acCoefficients.shiftRight(4).and(1).intValue() == 1;
-                        blockCrHasAcComponents = acCoefficients.shiftRight(5).and(1).intValue() == 1;
-
-                        if(acCoefficients.shiftRight(6).and(1).intValue() == 1)
-                        {
-                            uint quantizerMode = ReadStreamData(2);
-                            QuantizerMode = (int) ((quantizerMode.intValue() < 2) ? quantizerMode.flipBits()
-                                    : quantizerMode.intValue());
-                        }
-
-                        GetBlockBytes(blockY0HasAcComponents);
-                        InverseTransform(count, 0);
-
-                        GetBlockBytes(blockY1HasAcComponents);
-                        InverseTransform(count, 1);
-
-                        GetBlockBytes(blockY2HasAcComponents);
-                        InverseTransform(count, 2);
-
-                        GetBlockBytes(blockY3HasAcComponents);
-                        InverseTransform(count, 3);
-
-                        GetBlockBytes(blockCbHasAcComponents);
-                        InverseTransform(count, 4);
-
-                        GetBlockBytes(blockCrHasAcComponents);
-                        InverseTransform(count, 5);
-                    }
-                }
-
-                ComposeImageSlice();
-            }
-        }
-
-    }
-
-    private void ReadHeader()
-    {
-        uint code = new uint(0);
-        uint startCode = new uint(0);
-
-        AlignStreamData();
-
-        code = ReadStreamData(22);
-
-        startCode = new uint(code.and(~0x1F));
-
-        if(startCode.intValue() == 32)
-        {
-            if(((code.and(0x1F).intValue()) == 0x1F))
-            {
-                PictureComplete = true;
-            } else
-            {
-                if(SliceIndex++ == 0)
-                {
-                    PictureFormat = (int) ReadStreamData(2).intValue();
-                    Resolution = (int) ReadStreamData(3).intValue();
-                    PictureType = (int) ReadStreamData(3).intValue();
-                    QuantizerMode = (int) ReadStreamData(5).intValue();
-                    FrameIndex = (int) ReadStreamData(32).intValue();
-
-                    switch(PictureFormat)
-                    {
-                    case CIF:
-                        Width = CIF_WIDTH << Resolution - 1;
-                        Height = CIF_HEIGHT << Resolution - 1;
-                        break;
-                    case QVGA:
-                        Width = VGA_WIDTH << Resolution - 1;
-                        Height = VGA_HEIGHT << Resolution - 1;
-                        break;
-                    }
-
-                    // We assume two bytes per pixel (RGB 565)
-                    PixelRowSize = Width << 1;
-
-                    SliceCount = Height >> 4;
-                    BlockCount = Width >> 4;
-
-                    if(ImageSlice == null)
-                    {
-                        ImageSlice = new ImageSlice(BlockCount);
-                        PixelData = new uint[Width * Height];
-                    } else
-                    {
-                        if(ImageSlice.MacroBlocks.length != BlockCount)
-                        {
-                            ImageSlice = new ImageSlice(BlockCount);
-                            PixelData = new uint[Width * Height];
-                        }
-                    }
-                } else
-                {
-                    QuantizerMode = (int) ReadStreamData(5).intValue();
-                }
+                alignedLength += 0x08;
+                StreamField.shiftLeftEquals(alignedLength - actualLength);
+                StreamFieldBitIndex = alignedLength;
             }
         }
     }
 
-    private void GetBlockBytes(boolean acCoefficientsAvailable)
+    private void ComposeImageSlice()
     {
-        int[] run = new int[] { 0 };
-        int[] level = new int[] { 0 };
-        int zigZagPosition = 0;
-        int matrixPosition = 0;
-        boolean[] last = new boolean[] { false };
+        int u, ug, ub;
+        int v, vg, vr;
+        int r, g, b;
 
-        for(int i = 0; i < dataBlockBuffer.length; i++)
+        int lumaElementIndex1 = 0;
+        int lumaElementIndex2 = 0;
+        int chromaOffset = 0;
+
+        int dataIndex1 = 0;
+        int dataIndex2 = 0;
+
+        int lumaElementValue1 = 0;
+        int lumaElementValue2 = 0;
+        int chromaBlueValue = 0;
+        int chromaRedValue = 0;
+
+        int[] cromaQuadrantOffsets = new int[] { 0, 4, 32, 36 };
+        int[] pixelDataQuadrantOffsets = new int[] { 0, BLOCK_WIDTH, Width * BLOCK_WIDTH,
+                (Width * BLOCK_WIDTH) + BLOCK_WIDTH };
+
+        int imageDataOffset = (SliceIndex - 1) * Width * 16;
+
+        for(MacroBlock macroBlock : ImageSlice.MacroBlocks)
         {
-            dataBlockBuffer[i] = 0;
-        }
-
-        uint dcCoefficient = ReadStreamData(10);
-
-        if(QuantizerMode == TABLE_QUANTIZATION_MODE)
-        {
-            dataBlockBuffer[0] = (short) (dcCoefficient.times(quantizerValues[0]));
-
-            if(acCoefficientsAvailable)
+            for(int verticalStep = 0; verticalStep < BLOCK_WIDTH / 2; verticalStep++)
             {
-                DecodeFieldBytes(run, level, last);
+                chromaOffset = verticalStep * BLOCK_WIDTH;
+                lumaElementIndex1 = verticalStep * BLOCK_WIDTH * 2;
+                lumaElementIndex2 = lumaElementIndex1 + BLOCK_WIDTH;
 
-                while(!last[0])
+                dataIndex1 = imageDataOffset + (2 * verticalStep * Width);
+                dataIndex2 = dataIndex1 + Width;
+
+                for(int horizontalStep = 0; horizontalStep < BLOCK_WIDTH / 2; horizontalStep++)
                 {
-                    zigZagPosition += run[0] + 1;
-                    matrixPosition = zigZagPositions[zigZagPosition];
-                    level[0] *= quantizerValues[matrixPosition];
-                    dataBlockBuffer[matrixPosition] = (short) level[0];
-                    DecodeFieldBytes(run, level, last);
+                    for(int quadrant = 0; quadrant < 4; quadrant++)
+                    {
+                        int chromaIndex = chromaOffset + cromaQuadrantOffsets[quadrant] + horizontalStep;
+                        chromaBlueValue = macroBlock.DataBlocks[4][chromaIndex];
+                        chromaRedValue = macroBlock.DataBlocks[5][chromaIndex];
+
+                        u = chromaBlueValue - 128;
+                        ug = 88 * u;
+                        ub = 454 * u;
+
+                        v = chromaRedValue - 128;
+                        vg = 183 * v;
+                        vr = 359 * v;
+
+                        for(int pixel = 0; pixel < 2; pixel++)
+                        {
+                            int deltaIndex = 2 * horizontalStep + pixel;
+                            lumaElementValue1 = macroBlock.DataBlocks[quadrant][lumaElementIndex1 + deltaIndex] << 8;
+                            lumaElementValue2 = macroBlock.DataBlocks[quadrant][lumaElementIndex2 + deltaIndex] << 8;
+
+                            r = Saturate5(lumaElementValue1 + vr);
+                            g = Saturate6(lumaElementValue1 - ug - vg);
+                            b = Saturate5(lumaElementValue1 + ub);
+
+                            PixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = MakeRgb(r, g, b);
+
+                            r = Saturate5(lumaElementValue2 + vr);
+                            g = Saturate6(lumaElementValue2 - ug - vg);
+                            b = Saturate5(lumaElementValue2 + ub);
+
+                            PixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = MakeRgb(r, g, b);
+                        }
+                    }
                 }
             }
-        } else
-        {
-            // Currently not implemented.
-            throw new RuntimeException("ant quantizer mode is not yet implemented.");
+
+            imageDataOffset += 16;
         }
+    }
+
+    private static int CountLeadingZeros(uint value)
+    {
+        int accum = 0;
+
+        accum += CLZLUT[value.shiftRight(24).intValue()];
+        if(accum == 8)
+        {
+            accum += CLZLUT[(value.shiftRight(16).intValue()) & 0xFF];
+        }
+        if(accum == 16)
+        {
+            accum += CLZLUT[(value.shiftRight(8).intValue()) & 0xFF];
+        }
+        if(accum == 24)
+        {
+            accum += CLZLUT[value.intValue() & 0xFF];
+        }
+
+        return accum;
     }
 
     private void DecodeFieldBytes(int[] run, int[] level, boolean[] last)
@@ -481,78 +399,78 @@ public class VideoImage
         ReadStreamData(streamLength);
     }
 
-    int numCalls = 0;
-
-    private uint ReadStreamData(int count)
+    private void GetBlockBytes(boolean acCoefficientsAvailable)
     {
-        uint data = new uint(0);
+        int[] run = new int[] { 0 };
+        int[] level = new int[] { 0 };
+        int zigZagPosition = 0;
+        int matrixPosition = 0;
+        boolean[] last = new boolean[] { false };
 
-        while(count > (32 - StreamFieldBitIndex))
+        for(int i = 0; i < dataBlockBuffer.length; i++)
         {
-            data = (data.shiftLeft((int) (32 - StreamFieldBitIndex)).or(StreamField.shiftRight(StreamFieldBitIndex)));
-
-            count -= 32 - StreamFieldBitIndex;
-
-            StreamField = new uint(ImageStream, StreamIndex * 4);
-
-            StreamFieldBitIndex = 0;
-            StreamIndex++;
+            dataBlockBuffer[i] = 0;
         }
 
-        if(count > 0)
+        uint dcCoefficient = ReadStreamData(10);
+
+        if(QuantizerMode == TABLE_QUANTIZATION_MODE)
         {
-            data = data.shiftLeft(count).or(StreamField.shiftRight(32 - count));
+            dataBlockBuffer[0] = (short) (dcCoefficient.times(QUANTIZER_VALUES[0]));
 
-            StreamField.shiftLeftEquals(count);
-            StreamFieldBitIndex += count;
-        }
-
-        numCalls++;
-
-        return data;
-    }
-
-    private uint PeekStreamData(byte[] stream, int count)
-    {
-        uint data = new uint(0);
-        uint streamField = StreamField;
-        int streamFieldBitIndex = StreamFieldBitIndex;
-
-        while(count > (32 - streamFieldBitIndex) && StreamIndex < (ImageStream.length >> 2))
-        {
-            data = (data.shiftLeft(32 - streamFieldBitIndex)).or(streamField.shiftRight(streamFieldBitIndex));
-
-            count -= 32 - streamFieldBitIndex;
-
-            streamField = new uint(stream, StreamIndex * 4);
-            streamFieldBitIndex = 0;
-        }
-
-        if(count > 0)
-        {
-            data = data.shiftLeft(count).or(streamField.shiftRight((32 - count)));
-        }
-
-        return data;
-    }
-
-    private void AlignStreamData()
-    {
-        int alignedLength;
-        int actualLength;
-
-        actualLength = StreamFieldBitIndex;
-
-        if(actualLength > 0)
-        {
-            alignedLength = (actualLength & ~7);
-            if(alignedLength != actualLength)
+            if(acCoefficientsAvailable)
             {
-                alignedLength += 0x08;
-                StreamField.shiftLeftEquals(alignedLength - actualLength);
-                StreamFieldBitIndex = alignedLength;
+                DecodeFieldBytes(run, level, last);
+
+                while(!last[0])
+                {
+                    zigZagPosition += run[0] + 1;
+                    matrixPosition = ZIGZAG_POSITIONS[zigZagPosition];
+                    level[0] *= QUANTIZER_VALUES[matrixPosition];
+                    dataBlockBuffer[matrixPosition] = (short) level[0];
+                    DecodeFieldBytes(run, level, last);
+                }
             }
+        } else
+        {
+            // Currently not implemented.
+            throw new RuntimeException("ant quantizer mode is not yet implemented.");
         }
+    }
+
+    public int getFrameIndex()
+    {
+        return FrameIndex;
+    }
+
+    public int getHeight()
+    {
+        return Height;
+    }
+
+    public int getPictureType()
+    {
+        return PictureType;
+    }
+
+    public uint[] getPixelData()
+    {
+        return PixelData;
+    }
+
+    public int getPixelRowSize()
+    {
+        return PixelRowSize;
+    }
+
+    public int getSliceCount()
+    {
+        return SliceCount;
+    }
+
+    public int getWidth()
+    {
+        return Width;
     }
 
     // Blockline:
@@ -709,145 +627,6 @@ public class VideoImage
     // that an GroupOfBlocks contains multiple pixel matrices.
     // So to calculate the real index we have to take that also into account
     // (BlockCount)
-
-    private void ComposeImageSlice()
-    {
-        int u, ug, ub;
-        int v, vg, vr;
-        int r, g, b;
-
-        int lumaElementIndex1 = 0;
-        int lumaElementIndex2 = 0;
-        int chromaOffset = 0;
-
-        int dataIndex1 = 0;
-        int dataIndex2 = 0;
-
-        int lumaElementValue1 = 0;
-        int lumaElementValue2 = 0;
-        int chromaBlueValue = 0;
-        int chromaRedValue = 0;
-
-        int[] cromaQuadrantOffsets = new int[] { 0, 4, 32, 36 };
-        int[] pixelDataQuadrantOffsets = new int[] { 0, BLOCK_WIDTH, Width * BLOCK_WIDTH,
-                (Width * BLOCK_WIDTH) + BLOCK_WIDTH };
-
-        int imageDataOffset = (SliceIndex - 1) * Width * 16;
-
-        for(MacroBlock macroBlock : ImageSlice.MacroBlocks)
-        {
-            for(int verticalStep = 0; verticalStep < BLOCK_WIDTH / 2; verticalStep++)
-            {
-                chromaOffset = verticalStep * BLOCK_WIDTH;
-                lumaElementIndex1 = verticalStep * BLOCK_WIDTH * 2;
-                lumaElementIndex2 = lumaElementIndex1 + BLOCK_WIDTH;
-
-                dataIndex1 = imageDataOffset + (2 * verticalStep * Width);
-                dataIndex2 = dataIndex1 + Width;
-
-                for(int horizontalStep = 0; horizontalStep < BLOCK_WIDTH / 2; horizontalStep++)
-                {
-                    for(int quadrant = 0; quadrant < 4; quadrant++)
-                    {
-                        int chromaIndex = chromaOffset + cromaQuadrantOffsets[quadrant] + horizontalStep;
-                        chromaBlueValue = macroBlock.DataBlocks[4][chromaIndex];
-                        chromaRedValue = macroBlock.DataBlocks[5][chromaIndex];
-
-                        u = chromaBlueValue - 128;
-                        ug = 88 * u;
-                        ub = 454 * u;
-
-                        v = chromaRedValue - 128;
-                        vg = 183 * v;
-                        vr = 359 * v;
-
-                        for(int pixel = 0; pixel < 2; pixel++)
-                        {
-                            int deltaIndex = 2 * horizontalStep + pixel;
-                            lumaElementValue1 = macroBlock.DataBlocks[quadrant][lumaElementIndex1 + deltaIndex] << 8;
-                            lumaElementValue2 = macroBlock.DataBlocks[quadrant][lumaElementIndex2 + deltaIndex] << 8;
-
-                            r = Saturate5(lumaElementValue1 + vr);
-                            g = Saturate6(lumaElementValue1 - ug - vg);
-                            b = Saturate5(lumaElementValue1 + ub);
-
-                            PixelData[dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = MakeRgb(r, g, b);
-
-                            r = Saturate5(lumaElementValue2 + vr);
-                            g = Saturate6(lumaElementValue2 - ug - vg);
-                            b = Saturate5(lumaElementValue2 + ub);
-
-                            PixelData[dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex] = MakeRgb(r, g, b);
-                        }
-                    }
-                }
-            }
-
-            imageDataOffset += 16;
-        }
-    }
-
-    private int Saturate5(int x)
-    {
-        if(x < 0)
-        {
-            x = 0;
-        }
-
-        x >>= 11;
-
-        return (x > 0x1F) ? 0x1F : x;
-    }
-
-    private int Saturate6(int x)
-    {
-        if(x < 0)
-        {
-            x = 0;
-        }
-
-        x >>= 10;
-
-        return x > 0x3F ? 0x3F : x;
-    }
-
-    private uint MakeRgb(int r, int g, int b)
-    {
-        r <<= 2;
-        g <<= 1;
-        b <<= 2;
-
-        uint ru = new uint(r);
-        uint gu = new uint(g);
-        uint bu = new uint(b);
-
-        uint retval = ru.shiftLeft(16);
-        retval = retval.or(gu.shiftLeft(8));
-        retval = retval.or(bu);
-
-        return retval;
-    }
-
-    private int CountLeadingZeros(uint value)
-    {
-        int accum = 0;
-
-        accum += clzlut[value.shiftRight(24).intValue()];
-        if(accum == 8)
-        {
-            accum += clzlut[(value.shiftRight(16).intValue()) & 0xFF];
-        }
-        if(accum == 16)
-        {
-            accum += clzlut[(value.shiftRight(8).intValue()) & 0xFF];
-        }
-        if(accum == 24)
-        {
-            accum += clzlut[value.intValue() & 0xFF];
-        }
-
-        return accum;
-    }
 
     void InverseTransform(int macroBlockIndex, int dataBlockIndex)
     {
@@ -1006,13 +785,233 @@ public class VideoImage
         }
     }
 
-    public int getWidth()
+    private static uint MakeRgb(int r, int g, int b)
     {
-        return Width;
+        r <<= 2;
+        g <<= 1;
+        b <<= 2;
+
+        uint ru = new uint(r);
+        uint gu = new uint(g);
+        uint bu = new uint(b);
+
+        uint retval = ru.shiftLeft(16);
+        retval = retval.or(gu.shiftLeft(8));
+        retval = retval.or(bu);
+
+        return retval;
     }
 
-    public int getHeight()
+    private uint PeekStreamData(byte[] stream, int count)
     {
-        return Height;
+        uint data = new uint(0);
+        uint streamField = StreamField;
+        int streamFieldBitIndex = StreamFieldBitIndex;
+
+        while(count > (32 - streamFieldBitIndex) && StreamIndex < (ImageStream.length >> 2))
+        {
+            data = (data.shiftLeft(32 - streamFieldBitIndex)).or(streamField.shiftRight(streamFieldBitIndex));
+
+            count -= 32 - streamFieldBitIndex;
+
+            streamField = new uint(stream, StreamIndex * 4);
+            streamFieldBitIndex = 0;
+        }
+
+        if(count > 0)
+        {
+            data = data.shiftLeft(count).or(streamField.shiftRight((32 - count)));
+        }
+
+        return data;
+    }
+
+    private void ProcessStream()
+    {
+        boolean blockY0HasAcComponents = false;
+        boolean blockY1HasAcComponents = false;
+        boolean blockY2HasAcComponents = false;
+        boolean blockY3HasAcComponents = false;
+        boolean blockCbHasAcComponents = false;
+        boolean blockCrHasAcComponents = false;
+
+        // Set StreamFieldBitIndex to 32 to make sure that the first call to
+        // ReadStreamData
+        // actually consumes data from the stream
+        StreamFieldBitIndex = 32;
+        StreamField = new uint(0);
+        StreamIndex = 0;
+        SliceIndex = 0;
+        PictureComplete = false;
+
+        while(!PictureComplete && StreamIndex < (ImageStream.length >> 2))
+        {
+            ReadHeader();
+
+            if(!PictureComplete)
+            {
+                for(int count = 0; count < BlockCount; count++)
+                {
+                    uint macroBlockEmpty = ReadStreamData(1);
+
+                    if(macroBlockEmpty.intValue() == (0))
+                    {
+                        uint acCoefficients = ReadStreamData(8);
+
+                        blockY0HasAcComponents = acCoefficients.shiftRight(0).and(1).intValue() == 1;
+                        blockY1HasAcComponents = acCoefficients.shiftRight(1).and(1).intValue() == 1;
+                        blockY2HasAcComponents = acCoefficients.shiftRight(2).and(1).intValue() == 1;
+                        blockY3HasAcComponents = acCoefficients.shiftRight(3).and(1).intValue() == 1;
+                        blockCbHasAcComponents = acCoefficients.shiftRight(4).and(1).intValue() == 1;
+                        blockCrHasAcComponents = acCoefficients.shiftRight(5).and(1).intValue() == 1;
+
+                        if(acCoefficients.shiftRight(6).and(1).intValue() == 1)
+                        {
+                            uint quantizerMode = ReadStreamData(2);
+                            QuantizerMode = (int) ((quantizerMode.intValue() < 2) ? quantizerMode.flipBits()
+                                    : quantizerMode.intValue());
+                        }
+
+                        GetBlockBytes(blockY0HasAcComponents);
+                        InverseTransform(count, 0);
+
+                        GetBlockBytes(blockY1HasAcComponents);
+                        InverseTransform(count, 1);
+
+                        GetBlockBytes(blockY2HasAcComponents);
+                        InverseTransform(count, 2);
+
+                        GetBlockBytes(blockY3HasAcComponents);
+                        InverseTransform(count, 3);
+
+                        GetBlockBytes(blockCbHasAcComponents);
+                        InverseTransform(count, 4);
+
+                        GetBlockBytes(blockCrHasAcComponents);
+                        InverseTransform(count, 5);
+                    }
+                }
+
+                ComposeImageSlice();
+            }
+        }
+
+    }
+
+    private void ReadHeader()
+    {
+        uint code = new uint(0);
+        uint startCode = new uint(0);
+
+        AlignStreamData();
+
+        code = ReadStreamData(22);
+
+        startCode = new uint(code.and(~0x1F));
+
+        if(startCode.intValue() == 32)
+        {
+            if(((code.and(0x1F).intValue()) == 0x1F))
+            {
+                PictureComplete = true;
+            } else
+            {
+                if(SliceIndex++ == 0)
+                {
+                    PictureFormat = (int) ReadStreamData(2).intValue();
+                    Resolution = (int) ReadStreamData(3).intValue();
+                    PictureType = (int) ReadStreamData(3).intValue();
+                    QuantizerMode = (int) ReadStreamData(5).intValue();
+                    FrameIndex = (int) ReadStreamData(32).intValue();
+
+                    switch(PictureFormat)
+                    {
+                    case CIF:
+                        Width = CIF_WIDTH << Resolution - 1;
+                        Height = CIF_HEIGHT << Resolution - 1;
+                        break;
+                    case QVGA:
+                        Width = VGA_WIDTH << Resolution - 1;
+                        Height = VGA_HEIGHT << Resolution - 1;
+                        break;
+                    }
+
+                    // We assume two bytes per pixel (RGB 565)
+                    PixelRowSize = Width << 1;
+
+                    SliceCount = Height >> 4;
+                    BlockCount = Width >> 4;
+
+                    if(ImageSlice == null)
+                    {
+                        ImageSlice = new ImageSlice(BlockCount);
+                        PixelData = new uint[Width * Height];
+                    } else
+                    {
+                        if(ImageSlice.MacroBlocks.length != BlockCount)
+                        {
+                            ImageSlice = new ImageSlice(BlockCount);
+                            PixelData = new uint[Width * Height];
+                        }
+                    }
+                } else
+                {
+                    QuantizerMode = (int) ReadStreamData(5).intValue();
+                }
+            }
+        }
+    }
+
+    private uint ReadStreamData(int count)
+    {
+        uint data = new uint(0);
+
+        while(count > (32 - StreamFieldBitIndex))
+        {
+            data = (data.shiftLeft((int) (32 - StreamFieldBitIndex)).or(StreamField.shiftRight(StreamFieldBitIndex)));
+
+            count -= 32 - StreamFieldBitIndex;
+
+            StreamField = new uint(ImageStream, StreamIndex * 4);
+
+            StreamFieldBitIndex = 0;
+            StreamIndex++;
+        }
+
+        if(count > 0)
+        {
+            data = data.shiftLeft(count).or(StreamField.shiftRight(32 - count));
+
+            StreamField.shiftLeftEquals(count);
+            StreamFieldBitIndex += count;
+        }
+
+        numCalls++;
+
+        return data;
+    }
+
+    private static int Saturate5(int x)
+    {
+        if(x < 0)
+        {
+            x = 0;
+        }
+
+        x >>= 11;
+
+        return (x > 0x1F) ? 0x1F : x;
+    }
+
+    private static int Saturate6(int x)
+    {
+        if(x < 0)
+        {
+            x = 0;
+        }
+
+        x >>= 10;
+
+        return x > 0x3F ? 0x3F : x;
     }
 }
