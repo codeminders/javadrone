@@ -34,20 +34,10 @@ package com.codeminders.ardrone.video;
 
 public class MacroBlock
 {
-    // /#//#region ants
-
     // private int _BlockWidth = 8;
     // private int _BlockSize = 64;
 
-    // //#endregion
-
-    // //#region Properties
-
     short[][] DataBlocks;
-
-    // //#endregion
-
-    // //#region ruction
 
     MacroBlock()
     {
@@ -58,6 +48,4 @@ public class MacroBlock
             DataBlocks[index] = new short[64];
         }
     }
-
-    // //#endregion
 }
