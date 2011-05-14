@@ -54,7 +54,6 @@ public class VideoReader implements Runnable
                 }
                 Set readyKeys = selector.selectedKeys();
                 Iterator iterator = readyKeys.iterator();
-                VideoImage vi = new VideoImage();
                 while(iterator.hasNext())
                 {
                     SelectionKey key = (SelectionKey) iterator.next();
@@ -74,7 +73,12 @@ public class VideoReader implements Runnable
                         if(len > 0)
                         {
                             inbuf.flip();
-                            BufferedImage image = ImageDecoder.imageFromRawData(inbuf);
+                            final BufferedVideoImage vi = new BufferedVideoImage();
+                            vi.AddImageStream(inbuf);
+
+                            BufferedImage image = new BufferedImage(vi.getWidth(), vi.getHeight(), BufferedImage.TYPE_INT_RGB);
+                            image.setRGB(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
+
                             drone.videoFrameReceived(image);
                         }
                     }
