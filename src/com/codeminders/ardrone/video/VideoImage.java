@@ -1,8 +1,6 @@
 
 package com.codeminders.ardrone.video;
 
-// #region Copyright Notice
-
 // Copyright � 2007-2011, PARROT SA, all rights reserved.
 
 // DISCLAIMER
@@ -34,38 +32,8 @@ package com.codeminders.ardrone.video;
 // may be used to endorse or promote products derived from this software without
 // specific prior written permission.
 
-// //#endregion
-
-// //#region Imports
-
-// using System;
-// using System.Collections.Generic;
-// using System.Text;
-// //using System.Drawing;
-// using System.Runtime.InteropServices;
-// using System.Diagnostics;
-// using System.IO;
-// using System.Collections;
-// using System.Threading;
-
-// using System.Windows.Media;
-// using System.Windows.Media;
-// using System.Windows.Media.Imaging;
-
-// using Wilke.Interactive.Drone.Control.Enumerations;
-
-// /#//#endregion
-
 public class VideoImage
 {
-    // event EventHandler<ImageCompleteEventArgs> ImageComplete;
-
-    // [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
-    // static extern void CopyMemory(IntPtr destination, IntPtr source, int
-    // length);
-
-    // /#//#region ants
-
     private int              _BlockWidth        = 8;
 
     private int              _WidthCif          = 88;
@@ -105,10 +73,6 @@ public class VideoImage
      */
     private static final int QVGA               = 2;
 
-    // /#//#endregion
-
-    // /#//#region Private Fields
-
     private short[]          dataBlockBuffer    = new short[64];
 
     private short[]          zigZagPositions    = new short[] { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
@@ -131,10 +95,6 @@ public class VideoImage
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-
-    // /#//#endregion
-
-    // /#//#region Private Properties
 
     private uint             StreamField;
     private int              StreamFieldBitIndex;
@@ -172,9 +132,9 @@ public class VideoImage
     private int Width;
     private int Height;
 
-    // / <summary>
-    // / Length of one row of pixels in the destination image in bytes.
-    // / </summary>
+    /**
+     * Length of one row of pixels in the destination image in bytes.
+     */
     private int PixelRowSize;
 
     public int getPixelRowSize()
@@ -192,28 +152,9 @@ public class VideoImage
         return PixelData;
     }
 
-    // private WriteableBitmap ImageSource
-
-    // /#//#endregion
-
-    // /#//#region Properties
-
-    // WriteableBitmap ImageSource
-    // {
-    // get { return (WriteableBitmap)ImageSource.GetAsFrozen(); }
-    // }
-
-    // /#//#endregion
-
-    // /#//#region ruction
-
     public VideoImage()
     {
     }
-
-    // /#//#endregion
-
-    // /#//#region Methods
 
     public boolean AddImageStream(byte[] stream)
     {
@@ -221,10 +162,6 @@ public class VideoImage
         ProcessStream();
         return PictureComplete;
     }
-
-    // /#//#endregion
-
-    // /#//#region Private Methods
 
     private void ProcessStream()
     {
@@ -243,9 +180,6 @@ public class VideoImage
         StreamIndex = 0;
         SliceIndex = 0;
         PictureComplete = false;
-
-        // Stopwatch stopWatch = new Stopwatch();
-        // stopWatch.Start();
 
         while(!PictureComplete && StreamIndex < (ImageStream.length >> 2))
         {
@@ -275,47 +209,24 @@ public class VideoImage
                                     : quantizerMode.intValue());
                         }
 
-                        // /#//#region Block Y0
-
                         GetBlockBytes(blockY0HasAcComponents);
                         InverseTransform(count, 0);
-
-                        // /#//#endregion
-
-                        // /#//#region Block Y1
 
                         GetBlockBytes(blockY1HasAcComponents);
                         InverseTransform(count, 1);
 
-                        // /#//#endregion
-
-                        // /#//#region Block Y2
-
                         GetBlockBytes(blockY2HasAcComponents);
                         InverseTransform(count, 2);
 
-                        // /#//#endregion
-
-                        // /#//#region Block Y3
 
                         GetBlockBytes(blockY3HasAcComponents);
                         InverseTransform(count, 3);
 
-                        // /#//#endregion
-
-                        // /#//#region Block Cb
-
                         GetBlockBytes(blockCbHasAcComponents);
                         InverseTransform(count, 4);
 
-                        // /#//#endregion
-
-                        // /#//#region Block Cr
-
                         GetBlockBytes(blockCrHasAcComponents);
                         InverseTransform(count, 5);
-
-                        // /#//#endregion
                     }
                 }
 
@@ -323,22 +234,6 @@ public class VideoImage
             }
         }
 
-        // System.out.println("PixelData Length " + PixelData.length);
-        // System.out.println("PixelRowSize " + PixelRowSize);
-        // System.out.println("Width " + Width);
-        // System.out.println("Height " + Height);
-        // System.out.println("Length/PixelRowSize "
-        // + (PixelData.length / PixelRowSize));
-
-        /*
-         * unsafe { fixed (ushort* pixelData = PixelData) { IntPtr pixelDataPtr
-         * = (IntPtr)pixelData; ImageSource.Lock();
-         * CopyMemory(ImageSource.BackBuffer, pixelDataPtr, PixelData.Length *
-         * 2); ImageSource.AddDirtyRect(Rectangle); ImageSource.Unlock(); } }
-         * 
-         * if (ImageComplete != null) { ImageComplete(this, new
-         * ImageCompleteEventArgs(ImageSource)); }
-         */
     }
 
     private void ReadHeader()
@@ -389,18 +284,12 @@ public class VideoImage
                     {
                         ImageSlice = new ImageSlice(BlockCount);
                         PixelData = new uint[Width * Height];
-                        // ImageSource = new WriteableBitmap(Width, Height, 96,
-                        // 96, PixelFormats.Bgr565, null);
-                        // Rectangle = new Int32Rect(0, 0, Width, Height);
                     } else
                     {
                         if(ImageSlice.MacroBlocks.length != BlockCount)
                         {
                             ImageSlice = new ImageSlice(BlockCount);
                             PixelData = new uint[Width * Height];
-                            // ImageSource = new WriteableBitmap(Width, Height,
-                            // 96, 96, PixelFormats.Bgr565, null);
-                            // Rectangle = new Int32Rect(0, 0, Width, Height);
                         }
                     }
                 } else
@@ -423,7 +312,6 @@ public class VideoImage
         {
             dataBlockBuffer[i] = 0;
         }
-        // Array.Clear(dataBlockBuffer, 0, dataBlockBuffer.length);
 
         uint dcCoefficient = ReadStreamData(10);
 
@@ -473,7 +361,7 @@ public class VideoImage
 
         streamCode = PeekStreamData(ImageStream, 32);
 
-        // /#//#region Determine number of consecutive zeros in zig zag. (a.k.a
+        // Determine number of consecutive zeros in zig zag. (a.k.a
         // 'run' field info)
 
         // Suppose we have following bit sequence:
@@ -526,9 +414,7 @@ public class VideoImage
             run[0] = zeroCount;
         }
 
-        // /#//#endregion
-
-        // /#//#region Determine non zero value. (a.k.a 'level' field info)
+        // Determine non zero value. (a.k.a 'level' field info)
 
         // Suppose we have following bit sequence:
         // 000011111.....
@@ -593,8 +479,6 @@ public class VideoImage
             last[0] = false;
         }
 
-        // /#//#endregion
-
         ReadStreamData(streamLength);
     }
 
@@ -625,8 +509,6 @@ public class VideoImage
         }
 
         numCalls++;
-        // System.out.println("ReadStreamData " + data + " " + numCalls + " " +
-        // count);
 
         return data;
     }
@@ -945,7 +827,6 @@ public class VideoImage
         retval = retval.or(bu);
 
         return retval;
-        // return new newUint((r << 16) | (g << 8) | b);
     }
 
     private int CountLeadingZeros(uint value)
@@ -968,8 +849,6 @@ public class VideoImage
 
         return accum;
     }
-
-    // /#//#region Dct Methods
 
     void InverseTransform(int macroBlockIndex, int dataBlockIndex)
     {
@@ -1126,13 +1005,6 @@ public class VideoImage
         {
             ImageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
         }
-        /*
-         * unsafe { fixed (short* source = data) fixed (short* destination =
-         * ImageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex]) {
-         * IntPtr sourcePtr = (IntPtr)source; IntPtr destinationPtr =
-         * (IntPtr)destination; CopyMemory(destinationPtr, sourcePtr,
-         * data.Length * 2); } }
-         */
     }
 
     public int getWidth()
@@ -1145,7 +1017,3 @@ public class VideoImage
         return Height;
     }
 }
-
-// /#//#endregion
-
-// /#//#endregion
