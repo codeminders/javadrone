@@ -118,9 +118,10 @@ public class VideoReader implements Runnable
             pixel |= (raw << 0);
             pixelData[i] = pixel;
         }
-        BufferedImage image = new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB);
-
-        image.setRGB(0, 0, 320, 240, pixelData, 0, 320);
+        
+        BufferedImage image = new BufferedImage(vi.getWidth(), vi.getHeight(), BufferedImage.TYPE_INT_RGB);
+        image.setRGB(0, 0, vi.getWidth(), vi.getHeight(), pixelData, 0, vi.getWidth());
+        
         return image;
     }
 

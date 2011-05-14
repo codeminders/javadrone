@@ -1077,6 +1077,16 @@ public class VideoImage {
 		 * data.Length * 2); } }
 		 */
 	}
+
+    public int getWidth()
+    {
+        return Width;
+    }
+
+    public int getHeight()
+    {
+        return Height;
+    }
 }
 
 // /#//#endregion
