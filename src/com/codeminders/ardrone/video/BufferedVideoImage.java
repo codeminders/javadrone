@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 
 //#region Copyright Notice
 
-//Copyright © 2007-2011, PARROT SA, all rights reserved. 
+//Copyright ï¿½ 2007-2011, PARROT SA, all rights reserved. 
 
 //DISCLAIMER 
 //The APIs is provided by PARROT and contributors "AS IS" and any express or implied warranties, including, but not limited to, the implied warranties of merchantability 
@@ -82,6 +82,16 @@ public class BufferedVideoImage {
 	private int F1 = _BITS - PASS1_BITS - 1;
 	private int F2 = _BITS - PASS1_BITS;
 	private int F3 = _BITS + PASS1_BITS + 3;
+
+    /**
+     * 176px x 144px
+     */
+    private static final int     CIF                     = 1;
+
+    /**
+     * 320px x 240px
+     */
+    private static final int     QVGA                    = 2;
 
 	// /#//#endregion
 
@@ -168,12 +178,19 @@ public class BufferedVideoImage {
 
 	private ImageSlice ImageSlice;
 	private uint[] PixelData;
+    private int[] JavaPixelData;
+
 
 	public uint[] getPixelData() {
 		return PixelData;
 	}
 
-	// private WriteableBitmap ImageSource
+    public int[] getJavaPixelData()
+    {
+        return JavaPixelData;
+    }
+
+    // private WriteableBitmap ImageSource
 
 	// /#//#endregion
 
@@ -342,11 +359,11 @@ public class BufferedVideoImage {
 					FrameIndex = (int) ReadStreamData(32).intValue();
 
 					switch (PictureFormat) {
-					case (int) PictureFormats.Cif:
+					case CIF:
 						Width = _WidthCif << Resolution - 1;
 						Height = _HeightCif << Resolution - 1;
 						break;
-					case (int) PictureFormats.Vga:
+					case QVGA:
 						Width = _WidthVga << Resolution - 1;
 						Height = _HeightVga << Resolution - 1;
 						break;
@@ -361,6 +378,7 @@ public class BufferedVideoImage {
 					if (ImageSlice == null) {
 						ImageSlice = new ImageSlice(BlockCount);
 						PixelData = new uint[Width * Height];
+                        JavaPixelData = new int[PixelData.length];
 						// ImageSource = new WriteableBitmap(Width, Height, 96,
 						// 96, PixelFormats.Bgr565, null);
 						// Rectangle = new Int32Rect(0, 0, Width, Height);
@@ -368,6 +386,8 @@ public class BufferedVideoImage {
 						if (ImageSlice.MacroBlocks.length != BlockCount) {
 							ImageSlice = new ImageSlice(BlockCount);
 							PixelData = new uint[Width * Height];
+                            JavaPixelData = new int[PixelData.length];
+
 							// ImageSource = new WriteableBitmap(Width, Height,
 							// 96, 96, PixelFormats.Bgr565, null);
 							// Rectangle = new Int32Rect(0, 0, Width, Height);
@@ -627,7 +647,17 @@ public class BufferedVideoImage {
 		}
 	}
 
-	// Blockline:
+    public int getWidth()
+    {
+        return Width;
+    }
+
+    public int getHeight()
+    {
+        return Height;
+    }
+
+    // Blockline:
 	// _______
 	// | 1 | 2 |
 	// |___|___| Y
@@ -841,17 +871,21 @@ public class BufferedVideoImage {
 							g = Saturate6(lumaElementValue1 - ug - vg);
 							b = Saturate5(lumaElementValue1 + ub);
 
-							PixelData[dataIndex1
+                            int index1 = dataIndex1
 									+ pixelDataQuadrantOffsets[quadrant]
-									+ deltaIndex] = MakeRgb(r, g, b);
+									+ deltaIndex;
+							PixelData[index1] = MakeRgb(r, g, b);
+                            JavaPixelData[index1] = PixelData[index1].intValue();
 
 							r = Saturate5(lumaElementValue2 + vr);
 							g = Saturate6(lumaElementValue2 - ug - vg);
 							b = Saturate5(lumaElementValue2 + ub);
 
-							PixelData[dataIndex2
+                            int index2 = dataIndex2
 									+ pixelDataQuadrantOffsets[quadrant]
-									+ deltaIndex] = MakeRgb(r, g, b);
+									+ deltaIndex;
+							PixelData[index2] = MakeRgb(r, g, b);
+                            JavaPixelData[index2] = PixelData[index2].intValue();
 						}
 					}
 				}
