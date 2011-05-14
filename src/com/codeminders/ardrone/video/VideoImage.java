@@ -66,70 +66,80 @@ public class VideoImage
 
     // /#//#region ants
 
-    private int     _BlockWidth        = 8;
+    private int              _BlockWidth        = 8;
 
-    private int     _WidthCif          = 88;
-    private int     _HeightCif         = 72;
+    private int              _WidthCif          = 88;
+    private int              _HeightCif         = 72;
 
-    private int     _WidthVga          = 160;
-    private int     _HeightVga         = 120;
+    private int              _WidthVga          = 160;
+    private int              _HeightVga         = 120;
 
-    private int     _TableQuantization = 31;
+    private int              _TableQuantization = 31;
 
-    private int     FIX_0_298631336    = 2446;
-    private int     FIX_0_390180644    = 3196;
-    private int     FIX_0_541196100    = 4433;
-    private int     FIX_0_765366865    = 6270;
-    private int     FIX_0_899976223    = 7373;
-    private int     FIX_1_175875602    = 9633;
-    private int     FIX_1_501321110    = 12299;
-    private int     FIX_1_847759065    = 15137;
-    private int     FIX_1_961570560    = 16069;
-    private int     FIX_2_053119869    = 16819;
-    private int     FIX_2_562915447    = 20995;
-    private int     FIX_3_072711026    = 25172;
+    private int              FIX_0_298631336    = 2446;
+    private int              FIX_0_390180644    = 3196;
+    private int              FIX_0_541196100    = 4433;
+    private int              FIX_0_765366865    = 6270;
+    private int              FIX_0_899976223    = 7373;
+    private int              FIX_1_175875602    = 9633;
+    private int              FIX_1_501321110    = 12299;
+    private int              FIX_1_847759065    = 15137;
+    private int              FIX_1_961570560    = 16069;
+    private int              FIX_2_053119869    = 16819;
+    private int              FIX_2_562915447    = 20995;
+    private int              FIX_3_072711026    = 25172;
 
-    private int     _BITS              = 13;
-    private int     PASS1_BITS         = 1;
-    private int     F1                 = _BITS - PASS1_BITS - 1;
-    private int     F2                 = _BITS - PASS1_BITS;
-    private int     F3                 = _BITS + PASS1_BITS + 3;
+    private int              _BITS              = 13;
+    private int              PASS1_BITS         = 1;
+    private int              F1                 = _BITS - PASS1_BITS - 1;
+    private int              F2                 = _BITS - PASS1_BITS;
+    private int              F3                 = _BITS + PASS1_BITS + 3;
+
+    /**
+     * 176px x 144px
+     */
+    private static final int CIF                = 1;
+
+    /**
+     * 320px x 240px
+     */
+    private static final int QVGA               = 2;
 
     // /#//#endregion
 
     // /#//#region Private Fields
 
-    private short[] dataBlockBuffer    = new short[64];
+    private short[]          dataBlockBuffer    = new short[64];
 
-    private short[] zigZagPositions    = new short[] { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19,
-            26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30,
-            37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63, };
+    private short[]          zigZagPositions    = new short[] { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
+            12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15,
+            23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63, };
 
     // Cfr. Handbook of Data Compression - Page 529
     // David Salomon
     // Giovanni Motta
 
-    private short[] quantizerValues    = new short[] { 3, 5, 7, 9, 11, 13, 15, 17, 5, 7, 9, 11, 13, 15, 17, 19, 7, 9,
-            11, 13, 15, 17, 19, 21, 9, 11, 13, 15, 17, 19, 21, 23, 11, 13, 15, 17, 19, 21, 23, 25, 13, 15, 17, 19, 21,
-            23, 25, 27, 15, 17, 19, 21, 23, 25, 27, 29, 17, 19, 21, 23, 25, 27, 29, 31 };
+    private short[]          quantizerValues    = new short[] { 3, 5, 7, 9, 11, 13, 15, 17, 5, 7, 9, 11, 13, 15, 17,
+            19, 7, 9, 11, 13, 15, 17, 19, 21, 9, 11, 13, 15, 17, 19, 21, 23, 11, 13, 15, 17, 19, 21, 23, 25, 13, 15,
+            17, 19, 21, 23, 25, 27, 15, 17, 19, 21, 23, 25, 27, 29, 17, 19, 21, 23, 25, 27, 29, 31 };
 
-    static byte[]   clzlut             = new byte[] { 8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3,
-            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-            2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+    static byte[]            clzlut             = new byte[] { 8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3,
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     // /#//#endregion
 
     // /#//#region Private Properties
 
-    private uint    StreamField;
-    private int     StreamFieldBitIndex;
-    private int     StreamIndex;
-    private int     SliceCount;
+    private uint             StreamField;
+    private int              StreamFieldBitIndex;
+    private int              StreamIndex;
+    private int              SliceCount;
 
     public int getSliceCount()
     {
@@ -359,11 +369,11 @@ public class VideoImage
 
                     switch(PictureFormat)
                     {
-                    case (int) PictureFormats.CIF:
+                    case CIF:
                         Width = _WidthCif << Resolution - 1;
                         Height = _HeightCif << Resolution - 1;
                         break;
-                    case (int) PictureFormats.QVGA:
+                    case QVGA:
                         Width = _WidthVga << Resolution - 1;
                         Height = _HeightVga << Resolution - 1;
                         break;
