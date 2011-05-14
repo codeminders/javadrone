@@ -101,32 +101,29 @@ public class VideoImage
     private int                  StreamIndex;
     private int                  SliceCount;
 
+    private boolean              PictureComplete;
 
-    private boolean PictureComplete;
+    private int                  PictureFormat;
+    private int                  Resolution;
+    private int                  PictureType;
+    private int                  QuantizerMode;
+    private int                  FrameIndex;
+    private int                  SliceIndex;
+    private int                  BlockCount;
 
-    private int     PictureFormat;
-    private int     Resolution;
-    private int     PictureType;
-    private int QuantizerMode;
-    private int FrameIndex;
-    private int SliceIndex;
-    private int BlockCount;
-
-    private int Width;
-    private int Height;
+    private int                  Width;
+    private int                  Height;
 
     /**
      * Length of one row of pixels in the destination image in bytes.
      */
-    private int PixelRowSize;
+    private int                  PixelRowSize;
 
-    private byte[]     ImageStream;
+    private byte[]               ImageStream;
 
-    private ImageSlice ImageSlice;
+    private ImageSlice           ImageSlice;
 
-    private uint[]     PixelData;
-
-    int numCalls = 0;
+    private uint[]               PixelData;
 
     public VideoImage()
     {
@@ -138,7 +135,7 @@ public class VideoImage
         ProcessStream();
         return PictureComplete;
     }
-    
+
     private void AlignStreamData()
     {
         int alignedLength;
@@ -985,8 +982,6 @@ public class VideoImage
             StreamField.shiftLeftEquals(count);
             StreamFieldBitIndex += count;
         }
-
-        numCalls++;
 
         return data;
     }
