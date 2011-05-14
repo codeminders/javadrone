@@ -71,15 +71,12 @@ public class VideoReader implements Runnable
                     {
                         inbuf.clear();
                         int len = channel.read(inbuf);
-                        byte[] packet = new byte[len];
-                        inbuf.flip();
-                        inbuf.get(packet, 0, len);
-                        if(vi.addImageStream(packet))
+                        if(len > 0)
                         {
-                            BufferedImage bi = ImageDecoder.imageFromVideoImage(vi);
-                            drone.videoFrameReceived(bi);
+                            inbuf.flip();
+                            BufferedImage image = ImageDecoder.imageFromRawData(inbuf);
+                            drone.videoFrameReceived(image);
                         }
-
                     }
                 }
             }
