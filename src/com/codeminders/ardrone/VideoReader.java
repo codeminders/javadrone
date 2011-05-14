@@ -9,7 +9,7 @@ import java.nio.channels.*;
 import java.util.Iterator;
 import java.util.Set;
 
-import com.codeminders.ardrone.video.ImageDecoder;
+import com.codeminders.ardrone.video.*;
 
 public class VideoReader implements Runnable
 {
@@ -17,24 +17,17 @@ public class VideoReader implements Runnable
      * Image data buffer. It should be big enough to hold single full frame
      * (encoded).
      */
-    private static final int BUFSIZE = 512 * 1024;// * 1024;
+    private static final int BUFSIZE = 4096;
 
-    private enum State
-    {
-        SEEKING, READING
-    };
-
-    State                   state;
-    private DatagramChannel channel;
-    private ARDrone         drone;
-    private Selector        selector;
-    private boolean         done;
+    private DatagramChannel  channel;
+    private ARDrone          drone;
+    private Selector         selector;
+    private boolean          done;
 
     public VideoReader(ARDrone drone, InetAddress drone_addr, int video_port) throws IOException
     {
         this.drone = drone;
 
-        state = State.SEEKING;
         channel = DatagramChannel.open();
         channel.configureBlocking(false);
         channel.socket().bind(new InetSocketAddress(video_port));
@@ -61,6 +54,7 @@ public class VideoReader implements Runnable
                 }
                 Set readyKeys = selector.selectedKeys();
                 Iterator iterator = readyKeys.iterator();
+                VideoImage vi = new VideoImage();
                 while(iterator.hasNext())
                 {
                     SelectionKey key = (SelectionKey) iterator.next();
@@ -75,38 +69,17 @@ public class VideoReader implements Runnable
                         channel.register(selector, SelectionKey.OP_READ);
                     } else if(key.isReadable())
                     {
-
-                        int pos = inbuf.position();
+                        inbuf.clear();
                         int len = channel.read(inbuf);
-
-                        if(state == State.SEEKING)
+                        byte[] packet = new byte[len];
+                        inbuf.flip();
+                        inbuf.get(packet, 0, len);
+                        if(vi.AddImageStream(packet))
                         {
-                            int e = findPSC(inbuf, pos, len);
-                            if(e != -1)
-                            {
-                                System.err.println("Image start found");
-                                // Found!
-                                inbuf.position(e);
-                                inbuf.compact();
-                                state = State.READING;
-                            }
-                        } else if(state == State.READING)
-                        {
-                            int s = findEOS(inbuf, pos, len);
-                            if(s != -1)
-                            {
-                                System.err.println("Image end found");
-                                // Found!
-                                inbuf.limit(s+1);
-                                inbuf.position(0);
-                                byte[] packet = new byte[s+1];
-                                inbuf.get(packet, 0, s+1);
-                                BufferedImage image = ImageDecoder.readUINT_RGBImage(packet);
-                                drone.videoFrameReceived(image);
-                                inbuf.compact();
-                                state = State.SEEKING;
-                            }
+                            BufferedImage bi = imageFromVideoImage(vi);
+                            drone.videoFrameReceived(bi);
                         }
+
                     }
                 }
             }
@@ -117,70 +90,38 @@ public class VideoReader implements Runnable
 
     }
 
-    /**
-     * Finds EOS marker in the buffer starting from given position.
-     * EOS marker is 22 binary bits: 0000 0000 0000 0000 1 11111
-     * 
-     * @param inbuf
-     * @param pos
-     * @param len
-     * @return position of the marker on -1 if not found
-     */
-    private int findEOS(ByteBuffer inbuf, int pos, int len)
+    private BufferedImage imageFromVideoImage(VideoImage vi)
     {
-        if(len <= 0)
-            return -1;
+        uint[] outData = vi.getPixelData();
 
-        int f = Math.max(0, pos - 2);
-        int t = pos + len;
-        if((t - f) < 3)
-            return -1;
-
-        for(int i = f; i < (pos + len - 2); i++)
+        byte[] processedData = new byte[outData.length * 3];
+        for(int i = 0; i < outData.length; i++)
         {
-            byte b0 = inbuf.get(i);
-            byte b1 = inbuf.get(i+1);
-            byte b2 = (byte)(inbuf.get(i+2) >> 2);
-            if(b0==0 && b1 == 0)
-                ;
-
-            if(inbuf.get(i) == 0 && inbuf.get(i + 1) == 0 && (inbuf.get(i + 2) >> 2) == 15)
-                return i;
+            int i2 = i * 3;
+            uint dataI = outData[i];
+            byte[] elt = dataI.getBytes();
+            processedData[i2] = elt[2];
+            processedData[i2 + 1] = elt[1];
+            processedData[i2 + 2] = elt[0];
         }
-        return -1;
-    }
 
-    /**
-     * Finds PSC marker in the buffer starting from given position.
-     * PSC marker is 22 binary bits: 0000 0000 0000 0000 1 00000.
-     * 
-     * @param inbuf
-     * @param pos
-     * @param len
-     * @return position of the marker on -1 if not found
-     */
-    private int findPSC(ByteBuffer inbuf, int pos, int len)
-    {
-        if(len <= 0)
-            return -1;
-
-        int f = Math.max(0, pos - 2);
-        int t = pos + len;
-        if((t - f) < 3)
-            return -1;
-        
-        for(int i = f; i < (pos + len - 2); i++)
+        int[] pixelData = new int[processedData.length / 3];
+        int raw, pixel = 0, j = 0;
+        for(int i = 0; i < pixelData.length; i++)
         {
-            byte b0 = inbuf.get(i);
-            byte b1 = inbuf.get(i+1);
-            byte b2 = (byte)(inbuf.get(i+2) >> 2);
-            if(b0==0 && b1 == 0)
-                ;
-
-            if(inbuf.get(i) == 0 && inbuf.get(i + 1) == 0 && (inbuf.get(i + 2) >> 2) == 8)
-                return i;
+            pixel = 0;
+            raw = processedData[j++] & 0xFF;
+            pixel |= (raw << 16);
+            raw = processedData[j++] & 0xFF;
+            pixel |= (raw << 8);
+            raw = processedData[j++] & 0xFF;
+            pixel |= (raw << 0);
+            pixelData[i] = pixel;
         }
-        return -1;
+        BufferedImage image = new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB);
+
+        image.setRGB(0, 0, 320, 240, pixelData, 0, 320);
+        return image;
     }
 
     private void disconnect()

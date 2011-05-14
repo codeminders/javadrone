@@ -3,17 +3,14 @@ package com.codeminders.ardroneui;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
-import com.codeminders.ardrone.ARDrone;
-import com.codeminders.ardrone.DroneStatusChangeListener;
-import com.codeminders.ardrone.DroneVideoListener;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import com.codeminders.ardrone.*;
 import com.codeminders.ardroneui.controllers.*;
 import com.codeminders.hidapi.*;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
 
 /**
  * Created by IntelliJ IDEA. User: bird Date: 5/6/11 Time: 4:50 PM To change
