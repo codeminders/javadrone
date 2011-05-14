@@ -76,7 +76,7 @@ public class VideoReader implements Runnable
                         inbuf.get(packet, 0, len);
                         if(vi.AddImageStream(packet))
                         {
-                            BufferedImage bi = imageFromVideoImage(vi);
+                            BufferedImage bi = ImageDecoder.imageFromVideoImage(vi);
                             drone.videoFrameReceived(bi);
                         }
 
@@ -88,41 +88,6 @@ public class VideoReader implements Runnable
             drone.changeToErrorState(e);
         }
 
-    }
-
-    private BufferedImage imageFromVideoImage(VideoImage vi)
-    {
-        uint[] outData = vi.getPixelData();
-
-        byte[] processedData = new byte[outData.length * 3];
-        for(int i = 0; i < outData.length; i++)
-        {
-            int i2 = i * 3;
-            uint dataI = outData[i];
-            byte[] elt = dataI.getBytes();
-            processedData[i2] = elt[2];
-            processedData[i2 + 1] = elt[1];
-            processedData[i2 + 2] = elt[0];
-        }
-
-        int[] pixelData = new int[processedData.length / 3];
-        int raw, pixel = 0, j = 0;
-        for(int i = 0; i < pixelData.length; i++)
-        {
-            pixel = 0;
-            raw = processedData[j++] & 0xFF;
-            pixel |= (raw << 16);
-            raw = processedData[j++] & 0xFF;
-            pixel |= (raw << 8);
-            raw = processedData[j++] & 0xFF;
-            pixel |= (raw << 0);
-            pixelData[i] = pixel;
-        }
-        
-        BufferedImage image = new BufferedImage(vi.getWidth(), vi.getHeight(), BufferedImage.TYPE_INT_RGB);
-        image.setRGB(0, 0, vi.getWidth(), vi.getHeight(), pixelData, 0, vi.getWidth());
-        
-        return image;
     }
 
     private void disconnect()
