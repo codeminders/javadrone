@@ -193,9 +193,10 @@ public class VideoImage {
 
 	// /#//#region Methods
 
-	public void AddImageStream(byte[] stream) {
+	public boolean AddImageStream(byte[] stream) {
 		ImageStream = stream;
 		ProcessStream();
+		return PictureComplete;
 	}
 
 	// /#//#endregion

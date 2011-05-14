@@ -32,6 +32,8 @@ public class ImageDecoder {
 		VideoImage image = new VideoImage();
 		image.AddImageStream(rawData);
 
+		
+		
 		uint[] outData = image.getPixelData();
 
 		byte[] outDataB = new byte[outData.length * 3];
