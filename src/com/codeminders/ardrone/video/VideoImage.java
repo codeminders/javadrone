@@ -777,9 +777,7 @@ public class VideoImage
         }
 
         for(int i = 0; i < data.length; i++)
-        {
             ImageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
-        }
     }
 
     private static uint MakeRgb(int r, int g, int b)
@@ -808,7 +806,6 @@ public class VideoImage
         while(count > (32 - streamFieldBitIndex) && StreamIndex < (ImageStream.length >> 2))
         {
             data = (data.shiftLeft(32 - streamFieldBitIndex)).or(streamField.shiftRight(streamFieldBitIndex));
-
             count -= 32 - streamFieldBitIndex;
 
             streamField = new uint(stream, StreamIndex * 4);
@@ -816,9 +813,7 @@ public class VideoImage
         }
 
         if(count > 0)
-        {
             data = data.shiftLeft(count).or(streamField.shiftRight((32 - count)));
-        }
 
         return data;
     }
@@ -897,14 +892,10 @@ public class VideoImage
 
     private void ReadHeader()
     {
-        uint code = new uint(0);
-        uint startCode = new uint(0);
-
         AlignStreamData();
 
-        code = ReadStreamData(22);
-
-        startCode = new uint(code.and(~0x1F));
+        uint code = ReadStreamData(22);
+        uint startCode = new uint(code.and(~0x1F));
 
         if(startCode.intValue() == 32)
         {
@@ -966,11 +957,8 @@ public class VideoImage
         while(count > (32 - StreamFieldBitIndex))
         {
             data = (data.shiftLeft((int) (32 - StreamFieldBitIndex)).or(StreamField.shiftRight(StreamFieldBitIndex)));
-
             count -= 32 - StreamFieldBitIndex;
-
             StreamField = new uint(ImageStream, StreamIndex * 4);
-
             StreamFieldBitIndex = 0;
             StreamIndex++;
         }
@@ -978,7 +966,6 @@ public class VideoImage
         if(count > 0)
         {
             data = data.shiftLeft(count).or(StreamField.shiftRight(32 - count));
-
             StreamField.shiftLeftEquals(count);
             StreamFieldBitIndex += count;
         }
@@ -989,24 +976,18 @@ public class VideoImage
     private static int Saturate5(int x)
     {
         if(x < 0)
-        {
             x = 0;
-        }
 
         x >>= 11;
-
         return (x > 0x1F) ? 0x1F : x;
     }
 
     private static int Saturate6(int x)
     {
         if(x < 0)
-        {
             x = 0;
-        }
 
         x >>= 10;
-
         return x > 0x3F ? 0x3F : x;
     }
 }
