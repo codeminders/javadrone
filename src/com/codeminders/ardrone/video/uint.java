@@ -85,16 +85,8 @@ public class uint
 
     public uint shiftRight(int i)
     {
-        // System.out.println("shiftRight[0] " + base2 + " " + i);
-
-        // String str = Integer.toBinaryString(base);
         int base = base2;
-        // System.out.println("shiftRight[n][1] " + uint.toBinaryString(base));
-
         base = base >>> i;
-
-        // System.out.println("shiftRight[n][2] " + uint.toBinaryString(base));
-
         return new uint(base);
     }
 
@@ -104,7 +96,6 @@ public class uint
         base <<= i;
 
         return new uint(base);
-        // return Integer.parseInt(base, 2);
     }
 
     public int flipBits()
@@ -129,18 +120,14 @@ public class uint
     public void shiftLeftEquals(int i)
     {
         int base = base2;
-
         base <<= i;
-
         base2 = base;
     }
 
     public void shiftRightEquals(int i)
     {
         int base = base2;
-
         base >>>= i;
-
         base2 = base;
     }
 
@@ -163,9 +150,8 @@ public class uint
             byte[] ba = bas.toByteArray();
 
             if(ba.length != 4)
-            {
                 throw new RuntimeException("somehow got " + ba.length + " bytes instead of 4 bytes from int " + base2);
-            }
+
             byte[] b = new byte[4];
             b[0] = ba[3];
             b[1] = ba[2];
