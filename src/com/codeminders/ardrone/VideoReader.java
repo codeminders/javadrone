@@ -74,7 +74,7 @@ public class VideoReader implements Runnable
                         byte[] packet = new byte[len];
                         inbuf.flip();
                         inbuf.get(packet, 0, len);
-                        if(vi.AddImageStream(packet))
+                        if(vi.addImageStream(packet))
                         {
                             BufferedImage bi = ImageDecoder.imageFromVideoImage(vi);
                             drone.videoFrameReceived(bi);
