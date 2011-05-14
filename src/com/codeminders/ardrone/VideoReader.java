@@ -17,7 +17,7 @@ public class VideoReader implements Runnable
      * Image data buffer. It should be big enough to hold single full frame
      * (encoded).
      */
-    private static final int BUFSIZE = 4096;
+    private static final int BUFSIZE = 100 * 1024;
 
     private DatagramChannel  channel;
     private ARDrone          drone;
