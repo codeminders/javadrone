@@ -80,71 +80,6 @@ public class PS3ControllerStateChange extends PS3ControllerState
 
     }
 
-    public boolean isSquareChanged()
-    {
-        return squareChanged;
-    }
-
-    public boolean isCrossChanged()
-    {
-        return crossChanged;
-    }
-
-    public boolean isCircleChanged()
-    {
-        return circleChanged;
-    }
-
-    public boolean isTriangleChanged()
-    {
-        return triangleChanged;
-    }
-
-    public boolean isL1Changed()
-    {
-        return L1Changed;
-    }
-
-    public boolean isR1Changed()
-    {
-        return R1Changed;
-    }
-
-    public boolean isL2Changed()
-    {
-        return L2Changed;
-    }
-
-    public boolean isR2Changed()
-    {
-        return R2Changed;
-    }
-
-    public boolean isSelectChanged()
-    {
-        return selectChanged;
-    }
-
-    public boolean isStartChanged()
-    {
-        return startChanged;
-    }
-
-    public boolean isLeftJoystickPressChanged()
-    {
-        return leftJoystickPressChanged;
-    }
-
-    public boolean isRightJoystickPressChanged()
-    {
-        return rightJoystickPressChanged;
-    }
-
-    public boolean isPSChanged()
-    {
-        return PSChanged;
-    }
-
     public int getHatSwitchLeftRightChange()
     {
         return hatSwitchLeftRightChange;
@@ -180,19 +115,24 @@ public class PS3ControllerStateChange extends PS3ControllerState
         return buttonStateChanged;
     }
 
+    public boolean isChanged()
+    {
+        return changed;
+    }
+
+    public boolean isCircleChanged()
+    {
+        return circleChanged;
+    }
+
+    public boolean isCrossChanged()
+    {
+        return crossChanged;
+    }
+
     public boolean isHatChanged()
     {
         return hatChanged;
-    }
-
-    public boolean isLeftJoystickChanged()
-    {
-        return leftJoystickChanged;
-    }
-
-    public boolean isRightJoystickChanged()
-    {
-        return rightJoystickChanged;
     }
 
     public boolean isJoysticksChanged()
@@ -200,8 +140,68 @@ public class PS3ControllerStateChange extends PS3ControllerState
         return joysticksChanged;
     }
 
-    public boolean isChanged()
+    public boolean isL1Changed()
     {
-        return changed;
+        return L1Changed;
+    }
+
+    public boolean isL2Changed()
+    {
+        return L2Changed;
+    }
+
+    public boolean isLeftJoystickChanged()
+    {
+        return leftJoystickChanged;
+    }
+
+    public boolean isLeftJoystickPressChanged()
+    {
+        return leftJoystickPressChanged;
+    }
+
+    public boolean isPSChanged()
+    {
+        return PSChanged;
+    }
+
+    public boolean isR1Changed()
+    {
+        return R1Changed;
+    }
+
+    public boolean isR2Changed()
+    {
+        return R2Changed;
+    }
+
+    public boolean isRightJoystickChanged()
+    {
+        return rightJoystickChanged;
+    }
+
+    public boolean isRightJoystickPressChanged()
+    {
+        return rightJoystickPressChanged;
+    }
+
+    public boolean isSelectChanged()
+    {
+        return selectChanged;
+    }
+
+    public boolean isSquareChanged()
+    {
+        return squareChanged;
+    }
+
+    public boolean isStartChanged()
+    {
+        return startChanged;
+    }
+
+    public boolean isTriangleChanged()
+    {
+        return triangleChanged;
     }
 }

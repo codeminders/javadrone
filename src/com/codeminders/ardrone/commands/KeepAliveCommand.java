@@ -10,14 +10,14 @@ public class KeepAliveCommand extends ATCommand
     }
 
     @Override
-    public int getPriority()
-    {
-        return HIGH_PRIORITY;
-    }
-    
-    @Override
     protected Object[] getParameters()
     {
         return new Object[] {};
+    }
+    
+    @Override
+    public int getPriority()
+    {
+        return HIGH_PRIORITY;
     }
 }

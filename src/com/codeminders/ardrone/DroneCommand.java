@@ -6,13 +6,13 @@ public abstract class DroneCommand implements Comparable
     protected static final int HIGH_PRIORITY = 10;
     protected static final int MAX_PRIORITY = 0;
 
-    public abstract int getPriority();
-
     @Override
     public int compareTo(Object arg0)
     {
         DroneCommand o=(DroneCommand)arg0;
         return o.getPriority()-this.getPriority();
     }
+
+    public abstract int getPriority();
 
 }

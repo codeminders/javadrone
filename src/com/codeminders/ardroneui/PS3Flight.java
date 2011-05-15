@@ -26,43 +26,38 @@ public class PS3Flight
         System.loadLibrary("hidapi-jni");
     }
 
-    private static void showVideo(final ARDrone drone)
+    private static PS3Controller findController() throws IOException
     {
-        JFrame frame = new JFrame("Video");
-        @SuppressWarnings("serial")
-        final JPanel videoWindow = new JPanel()
+        HIDDeviceInfo[] devs = HIDManager.listDevices();
+        for(int i = 0; i < devs.length; i++)
         {
-            protected BufferedImage image = null;
+            if(AfterGlowController.isA(devs[i]))
+                return new AfterGlowController(devs[i]);
+            if(SonyPS3Controller.isA(devs[i]))
+                return new SonyPS3Controller(devs[i]);
+        }
+        return null;
+    }
+
+    private static void listDevices()
+    {
+        String property = System.getProperty("java.library.path");
+        System.err.println(property);
+
+        try
+        {
+            HIDDeviceInfo[] devs = HIDManager.listDevices();
+            System.err.println("Devices:\n\n");
+            for(int i = 0; i < devs.length; i++)
             {
-
-                drone.addImageListener(new DroneVideoListener()
-                {
-                    @Override
-                    public void frameReceived(BufferedImage im)
-                    {
-                        image = im;
-                        repaint();
-                    }
-                });
+                System.err.println("" + i + ".\t" + devs[i]);
+                System.err.println("---------------------------------------------\n");
             }
-
-            @Override
-            public void paintComponent(Graphics g)
-            {
-                if(image != null)
-                    g.drawImage(image, 0, 0, null);
-            }
-        };
-
-//        videoWindow.setPreferredSize(new Dimension(352, 288)); // CIF   TODO: support QCIF and other resolutions
-        videoWindow.setPreferredSize(new Dimension(320, 240));  // QVGA
-
-        frame.getContentPane().add(videoWindow, BorderLayout.CENTER);
-        frame.pack();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        } catch(IOException e)
+        {
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -211,38 +206,43 @@ public class PS3Flight
         }
     }
 
-    private static PS3Controller findController() throws IOException
+    private static void showVideo(final ARDrone drone)
     {
-        HIDDeviceInfo[] devs = HIDManager.listDevices();
-        for(int i = 0; i < devs.length; i++)
+        JFrame frame = new JFrame("Video");
+        @SuppressWarnings("serial")
+        final JPanel videoWindow = new JPanel()
         {
-            if(AfterGlowController.isA(devs[i]))
-                return new AfterGlowController(devs[i]);
-            if(SonyPS3Controller.isA(devs[i]))
-                return new SonyPS3Controller(devs[i]);
-        }
-        return null;
-    }
-
-    private static void listDevices()
-    {
-        String property = System.getProperty("java.library.path");
-        System.err.println(property);
-
-        try
-        {
-            HIDDeviceInfo[] devs = HIDManager.listDevices();
-            System.err.println("Devices:\n\n");
-            for(int i = 0; i < devs.length; i++)
+            protected BufferedImage image = null;
             {
-                System.err.println("" + i + ".\t" + devs[i]);
-                System.err.println("---------------------------------------------\n");
+
+                drone.addImageListener(new DroneVideoListener()
+                {
+                    @Override
+                    public void frameReceived(BufferedImage im)
+                    {
+                        image = im;
+                        repaint();
+                    }
+                });
             }
-        } catch(IOException e)
-        {
-            System.err.println(e.getMessage());
-            e.printStackTrace();
-        }
+
+            @Override
+            public void paintComponent(Graphics g)
+            {
+                if(image != null)
+                    g.drawImage(image, 0, 0, null);
+            }
+        };
+
+//        videoWindow.setPreferredSize(new Dimension(352, 288)); // CIF   TODO: support QCIF and other resolutions
+        videoWindow.setPreferredSize(new Dimension(320, 240));  // QVGA
+
+        frame.getContentPane().add(videoWindow, BorderLayout.CENTER);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 
 }
