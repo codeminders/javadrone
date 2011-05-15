@@ -31,6 +31,25 @@ public class NavDataReader implements Runnable
         channel.register(selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
     }
 
+    private void disconnect()
+    {
+        try
+        {
+            selector.close();
+        } catch(IOException iox)
+        {
+            // Ignore
+        }
+
+        try
+        {
+            channel.disconnect();
+        } catch(IOException iox)
+        {
+            // Ignore
+        }
+    }
+
     @Override
     public void run()
     {
@@ -79,25 +98,6 @@ public class NavDataReader implements Runnable
             drone.changeToErrorState(e);
         }
 
-    }
-
-    private void disconnect()
-    {
-        try
-        {
-            selector.close();
-        } catch(IOException iox)
-        {
-            // Ignore
-        }
-
-        try
-        {
-            channel.disconnect();
-        } catch(IOException iox)
-        {
-            // Ignore
-        }
     }
 
     public void stop()

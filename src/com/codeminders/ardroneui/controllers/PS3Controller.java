@@ -13,15 +13,6 @@ import com.codeminders.hidapi.HIDDevice;
  */
 public abstract class PS3Controller
 {
-    protected HIDDevice dev;
-
-    public abstract PS3ControllerState read() throws IOException;
-
-    public void close() throws IOException
-    {
-        dev.close();
-    }
-
     protected static void printDelta(byte[] prev, int prev_size, byte[] cur, int cur_size)
     {
         if(prev_size != cur_size)
@@ -39,5 +30,14 @@ public abstract class PS3Controller
             }
         }
     }
+
+    protected HIDDevice dev;
+
+    public void close() throws IOException
+    {
+        dev.close();
+    }
+
+    public abstract PS3ControllerState read() throws IOException;
 
 }

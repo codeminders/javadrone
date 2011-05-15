@@ -6,41 +6,6 @@ import com.codeminders.ardrone.DroneCommand;
 
 public abstract class ATCommand extends DroneCommand
 {
-    @Override
-    public int getPriority()
-    {
-        return MIN_PRIORITY; 
-    }
-
-    public byte[] getPacket(int seq)
-    {
-        try
-        {
-            return getCommandString(seq).getBytes("ASCII");
-        }
-        catch(UnsupportedEncodingException e)
-        {
-            // never happens
-            return null;
-        }
-    }
-
-    public String getCommandString(int seq)
-    {
-        return "AT*" + getID() + "=" + seq + getParametersString() + "\r";
-    }
-
-    private String getParametersString()
-    {
-        StringBuffer sb = new StringBuffer();
-        for(Object p : getParameters())
-        {
-            sb.append(',').append(encodeParameter(p));
-        }
-
-        return sb.toString();
-    }
-
     private String encodeParameter(Object p)
     {
         if(p instanceof Integer)
@@ -55,8 +20,43 @@ public abstract class ATCommand extends DroneCommand
         throw new IllegalArgumentException("Unsupported parameter type: " + p.getClass().getName() + " " + p);
     }
 
+    public String getCommandString(int seq)
+    {
+        return "AT*" + getID() + "=" + seq + getParametersString() + "\r";
+    }
 
     protected abstract String getID();
 
+    public byte[] getPacket(int seq)
+    {
+        try
+        {
+            return getCommandString(seq).getBytes("ASCII");
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            // never happens
+            return null;
+        }
+    }
+
     protected abstract Object[] getParameters();
+
+
+    private String getParametersString()
+    {
+        StringBuffer sb = new StringBuffer();
+        for(Object p : getParameters())
+        {
+            sb.append(',').append(encodeParameter(p));
+        }
+
+        return sb.toString();
+    }
+
+    @Override
+    public int getPriority()
+    {
+        return MIN_PRIORITY; 
+    }
 }

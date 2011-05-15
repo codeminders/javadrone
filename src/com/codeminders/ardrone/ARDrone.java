@@ -71,6 +71,19 @@ public class ARDrone
         this.drone_addr = drone_addr;
     }
 
+    public void addImageListener(DroneVideoListener l)
+    {
+        image_listeners.add(l);
+    }
+
+    public void addStatusChangeListener(DroneStatusChangeListener l)
+    {
+        synchronized(status_listeners)
+        {
+            status_listeners.add(l);
+        }
+    }
+
     private void changeState(State newstate) throws IOException
     {
         if(newstate == State.ERROR)
@@ -119,6 +132,15 @@ public class ARDrone
         }
     }
 
+    public void clearEmergencySignal() throws IOException
+    {
+        synchronized(emergency_mutex)
+        {
+            if(isEmergencyMode())
+                cmd_queue.add(new EmergencyCommand());
+        }
+    }
+
     /**
      * Initiate drone connection procedure.
      * 
@@ -150,6 +172,244 @@ public class ARDrone
             changeToErrorState(ex);
             throw ex;
         }
+    }
+
+    public void disableAutomaticVideoBitrate() throws IOException
+    {
+        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode","0"));
+    }
+
+    public void disconnect() throws IOException
+    {
+        try
+        {
+            doDisconnect();
+        } finally
+        {
+            changeState(State.DISCONNECTED);
+        }
+    }
+
+    private void doDisconnect() throws IOException
+    {
+        cmd_queue.add(new QuitCommand());
+        nav_data_reader.stop();
+        video_reader.stop();
+        cmd_socket.close();
+
+        // Only the following method can throw an exception.
+        // We call it last, to ensure it won't prevent other
+        // cleanup operations from being completed
+        // control_socket.close();
+    }
+
+    /**
+     * Enables the automatic bitrate control of the video stream. Enabling this
+     * configuration will reduce the bandwith used by the video stream under bad
+     * Wi-Fi conditions, reducing the commands latency. Note : Before enabling
+     * this config, make sure that your video decoder is able to handle the
+     * variable bitrate mode !
+     * 
+     * @throws IOException
+     */
+    public void enableAutomaticVideoBitrate() throws IOException
+    {
+        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode","1"));
+    }
+
+    public List<DroneVideoListener> getImageListeners()
+    {
+        return image_listeners;
+    }
+
+    public List<DroneStatusChangeListener> getStatusChangeListeners()
+    {
+        return status_listeners;
+    }
+
+    public void hover() throws IOException
+    {
+        cmd_queue.add(new HoverCommand());
+    }
+
+    public boolean isCombinedYawMode()
+    {
+        return combinedYawMode;
+    }
+
+    public boolean isEmergencyMode()
+    {
+        return emergencyMode;
+    }
+
+    public void land() throws IOException
+    {
+        cmd_queue.add(new LandCommand());
+    }
+
+    /**
+     * Move the drone
+     * 
+     * @param left_right_tilt The left-right tilt (aka. "drone roll" or phi
+     *            angle) argument is a percentage of the maximum inclination as
+     *            configured here. A negative value makes the drone tilt to its
+     *            left, thus flying leftward. A positive value makes the drone
+     *            tilt to its right, thus flying rightward.
+     * @param front_back_tilt The front-back tilt (aka. "drone pitch" or theta
+     *            angle) argument is a percentage of the maximum inclination as
+     *            configured here. A negative value makes the drone lower its
+     *            nose, thus flying frontward. A positive value makes the drone
+     *            raise its nose, thus flying backward. The drone translation
+     *            speed in the horizontal plane depends on the environment and
+     *            cannot be determined. With roll or pitch values set to 0, the
+     *            drone will stay horizontal but continue sliding in the air
+     *            because of its inertia. Only the air resistance will then make
+     *            it stop.
+     * @param vertical_speed The vertical speed (aka. "gaz") argument is a
+     *            percentage of the maximum vertical speed as defined here. A
+     *            positive value makes the drone rise in the air. A negative
+     *            value makes it go down.
+     * @param angular_speed The angular speed argument is a percentage of the
+     *            maximum angular speed as defined here. A positive value makes
+     *            the drone spin right; a negative value makes it spin left.
+     * @throws IOException
+     */
+    public void move(float left_right_tilt, float front_back_tilt, float vertical_speed, float angular_speed)
+            throws IOException
+    {
+        cmd_queue
+                .add(new MoveCommand(combinedYawMode, left_right_tilt, front_back_tilt, vertical_speed, angular_speed));
+    }
+
+    // Callback used by receiver
+    public void navDataReceived(NavData nd)
+    {
+        synchronized(emergency_mutex)
+        {
+            emergencyMode = nd.isEmergency();
+        }
+
+        try
+        {
+            synchronized(state_mutex)
+            {
+                if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
+                {
+                    changeState(State.BOOTSTRAP);
+                } else if(state != State.DEMO && nd.getMode() == NavData.Mode.DEMO)
+                {
+                    changeState(State.DEMO);
+                }
+
+                if(nd.isCommunicationProblemOccurred())
+                {
+                    // 50ms communications watchdog has been triggered
+                    cmd_queue.add(new KeepAliveCommand());
+                }
+            }
+        } catch(IOException e)
+        {
+            log.log(Level.SEVERE, "Error changing the state", e);
+        }
+
+        if(state == State.DEMO)
+        {
+            navdata_queue.add(nd);
+        }
+    }
+
+    public void playAnimation(int animation_no, int duration) throws IOException
+    {
+        cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
+    }
+
+    public void playLED(int animation_no, float freq, int duration) throws IOException
+    {
+        cmd_queue.add(new PlayLEDCommand(animation_no, freq, duration));
+    }
+
+    public void selectVideoChannel(VideoChannel c) throws IOException
+    {
+        /*
+         * Current implementation supports 4 different channels : -
+         * ARDRONE_VIDEO_CHANNEL_HORI - ARDRONE_VIDEO_CHANNEL_VERT -
+         * ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT -
+         * ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
+         * 
+         * AT command example : AT*CONFIG=605,"video:video_channel","2"
+         */
+
+        String s;
+        switch(c)
+        {
+            case HORIZONTAL_ONLY: //ARDRONE_VIDEO_CHANNEL_HORI
+                s = "1";
+                break;
+
+            case VERTICAL_ONLY: //ARDRONE_VIDEO_CHANNEL_VERT
+                s = "2";
+                break;
+
+            case VERTICAL_IN_HORIZONTAL: //ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT
+                s = "3";
+                break;
+
+            case HORIZONTAL_IN_VERTICAL: //ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
+                s = "4";
+                break;
+            default:
+                assert(false);
+                return;
+        }
+
+        cmd_queue.add(new ConfigureCommand("video:video_channel", s));
+    }
+
+    public void sendAllNavigationData() throws IOException
+    {
+        setConfigOption("general:navdata_demo", "FALSE");
+    }
+
+    public void sendDemoNavigationData() throws IOException
+    {
+        setConfigOption("general:navdata_demo", "TRUE");
+    }
+
+    public void sendEmergencySignal() throws IOException
+    {
+        synchronized(emergency_mutex)
+        {
+            if(!isEmergencyMode())
+                cmd_queue.add(new EmergencyCommand());
+        }
+    }
+
+    public void setCombinedYawMode(boolean combinedYawMode)
+    {
+        this.combinedYawMode = combinedYawMode;
+    }
+
+    public void setConfigOption(String name, String value) throws IOException
+    {
+        cmd_queue.add(new ConfigureCommand(name, value));
+        cmd_queue.add(new ControlCommand(5, 0));
+    }
+
+    public void takeOff() throws IOException
+    {
+        cmd_queue.add(new TakeOffCommand());
+    }
+
+    public void trim() throws IOException
+    {
+        cmd_queue.add(new FlatTrimCommand());
+    }
+
+    // Callback used by VideoReciver
+    public void videoFrameReceived(BufferedImage image)
+    {
+        for(DroneVideoListener l : image_listeners)
+            l.frameReceived(image);
     }
 
     /**
@@ -199,266 +459,6 @@ public class ARDrone
                 }
             }
         }
-    }
-
-    public void disconnect() throws IOException
-    {
-        try
-        {
-            doDisconnect();
-        } finally
-        {
-            changeState(State.DISCONNECTED);
-        }
-    }
-
-    private void doDisconnect() throws IOException
-    {
-        cmd_queue.add(new QuitCommand());
-        nav_data_reader.stop();
-        video_reader.stop();
-        cmd_socket.close();
-
-        // Only the following method can throw an exception.
-        // We call it last, to ensure it won't prevent other
-        // cleanup operations from being completed
-        // control_socket.close();
-    }
-
-    public void selectVideoChannel(VideoChannel c) throws IOException
-    {
-        /*
-         * Current implementation supports 4 different channels : -
-         * ARDRONE_VIDEO_CHANNEL_HORI - ARDRONE_VIDEO_CHANNEL_VERT -
-         * ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT -
-         * ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
-         * 
-         * AT command example : AT*CONFIG=605,"video:video_channel","2"
-         */
-
-        String s;
-        switch(c)
-        {
-            case HORIZONTAL_ONLY: //ARDRONE_VIDEO_CHANNEL_HORI
-                s = "1";
-                break;
-
-            case VERTICAL_ONLY: //ARDRONE_VIDEO_CHANNEL_VERT
-                s = "2";
-                break;
-
-            case VERTICAL_IN_HORIZONTAL: //ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT
-                s = "3";
-                break;
-
-            case HORIZONTAL_IN_VERTICAL: //ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
-                s = "4";
-                break;
-            default:
-                assert(false);
-                return;
-        }
-
-        cmd_queue.add(new ConfigureCommand("video:video_channel", s));
-    }
-
-    /**
-     * Enables the automatic bitrate control of the video stream. Enabling this
-     * configuration will reduce the bandwith used by the video stream under bad
-     * Wi-Fi conditions, reducing the commands latency. Note : Before enabling
-     * this config, make sure that your video decoder is able to handle the
-     * variable bitrate mode !
-     * 
-     * @throws IOException
-     */
-    public void enableAutomaticVideoBitrate() throws IOException
-    {
-        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode","1"));
-    }
-
-    public void disableAutomaticVideoBitrate() throws IOException
-    {
-        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode","0"));
-    }
-
-    public void trim() throws IOException
-    {
-        cmd_queue.add(new FlatTrimCommand());
-    }
-
-    public void takeOff() throws IOException
-    {
-        cmd_queue.add(new TakeOffCommand());
-    }
-
-    public void land() throws IOException
-    {
-        cmd_queue.add(new LandCommand());
-    }
-
-    public void sendEmergencySignal() throws IOException
-    {
-        synchronized(emergency_mutex)
-        {
-            if(!isEmergencyMode())
-                cmd_queue.add(new EmergencyCommand());
-        }
-    }
-
-    public void clearEmergencySignal() throws IOException
-    {
-        synchronized(emergency_mutex)
-        {
-            if(isEmergencyMode())
-                cmd_queue.add(new EmergencyCommand());
-        }
-    }
-
-    public void hover() throws IOException
-    {
-        cmd_queue.add(new HoverCommand());
-    }
-
-    public void setCombinedYawMode(boolean combinedYawMode)
-    {
-        this.combinedYawMode = combinedYawMode;
-    }
-
-    public boolean isCombinedYawMode()
-    {
-        return combinedYawMode;
-    }
-
-    public boolean isEmergencyMode()
-    {
-        return emergencyMode;
-    }
-
-    /**
-     * Move the drone
-     * 
-     * @param left_right_tilt The left-right tilt (aka. "drone roll" or phi
-     *            angle) argument is a percentage of the maximum inclination as
-     *            configured here. A negative value makes the drone tilt to its
-     *            left, thus flying leftward. A positive value makes the drone
-     *            tilt to its right, thus flying rightward.
-     * @param front_back_tilt The front-back tilt (aka. "drone pitch" or theta
-     *            angle) argument is a percentage of the maximum inclination as
-     *            configured here. A negative value makes the drone lower its
-     *            nose, thus flying frontward. A positive value makes the drone
-     *            raise its nose, thus flying backward. The drone translation
-     *            speed in the horizontal plane depends on the environment and
-     *            cannot be determined. With roll or pitch values set to 0, the
-     *            drone will stay horizontal but continue sliding in the air
-     *            because of its inertia. Only the air resistance will then make
-     *            it stop.
-     * @param vertical_speed The vertical speed (aka. "gaz") argument is a
-     *            percentage of the maximum vertical speed as defined here. A
-     *            positive value makes the drone rise in the air. A negative
-     *            value makes it go down.
-     * @param angular_speed The angular speed argument is a percentage of the
-     *            maximum angular speed as defined here. A positive value makes
-     *            the drone spin right; a negative value makes it spin left.
-     * @throws IOException
-     */
-    public void move(float left_right_tilt, float front_back_tilt, float vertical_speed, float angular_speed)
-            throws IOException
-    {
-        cmd_queue
-                .add(new MoveCommand(combinedYawMode, left_right_tilt, front_back_tilt, vertical_speed, angular_speed));
-    }
-
-    public void sendAllNavigationData() throws IOException
-    {
-        setConfigOption("general:navdata_demo", "FALSE");
-    }
-
-    public void sendDemoNavigationData() throws IOException
-    {
-        setConfigOption("general:navdata_demo", "TRUE");
-    }
-
-    public void setConfigOption(String name, String value) throws IOException
-    {
-        cmd_queue.add(new ConfigureCommand(name, value));
-        cmd_queue.add(new ControlCommand(5, 0));
-    }
-
-    public void playLED(int animation_no, float freq, int duration) throws IOException
-    {
-        cmd_queue.add(new PlayLEDCommand(animation_no, freq, duration));
-    }
-
-    public void playAnimation(int animation_no, int duration) throws IOException
-    {
-        cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
-    }
-
-    // Callback used by VideoReciver
-    public void videoFrameReceived(BufferedImage image)
-    {
-        for(DroneVideoListener l : image_listeners)
-            l.frameReceived(image);
-    }
-
-    // Callback used by receiver
-    public void navDataReceived(NavData nd)
-    {
-        synchronized(emergency_mutex)
-        {
-            emergencyMode = nd.isEmergency();
-        }
-
-        try
-        {
-            synchronized(state_mutex)
-            {
-                if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
-                {
-                    changeState(State.BOOTSTRAP);
-                } else if(state != State.DEMO && nd.getMode() == NavData.Mode.DEMO)
-                {
-                    changeState(State.DEMO);
-                }
-
-                if(nd.isCommunicationProblemOccurred())
-                {
-                    // 50ms communications watchdog has been triggered
-                    cmd_queue.add(new KeepAliveCommand());
-                }
-            }
-        } catch(IOException e)
-        {
-            log.log(Level.SEVERE, "Error changing the state", e);
-        }
-
-        if(state == State.DEMO)
-        {
-            navdata_queue.add(nd);
-        }
-    }
-
-    public void addStatusChangeListener(DroneStatusChangeListener l)
-    {
-        synchronized(status_listeners)
-        {
-            status_listeners.add(l);
-        }
-    }
-
-    public List<DroneStatusChangeListener> getStatusChangeListeners()
-    {
-        return status_listeners;
-    }
-
-    public void addImageListener(DroneVideoListener l)
-    {
-        image_listeners.add(l);
-    }
-
-    public List<DroneVideoListener> getImageListeners()
-    {
-        return image_listeners;
     }
 
 }

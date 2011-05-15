@@ -45,30 +45,6 @@ public class PS3ControllerState
     protected int     rightJoystickY;
 
     
-    public PS3ControllerState(PS3ControllerState o)
-    {
-        this.square = o.square;
-        this.cross = o.cross;
-        this.circle = o.circle;
-        this.triangle = o.triangle;
-        L1 = o.L1;
-        R1 = o.R1;
-        L2 = o.L2;
-        R2 = o.R2;
-        this.select = o.select;
-        this.start = o.start;
-        this.leftJoystickPress = o.leftJoystickPress;
-        this.rightJoystickPress = o.rightJoystickPress;
-        PS = o.PS;
-        this.hatSwitchLeftRight = o.hatSwitchLeftRight;
-        this.hatSwitchUpDown = o.hatSwitchUpDown;
-        this.leftJoystickX = o.leftJoystickX;
-        this.leftJoystickY = o.leftJoystickY;
-        this.rightJoystickX = o.rightJoystickX;
-        this.rightJoystickY = o.rightJoystickY;
-
-    }
-    
     public PS3ControllerState(boolean square, boolean cross, boolean circle, boolean triangle, boolean l1, boolean r1,
             boolean l2, boolean r2, boolean select, boolean start, boolean leftJoystickPress,
             boolean rightJoystickPress, boolean pS, int hatSwitchLeftRight, int hatSwitchUpDown, int leftJoystickX,
@@ -94,70 +70,39 @@ public class PS3ControllerState
         this.rightJoystickX = rightJoystickX;
         this.rightJoystickY = rightJoystickY;
     }
-
-    public boolean isTriangle()
+    
+    public PS3ControllerState(PS3ControllerState o)
     {
-        return triangle;
+        this.square = o.square;
+        this.cross = o.cross;
+        this.circle = o.circle;
+        this.triangle = o.triangle;
+        L1 = o.L1;
+        R1 = o.R1;
+        L2 = o.L2;
+        R2 = o.R2;
+        this.select = o.select;
+        this.start = o.start;
+        this.leftJoystickPress = o.leftJoystickPress;
+        this.rightJoystickPress = o.rightJoystickPress;
+        PS = o.PS;
+        this.hatSwitchLeftRight = o.hatSwitchLeftRight;
+        this.hatSwitchUpDown = o.hatSwitchUpDown;
+        this.leftJoystickX = o.leftJoystickX;
+        this.leftJoystickY = o.leftJoystickY;
+        this.rightJoystickX = o.rightJoystickX;
+        this.rightJoystickY = o.rightJoystickY;
+
     }
 
-    public boolean isCircle()
+    public int getHatSwitchLeftRight()
     {
-        return circle;
+        return hatSwitchLeftRight;
     }
 
-    public boolean isCross()
+    public int getHatSwitchUpDown()
     {
-        return cross;
-    }
-
-    public boolean isSquare()
-    {
-        return square;
-    }
-
-    public boolean isPS()
-    {
-        return PS;
-    }
-
-    public boolean isSelect()
-    {
-        return select;
-    }
-
-    public boolean isStart()
-    {
-        return start;
-    }
-
-    public boolean isLeftJoystickPress()
-    {
-        return leftJoystickPress;
-    }
-
-    public boolean isRightJoystickPress()
-    {
-        return rightJoystickPress;
-    }
-
-    public boolean isL1()
-    {
-        return L1;
-    }
-
-    public boolean isR1()
-    {
-        return R1;
-    }
-
-    public boolean isL2()
-    {
-        return L2;
-    }
-
-    public boolean isR2()
-    {
-        return R2;
+        return hatSwitchUpDown;
     }
 
     public int getLeftJoystickX()
@@ -180,14 +125,69 @@ public class PS3ControllerState
         return rightJoystickY;
     }
 
-    public int getHatSwitchLeftRight()
+    public boolean isCircle()
     {
-        return hatSwitchLeftRight;
+        return circle;
     }
 
-    public int getHatSwitchUpDown()
+    public boolean isCross()
     {
-        return hatSwitchUpDown;
+        return cross;
+    }
+
+    public boolean isL1()
+    {
+        return L1;
+    }
+
+    public boolean isL2()
+    {
+        return L2;
+    }
+
+    public boolean isLeftJoystickPress()
+    {
+        return leftJoystickPress;
+    }
+
+    public boolean isPS()
+    {
+        return PS;
+    }
+
+    public boolean isR1()
+    {
+        return R1;
+    }
+
+    public boolean isR2()
+    {
+        return R2;
+    }
+
+    public boolean isRightJoystickPress()
+    {
+        return rightJoystickPress;
+    }
+
+    public boolean isSelect()
+    {
+        return select;
+    }
+
+    public boolean isSquare()
+    {
+        return square;
+    }
+
+    public boolean isStart()
+    {
+        return start;
+    }
+
+    public boolean isTriangle()
+    {
+        return triangle;
     }
 
     @Override
