@@ -41,22 +41,7 @@ import java.security.AllPermission;
 
 public class uint
 {
-
-    public String toString()
-    {
-        return Integer.toString(base2, 2);
-    }
-
-    public uint(int base)
-    {
-        this.base2 = base;
-
-    }
-
-    public uint(uint that)
-    {
-        this.base2 = that.base2;
-    }
+    private int base2;
 
     public uint(byte[] bp, int start)
     {
@@ -95,41 +80,25 @@ public class uint
         }
     }
 
-    private int base2;
-
-    public short times(short i)
+    public uint(int base)
     {
-        return (short) (intValue() * i);
+        this.base2 = base;
     }
 
-    public uint shiftRight(int i)
+    public uint(uint that)
     {
-        // System.out.println("shiftRight[0] " + base2 + " " + i);
-
-        // String str = Integer.toBinaryString(base);
-        int base = base2;
-        // System.out.println("shiftRight[n][1] " + uint.toBinaryString(base));
-
-        base = base >>> i;
-
-        // System.out.println("shiftRight[n][2] " + uint.toBinaryString(base));
-
-        return new uint(base);
+        this.base2 = that.base2;
     }
 
-    public uint shiftLeft(int i)
+    public uint and(int andval)
     {
-        int base = base2;
-        base <<= i;
-
-        return new uint(base);
-        // return Integer.parseInt(base, 2);
+        int retval = base2 & andval;
+        return new uint(retval);
     }
 
     public int flipBits()
     {
         int base = ~base2;
-
         return base;
     }
 
@@ -139,34 +108,49 @@ public class uint
 
     }
 
-    public uint and(int andval)
+    public uint or(uint orval)
     {
-        int retval = base2 & andval;
+        int retval = base2 | orval.base2;
         return new uint(retval);
+    }
+
+    public uint shiftLeft(int i)
+    {
+        int base = base2;
+        base <<= i;
+
+        return new uint(base);
     }
 
     public void shiftLeftEquals(int i)
     {
         int base = base2;
-
         base <<= i;
-
         base2 = base;
+    }
+
+    public uint shiftRight(int i)
+    {
+        int base = base2;
+        base = base >>> i;
+        return new uint(base);
     }
 
     public void shiftRightEquals(int i)
     {
         int base = base2;
-
         base >>>= i;
-
         base2 = base;
     }
 
-    public uint or(uint orval)
+    public short times(short i)
     {
-        int retval = base2 | orval.base2;
-        return new uint(retval);
+        return (short) (intValue() * i);
+    }
+
+    public String toString()
+    {
+        return Integer.toString(base2, 2);
     }
 
 }
