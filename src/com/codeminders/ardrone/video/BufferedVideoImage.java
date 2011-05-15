@@ -121,13 +121,13 @@ public class BufferedVideoImage
     private uint[]           pixelData;
     private int[]            javaPixelData;
 
-    public void AddImageStream(ByteBuffer stream)
+    public void addImageStream(ByteBuffer stream)
     {
         imageStream = stream;
-        ProcessStream();
+        processStream();
     }
 
-    private void AlignStreamData()
+    private void alignStreamData()
     {
         int alignedLength;
         int actualLength;
@@ -146,7 +146,7 @@ public class BufferedVideoImage
         }
     }
 
-    private void ComposeImageSlice()
+    private void composeImageSlice()
     {
         int u, ug, ub;
         int v, vg, vr;
@@ -203,20 +203,20 @@ public class BufferedVideoImage
                             lumaElementValue1 = macroBlock.DataBlocks[quadrant][lumaElementIndex1 + deltaIndex] << 8;
                             lumaElementValue2 = macroBlock.DataBlocks[quadrant][lumaElementIndex2 + deltaIndex] << 8;
 
-                            r = Saturate5(lumaElementValue1 + vr);
-                            g = Saturate6(lumaElementValue1 - ug - vg);
-                            b = Saturate5(lumaElementValue1 + ub);
+                            r = saturate5(lumaElementValue1 + vr);
+                            g = saturate6(lumaElementValue1 - ug - vg);
+                            b = saturate5(lumaElementValue1 + ub);
 
                             int index1 = dataIndex1 + pixelDataQuadrantOffsets[quadrant] + deltaIndex;
-                            pixelData[index1] = MakeRgb(r, g, b);
+                            pixelData[index1] = makeRGB(r, g, b);
                             javaPixelData[index1] = pixelData[index1].intValue();
 
-                            r = Saturate5(lumaElementValue2 + vr);
-                            g = Saturate6(lumaElementValue2 - ug - vg);
-                            b = Saturate5(lumaElementValue2 + ub);
+                            r = saturate5(lumaElementValue2 + vr);
+                            g = saturate6(lumaElementValue2 - ug - vg);
+                            b = saturate5(lumaElementValue2 + ub);
 
                             int index2 = dataIndex2 + pixelDataQuadrantOffsets[quadrant] + deltaIndex;
-                            pixelData[index2] = MakeRgb(r, g, b);
+                            pixelData[index2] = makeRGB(r, g, b);
                             javaPixelData[index2] = pixelData[index2].intValue();
                         }
                     }
@@ -227,7 +227,7 @@ public class BufferedVideoImage
         }
     }
 
-    private static int CountLeadingZeros(uint value)
+    private static int countLeadingZeros(uint value)
     {
         int accum = 0;
 
@@ -242,7 +242,7 @@ public class BufferedVideoImage
         return accum;
     }
 
-    private void DecodeFieldBytes(int[] run, int[] level, boolean[] last)
+    private void decodeFieldBytes(int[] run, int[] level, boolean[] last)
     {
         uint streamCode = new uint(0);
 
@@ -262,7 +262,7 @@ public class BufferedVideoImage
         // can be negative or positive.
         // First we extract the run field info and then the level field info.
 
-        streamCode = PeekStreamData(imageStream, 32);
+        streamCode = peekStreamData(imageStream, 32);
 
         // Determine number of consecutive zeros in zig zag. (a.k.a
         // 'run' field info)
@@ -275,7 +275,7 @@ public class BufferedVideoImage
         // addtional bits
         // 3 - Calculate value of run, for coarse value 00001 this is (111) + 8
 
-        zeroCount = CountLeadingZeros(streamCode); // - (1)
+        zeroCount = countLeadingZeros(streamCode); // - (1)
         streamCode.shiftLeftEquals(zeroCount + 1); // - (2) -> shift left to get
         // rid of the coarse value
         streamLength += zeroCount + 1; // - position bit pointer to keep track
@@ -328,7 +328,7 @@ public class BufferedVideoImage
         // 3 - Calculate value of run, for coarse value 00001 this is (xxx) + 8,
         // multiply by sign
 
-        zeroCount = CountLeadingZeros(streamCode);
+        zeroCount = countLeadingZeros(streamCode);
         streamCode.shiftLeftEquals(zeroCount + 1); // - (1)
         streamLength += zeroCount + 1; // - position bit pointer to keep track
         // off how many bits to consume later on
@@ -382,10 +382,10 @@ public class BufferedVideoImage
             last[0] = false;
         }
 
-        ReadStreamData(streamLength);
+        readStreamData(streamLength);
     }
 
-    private void GetBlockBytes(boolean acCoefficientsAvailable)
+    private void getBlockBytes(boolean acCoefficientsAvailable)
     {
         int[] run = new int[] { 0 };
         int[] level = new int[] { 0 };
@@ -396,7 +396,7 @@ public class BufferedVideoImage
         for(int i = 0; i < dataBlockBuffer.length; i++)
             dataBlockBuffer[i] = 0;
 
-        uint dcCoefficient = ReadStreamData(10);
+        uint dcCoefficient = readStreamData(10);
 
         if(quantizerMode == TABLE_QUANTIZATION_MODE)
         {
@@ -404,7 +404,7 @@ public class BufferedVideoImage
 
             if(acCoefficientsAvailable)
             {
-                DecodeFieldBytes(run, level, last);
+                decodeFieldBytes(run, level, last);
 
                 while(!last[0])
                 {
@@ -412,7 +412,7 @@ public class BufferedVideoImage
                     matrixPosition = ZIGZAG_POSITIONS[zigZagPosition];
                     level[0] *= QUANTIZER_VALUES[matrixPosition];
                     dataBlockBuffer[matrixPosition] = (short) level[0];
-                    DecodeFieldBytes(run, level, last);
+                    decodeFieldBytes(run, level, last);
                 }
             }
         } else
@@ -462,7 +462,7 @@ public class BufferedVideoImage
         return width;
     }
 
-    void InverseTransform(int macroBlockIndex, int dataBlockIndex)
+    void inverseTransform(int macroBlockIndex, int dataBlockIndex)
     {
         int[] workSpace = new int[64];
         short[] data = new short[64];
@@ -619,7 +619,7 @@ public class BufferedVideoImage
         }
     }
 
-    private uint MakeRgb(int r, int g, int b)
+    private uint makeRGB(int r, int g, int b)
     {
         r <<= 2;
         g <<= 1;
@@ -791,7 +791,7 @@ public class BufferedVideoImage
     // So to calculate the real index we have to take that also into account
     // (blockCount)
 
-    private uint PeekStreamData(ByteBuffer stream, int count)
+    private uint peekStreamData(ByteBuffer stream, int count)
     {
         uint data = new uint(0);
         uint stream_field = streamField;
@@ -813,7 +813,7 @@ public class BufferedVideoImage
         return data;
     }
 
-    private void ProcessStream()
+    private void processStream()
     {
         boolean blockY0HasAcComponents = false;
         boolean blockY1HasAcComponents = false;
@@ -833,17 +833,17 @@ public class BufferedVideoImage
 
         while(!pictureComplete && streamIndex < (imageStream.capacity() >> 2))
         {
-            ReadHeader();
+            readHeader();
 
             if(!pictureComplete)
             {
                 for(int count = 0; count < blockCount; count++)
                 {
-                    uint macroBlockEmpty = ReadStreamData(1);
+                    uint macroBlockEmpty = readStreamData(1);
 
                     if(macroBlockEmpty.intValue() == (0))
                     {
-                        uint acCoefficients = ReadStreamData(8);
+                        uint acCoefficients = readStreamData(8);
 
                         blockY0HasAcComponents = acCoefficients.shiftRight(0).and(1).intValue() == 1;
                         blockY1HasAcComponents = acCoefficients.shiftRight(1).and(1).intValue() == 1;
@@ -854,47 +854,43 @@ public class BufferedVideoImage
 
                         if(acCoefficients.shiftRight(6).and(1).intValue() == 1)
                         {
-                            uint quantizer_mode = ReadStreamData(2);
+                            uint quantizer_mode = readStreamData(2);
                             quantizerMode = (int) ((quantizer_mode.intValue() < 2) ? quantizer_mode.flipBits()
                                     : quantizer_mode.intValue());
                         }
 
-                        GetBlockBytes(blockY0HasAcComponents);
-                        InverseTransform(count, 0);
+                        getBlockBytes(blockY0HasAcComponents);
+                        inverseTransform(count, 0);
 
-                        GetBlockBytes(blockY1HasAcComponents);
-                        InverseTransform(count, 1);
+                        getBlockBytes(blockY1HasAcComponents);
+                        inverseTransform(count, 1);
 
-                        GetBlockBytes(blockY2HasAcComponents);
-                        InverseTransform(count, 2);
+                        getBlockBytes(blockY2HasAcComponents);
+                        inverseTransform(count, 2);
 
-                        GetBlockBytes(blockY3HasAcComponents);
-                        InverseTransform(count, 3);
+                        getBlockBytes(blockY3HasAcComponents);
+                        inverseTransform(count, 3);
 
-                        GetBlockBytes(blockCbHasAcComponents);
-                        InverseTransform(count, 4);
+                        getBlockBytes(blockCbHasAcComponents);
+                        inverseTransform(count, 4);
 
-                        GetBlockBytes(blockCrHasAcComponents);
-                        InverseTransform(count, 5);
+                        getBlockBytes(blockCrHasAcComponents);
+                        inverseTransform(count, 5);
                     }
                 }
 
-                ComposeImageSlice();
+                composeImageSlice();
             }
         }
 
     }
 
-    private void ReadHeader()
+    private void readHeader()
     {
-        uint code = new uint(0);
-        uint startCode = new uint(0);
+        alignStreamData();
 
-        AlignStreamData();
-
-        code = ReadStreamData(22);
-
-        startCode = new uint(code.and(~0x1F));
+        uint code = readStreamData(22);
+        uint startCode = new uint(code.and(~0x1F));
 
         if(startCode.intValue() == 32)
         {
@@ -905,11 +901,11 @@ public class BufferedVideoImage
             {
                 if(sliceIndex++ == 0)
                 {
-                    pictureFormat = (int) ReadStreamData(2).intValue();
-                    resolution = (int) ReadStreamData(3).intValue();
-                    pictureType = (int) ReadStreamData(3).intValue();
-                    quantizerMode = (int) ReadStreamData(5).intValue();
-                    frameIndex = (int) ReadStreamData(32).intValue();
+                    pictureFormat = (int) readStreamData(2).intValue();
+                    resolution = (int) readStreamData(3).intValue();
+                    pictureType = (int) readStreamData(3).intValue();
+                    quantizerMode = (int) readStreamData(5).intValue();
+                    frameIndex = (int) readStreamData(32).intValue();
 
                     switch(pictureFormat)
                     {
@@ -945,13 +941,13 @@ public class BufferedVideoImage
                     }
                 } else
                 {
-                    quantizerMode = (int) ReadStreamData(5).intValue();
+                    quantizerMode = (int) readStreamData(5).intValue();
                 }
             }
         }
     }
 
-    private uint ReadStreamData(int count)
+    private uint readStreamData(int count)
     {
         uint data = new uint(0);
 
@@ -974,7 +970,7 @@ public class BufferedVideoImage
         return data;
     }
 
-    private static int Saturate5(int x)
+    private static int saturate5(int x)
     {
         if(x < 0)
             return 0;
@@ -983,7 +979,7 @@ public class BufferedVideoImage
         return (x > 0x1F) ? 0x1F : x;
     }
 
-    private static int Saturate6(int x)
+    private static int saturate6(int x)
     {
         if(x < 0)
             return 0;

@@ -93,7 +93,7 @@ public class VideoReader implements Runnable
                         {
                             inbuf.flip();
                             final BufferedVideoImage vi = new BufferedVideoImage();
-                            vi.AddImageStream(inbuf);
+                            vi.addImageStream(inbuf);
 
                             BufferedImage image = new BufferedImage(vi.getWidth(), vi.getHeight(), BufferedImage.TYPE_INT_RGB);
                             image.setRGB(0, 0, vi.getWidth(), vi.getHeight(), vi.getJavaPixelData(), 0, vi.getWidth());
