@@ -36,90 +36,92 @@ import java.nio.ByteBuffer;
 
 public class BufferedVideoImage
 {
-    private static final int              BLOCK_WIDTH        = 8;
-    private static final int              CIF_WIDTH          = 88;
-    private static final int              CIG_HEIGHT         = 72;
+    private static final int     BLOCK_WIDTH             = 8;
+    private static final int     CIF_WIDTH               = 88;
+    private static final int     CIG_HEIGHT              = 72;
 
-    private static final int              VGA_WIDTH          = 160;
-    private static final int              VGA_HEIGHT         = 120;
+    private static final int     VGA_WIDTH               = 160;
+    private static final int     VGA_HEIGHT              = 120;
 
-    private static final int              TABLE_QUANTIZATION_MODE = 31;
+    private static final int     TABLE_QUANTIZATION_MODE = 31;
 
-    private static final int              FIX_0_298631336    = 2446;
-    private static final int              FIX_0_390180644    = 3196;
-    private static final int              FIX_0_541196100    = 4433;
-    private static final int              FIX_0_765366865    = 6270;
-    private static final int              FIX_0_899976223    = 7373;
-    private static final int              FIX_1_175875602    = 9633;
-    private static final int              FIX_1_501321110    = 12299;
-    private static final int              FIX_1_847759065    = 15137;
-    private static final int              FIX_1_961570560    = 16069;
-    private static final int              FIX_2_053119869    = 16819;
-    private static final int              FIX_2_562915447    = 20995;
-    private static final int              FIX_3_072711026    = 25172;
+    private static final int     FIX_0_298631336         = 2446;
+    private static final int     FIX_0_390180644         = 3196;
+    private static final int     FIX_0_541196100         = 4433;
+    private static final int     FIX_0_765366865         = 6270;
+    private static final int     FIX_0_899976223         = 7373;
+    private static final int     FIX_1_175875602         = 9633;
+    private static final int     FIX_1_501321110         = 12299;
+    private static final int     FIX_1_847759065         = 15137;
+    private static final int     FIX_1_961570560         = 16069;
+    private static final int     FIX_2_053119869         = 16819;
+    private static final int     FIX_2_562915447         = 20995;
+    private static final int     FIX_3_072711026         = 25172;
 
-    private static final int              BITS              = 13;
-    private static final int              PASS1_BITS         = 1;
-    private static final int              F1                 = BITS - PASS1_BITS - 1;
-    private static final int              F2                 = BITS - PASS1_BITS;
-    private static final int              F3                 = BITS + PASS1_BITS + 3;
+    private static final int     BITS                    = 13;
+    private static final int     PASS1_BITS              = 1;
+    private static final int     F1                      = BITS - PASS1_BITS - 1;
+    private static final int     F2                      = BITS - PASS1_BITS;
+    private static final int     F3                      = BITS + PASS1_BITS + 3;
 
     /**
      * 176px x 144px
      */
-    private static final int CIF                = 1;
+    private static final int     CIF                     = 1;
 
     /**
      * 320px x 240px
      */
-    private static final int QVGA               = 2;
+    private static final int     QVGA                    = 2;
 
-    private static final short[]          ZIGZAG_POSITIONS    = new short[] { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5,
-            12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15,
-            23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63, };
+    private static final short[] ZIGZAG_POSITIONS        = new short[] { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18,
+            11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29,
+            22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63, };
 
     // Cfr. Handbook of Data Compression - Page 529
     // David Salomon
     // Giovanni Motta
 
-    private static final short[]          QUANTIZER_VALUES    = new short[] { 3, 5, 7, 9, 11, 13, 15, 17, 5, 7, 9, 11, 13, 15, 17,
-            19, 7, 9, 11, 13, 15, 17, 19, 21, 9, 11, 13, 15, 17, 19, 21, 23, 11, 13, 15, 17, 19, 21, 23, 25, 13, 15,
-            17, 19, 21, 23, 25, 27, 15, 17, 19, 21, 23, 25, 27, 29, 17, 19, 21, 23, 25, 27, 29, 31 };
+    private static final short[] QUANTIZER_VALUES        = new short[] { 3, 5, 7, 9, 11, 13, 15, 17, 5, 7, 9, 11, 13,
+            15, 17, 19, 7, 9, 11, 13, 15, 17, 19, 21, 9, 11, 13, 15, 17, 19, 21, 23, 11, 13, 15, 17, 19, 21, 23, 25,
+            13, 15, 17, 19, 21, 23, 25, 27, 15, 17, 19, 21, 23, 25, 27, 29, 17, 19, 21, 23, 25, 27, 29, 31 };
 
-    static byte[]                CLZLUT             = new byte[] { 8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3,
-            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-            2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    static byte[]                CLZLUT                  = new byte[] { 8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4,
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-    private short[]          dataBlockBuffer    = new short[64];
+    private static final int[]   CROMA_QUADRANT_OFFSETS  = new int[] { 0, 4, 32, 36 };
 
-    private uint             streamField;
-    private int              streamFieldBitIndex;
-    private int              streamIndex;
-    private int              sliceCount;
-    private boolean          pictureComplete;
-    private int              pictureFormat;
-    private int              resolution;
-    private int              pictureType;
-    private int              quantizerMode;
-    private int              frameIndex;
-    private int              sliceIndex;
-    private int              blockCount;
-    private int              width;
-    private int              height;
+    private short[]              dataBlockBuffer         = new short[64];
+
+    private uint                 streamField;
+    private int                  streamFieldBitIndex;
+    private int                  streamIndex;
+    private int                  sliceCount;
+    private boolean              pictureComplete;
+    private int                  pictureFormat;
+    private int                  resolution;
+    private int                  pictureType;
+    private int                  quantizerMode;
+    private int                  frameIndex;
+    private int                  sliceIndex;
+    private int                  blockCount;
+    private int                  width;
+    private int                  height;
 
     /**
      * Length of one row of pixels in the destination image in bytes.
      */
-    private int              pixelRowSize;
-    private ByteBuffer       imageStream;
-    private ImageSlice       imageSlice;
-    private uint[]           pixelData;
-    private int[]            javaPixelData;
+    private int                  pixelRowSize;
+    private ByteBuffer           imageStream;
+    private ImageSlice           imageSlice;
+    private uint[]               pixelData;
+    private int[]                javaPixelData;
 
     public void addImageStream(ByteBuffer stream)
     {
@@ -164,7 +166,6 @@ public class BufferedVideoImage
         int chromaBlueValue = 0;
         int chromaRedValue = 0;
 
-        int[] cromaQuadrantOffsets = new int[] { 0, 4, 32, 36 };
         int[] pixelDataQuadrantOffsets = new int[] { 0, BLOCK_WIDTH, width * BLOCK_WIDTH,
                 (width * BLOCK_WIDTH) + BLOCK_WIDTH };
 
@@ -185,7 +186,7 @@ public class BufferedVideoImage
                 {
                     for(int quadrant = 0; quadrant < 4; quadrant++)
                     {
-                        int chromaIndex = chromaOffset + cromaQuadrantOffsets[quadrant] + horizontalStep;
+                        int chromaIndex = chromaOffset + CROMA_QUADRANT_OFFSETS[quadrant] + horizontalStep;
                         chromaBlueValue = macroBlock.DataBlocks[4][chromaIndex];
                         chromaRedValue = macroBlock.DataBlocks[5][chromaIndex];
 
@@ -614,9 +615,7 @@ public class BufferedVideoImage
         }
 
         for(int i = 0; i < data.length; i++)
-        {
             imageSlice.MacroBlocks[macroBlockIndex].DataBlocks[dataBlockIndex][i] = data[i];
-        }
     }
 
     private uint makeRGB(int r, int g, int b)
@@ -806,9 +805,7 @@ public class BufferedVideoImage
         }
 
         if(count > 0)
-        {
             data = data.shiftLeft(count).or(stream_field.shiftRight((32 - count)));
-        }
 
         return data;
     }
