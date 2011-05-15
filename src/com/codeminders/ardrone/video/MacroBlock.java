@@ -32,11 +32,8 @@ package com.codeminders.ardrone.video;
 // may be used to endorse or promote products derived from this software without
 // specific prior written permission.
 
-public class MacroBlock
+class MacroBlock
 {
-    // private int _BlockWidth = 8;
-    // private int _BlockSize = 64;
-
     short[][] DataBlocks;
 
     MacroBlock()
@@ -44,8 +41,6 @@ public class MacroBlock
         DataBlocks = new short[6][];
 
         for(int index = 0; index < 6; index++)
-        {
             DataBlocks[index] = new short[64];
-        }
     }
 }
