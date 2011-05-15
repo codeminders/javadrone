@@ -227,7 +227,7 @@ public class BufferedVideoImage
         }
     }
 
-    private int CountLeadingZeros(uint value)
+    private static int CountLeadingZeros(uint value)
     {
         int accum = 0;
 
@@ -974,27 +974,21 @@ public class BufferedVideoImage
         return data;
     }
 
-    private int Saturate5(int x)
+    private static int Saturate5(int x)
     {
         if(x < 0)
-        {
             x = 0;
-        }
 
         x >>= 11;
-
         return (x > 0x1F) ? 0x1F : x;
     }
 
-    private int Saturate6(int x)
+    private static int Saturate6(int x)
     {
         if(x < 0)
-        {
             x = 0;
-        }
 
         x >>= 10;
-
         return x > 0x3F ? 0x3F : x;
     }
 }
