@@ -102,41 +102,25 @@ public class BufferedVideoImage
     private int              StreamFieldBitIndex;
     private int              StreamIndex;
     private int              SliceCount;
-
     private boolean          PictureComplete;
-
     private int              PictureFormat;
-
     private int              Resolution;
     private int              PictureType;
     private int              QuantizerMode;
-
     private int              FrameIndex;
-
     private int              SliceIndex;
     private int              BlockCount;
-
     private int              Width;
-
     private int              Height;
 
     /**
      * Length of one row of pixels in the destination image in bytes.
      */
     private int              PixelRowSize;
-
     private ByteBuffer       ImageStream;
     private ImageSlice       ImageSlice;
-
     private uint[]           PixelData;
-
     private int[]            JavaPixelData;
-
-    int                      numCalls           = 0;
-
-    public BufferedVideoImage()
-    {
-    }
 
     public void AddImageStream(ByteBuffer stream)
     {
@@ -988,7 +972,6 @@ public class BufferedVideoImage
             StreamFieldBitIndex += count;
         }
 
-        numCalls++;
         return data;
     }
 
