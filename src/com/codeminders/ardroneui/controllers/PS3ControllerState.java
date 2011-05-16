@@ -44,7 +44,6 @@ public class PS3ControllerState
     protected int     rightJoystickX;
     protected int     rightJoystickY;
 
-    
     public PS3ControllerState(boolean square, boolean cross, boolean circle, boolean triangle, boolean l1, boolean r1,
             boolean l2, boolean r2, boolean select, boolean start, boolean leftJoystickPress,
             boolean rightJoystickPress, boolean pS, int hatSwitchLeftRight, int hatSwitchUpDown, int leftJoystickX,
@@ -70,7 +69,7 @@ public class PS3ControllerState
         this.rightJoystickX = rightJoystickX;
         this.rightJoystickY = rightJoystickY;
     }
-    
+
     public PS3ControllerState(PS3ControllerState o)
     {
         this.square = o.square;
@@ -93,6 +92,10 @@ public class PS3ControllerState
         this.rightJoystickX = o.rightJoystickX;
         this.rightJoystickY = o.rightJoystickY;
 
+    }
+
+    public PS3ControllerState()
+    {
     }
 
     public int getHatSwitchLeftRight()
