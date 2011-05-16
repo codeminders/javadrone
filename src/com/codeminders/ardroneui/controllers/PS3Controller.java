@@ -9,10 +9,12 @@ import com.codeminders.hidapi.HIDDevice;
  * Base abstract class for supported PS3-compatible USB controllers
  * 
  * @author lord
- *
+ * 
  */
 public abstract class PS3Controller
 {
+    protected HIDDevice dev;
+
     protected static void printDelta(byte[] prev, int prev_size, byte[] cur, int cur_size)
     {
         if(prev_size != cur_size)
@@ -31,11 +33,10 @@ public abstract class PS3Controller
         }
     }
 
-    protected HIDDevice dev;
-
     public void close() throws IOException
     {
-        dev.close();
+        if(dev != null)
+            dev.close();
     }
 
     public abstract PS3ControllerState read() throws IOException;

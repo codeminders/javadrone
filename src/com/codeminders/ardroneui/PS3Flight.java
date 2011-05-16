@@ -20,6 +20,7 @@ public class PS3Flight
 {
     private static final long READ_UPDATE_DELAY_MS = 20L;
     private static final long CONNECT_TIMEOUT      = 3000L;
+    private static JFrame     frame;
 
     static
     {
@@ -65,10 +66,22 @@ public class PS3Flight
      */
     public static void main(String[] args)
     {
+        PS3Flight flight = new PS3Flight();
+        flight.run();
+    }
+
+    public PS3Flight()
+    {
+    }
+
+    public void run()
+    {
         PS3Controller dev;
         try
         {
             final ARDrone drone = new ARDrone();
+            showMainWindow(drone);
+
             drone.setCombinedYawMode(true);
             drone.addStatusChangeListener(new DroneStatusChangeListener() {
 
@@ -90,9 +103,6 @@ public class PS3Flight
                 }
             });
 
-
-            showVideo(drone);
-
             System.err.println("Connecting to the drone");
             drone.connect();
             drone.waitForReady(CONNECT_TIMEOUT);
@@ -104,10 +114,9 @@ public class PS3Flight
                 {
                     System.err.println("No suitable controller found! Using keyboard");
                     listDevices();
-                    dev = new KeyboardController();
-                }
-
-                System.err.println("Gamepad controller found");
+                    dev = new KeyboardController(frame);
+                } else
+                    System.err.println("Gamepad controller found");
 
                 try
                 {
@@ -174,10 +183,10 @@ public class PS3Flight
                                 System.err.println("Vertical speed: " + vertical_speed);
                             }
 
-                           if(leftX != 0 || leftY != 0 || rightX != 0 || rightY != 0)
+                            if(leftX != 0 || leftY != 0 || rightX != 0 || rightY != 0)
                                 drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);
                             else
-                               drone.hover();
+                                drone.hover();
                         }
 
                         try
@@ -206,17 +215,15 @@ public class PS3Flight
         }
     }
 
-    private static void showVideo(final ARDrone drone)
+    private static void showMainWindow(final ARDrone drone)
     {
-        JFrame frame = new JFrame("Video");
+        frame = new JFrame("Video");
         @SuppressWarnings("serial")
-        final JPanel videoWindow = new JPanel()
-        {
+        final JPanel videoWindow = new JPanel() {
             protected BufferedImage image = null;
             {
 
-                drone.addImageListener(new DroneVideoListener()
-                {
+                drone.addImageListener(new DroneVideoListener() {
                     @Override
                     public void frameReceived(BufferedImage im)
                     {
@@ -234,8 +241,9 @@ public class PS3Flight
             }
         };
 
-//        videoWindow.setPreferredSize(new Dimension(352, 288)); // CIF   TODO: support QCIF and other resolutions
-        videoWindow.setPreferredSize(new Dimension(320, 240));  // QVGA
+        // videoWindow.setPreferredSize(new Dimension(352, 288)); // CIF TODO:
+        // support QCIF and other resolutions
+        videoWindow.setPreferredSize(new Dimension(320, 240)); // QVGA
 
         frame.getContentPane().add(videoWindow, BorderLayout.CENTER);
         frame.pack();
