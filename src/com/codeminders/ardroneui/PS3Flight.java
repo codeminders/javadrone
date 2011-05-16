@@ -102,9 +102,9 @@ public class PS3Flight
                 dev = findController();
                 if(dev == null)
                 {
-                    System.err.println("No suitable controller found!");
+                    System.err.println("No suitable controller found! Using keyboard");
                     listDevices();
-                    return;
+                    dev = new KeyboardController();
                 }
 
                 System.err.println("Gamepad controller found");
