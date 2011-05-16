@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.codeminders.ardrone.*;
+import com.codeminders.ardrone.ARDrone.VideoChannel;
 import com.codeminders.ardroneui.controllers.*;
 import com.codeminders.hidapi.*;
 
@@ -18,13 +19,24 @@ import com.codeminders.hidapi.*;
  */
 public class PS3Flight
 {
-    private static final long READ_UPDATE_DELAY_MS = 20L;
-    private static final long CONNECT_TIMEOUT      = 3000L;
-    private static JFrame     frame;
+    private static final long           READ_UPDATE_DELAY_MS = 20L;
+    private static final long           CONNECT_TIMEOUT      = 3000L;
+    private static JFrame               frame;
+    private int                         video_index          = 0;
+
+    private static final VideoChannel[] VIDEO_CYCLE          = { VideoChannel.HORIZONTAL_ONLY,
+            VideoChannel.VERTICAL_ONLY, VideoChannel.VERTICAL_IN_HORIZONTAL, VideoChannel.HORIZONTAL_IN_VERTICAL };
 
     static
     {
         System.loadLibrary("hidapi-jni");
+    }
+
+    private void cycleVideoChannel(ARDrone drone) throws IOException
+    {
+        if(++video_index == VIDEO_CYCLE.length)
+            video_index = 0;
+        drone.selectVideoChannel(VIDEO_CYCLE[video_index]);
     }
 
     private static PS3Controller findController() throws IOException
@@ -96,6 +108,7 @@ public class PS3Flight
                         drone.setConfigOption("control:euler_angle_max", "0.2");
                         drone.setConfigOption("control:control_vz_max", "2000.0");
                         drone.setConfigOption("control:control_yaw", "2.0");
+                        drone.selectVideoChannel(VideoChannel.HORIZONTAL_ONLY);
                     } catch(IOException e)
                     {
                         drone.changeToErrorState(e);
@@ -144,6 +157,10 @@ public class PS3Flight
 
                             drone.clearEmergencySignal();
                             drone.trim();
+                        } else if(pad_change.isTriangleChanged() && pad_change.isTriangle())
+                        {
+                            System.err.println("Video cycle");
+                            cycleVideoChannel(drone);
                         } else
                         {
                             // Detecting if we need to move the drone

@@ -58,7 +58,6 @@ public class ARDrone
     private Object                              emergency_mutex  = new Object();
 
     private List<DroneStatusChangeListener>     status_listeners = new LinkedList<DroneStatusChangeListener>();
-
     private List<DroneVideoListener>            image_listeners  = new LinkedList<DroneVideoListener>();
 
     public ARDrone() throws UnknownHostException
@@ -176,7 +175,7 @@ public class ARDrone
 
     public void disableAutomaticVideoBitrate() throws IOException
     {
-        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode","0"));
+        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode", "0"));
     }
 
     public void disconnect() throws IOException
@@ -214,7 +213,7 @@ public class ARDrone
      */
     public void enableAutomaticVideoBitrate() throws IOException
     {
-        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode","1"));
+        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode", "1"));
     }
 
     public List<DroneVideoListener> getImageListeners()
@@ -342,24 +341,24 @@ public class ARDrone
         String s;
         switch(c)
         {
-            case HORIZONTAL_ONLY: //ARDRONE_VIDEO_CHANNEL_HORI
-                s = "1";
-                break;
+        case HORIZONTAL_ONLY: // ARDRONE_VIDEO_CHANNEL_HORI
+            s = "1";
+            break;
 
-            case VERTICAL_ONLY: //ARDRONE_VIDEO_CHANNEL_VERT
-                s = "2";
-                break;
+        case VERTICAL_ONLY: // ARDRONE_VIDEO_CHANNEL_VERT
+            s = "2";
+            break;
 
-            case VERTICAL_IN_HORIZONTAL: //ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT
-                s = "3";
-                break;
+        case VERTICAL_IN_HORIZONTAL: // ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT
+            s = "3";
+            break;
 
-            case HORIZONTAL_IN_VERTICAL: //ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
-                s = "4";
-                break;
-            default:
-                assert(false);
-                return;
+        case HORIZONTAL_IN_VERTICAL: // ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
+            s = "4";
+            break;
+        default:
+            assert (false);
+            return;
         }
 
         cmd_queue.add(new ConfigureCommand("video:video_channel", s));
@@ -434,8 +433,9 @@ public class ARDrone
                     try
                     {
                         disconnect();
+                    } catch(IOException e)
+                    {
                     }
-                    catch(IOException e) {}
                     // Timeout, too late
                     throw new IOException("Timeout connecting to ARDrone");
                 } else if(state == State.DEMO)
