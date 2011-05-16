@@ -56,6 +56,9 @@ public class KeyboardController extends PS3Controller implements KeyListener
         case 'r':
             state.PS = value;
             break;
+        case 'w':
+            state.triangle = value;
+            break;
         }
     }
 
