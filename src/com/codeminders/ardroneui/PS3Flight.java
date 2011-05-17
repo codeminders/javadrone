@@ -244,6 +244,13 @@ public class PS3Flight
                     @Override
                     public void frameReceived(BufferedImage im)
                     {
+                        Dimension current = getPreferredSize();
+                        Dimension d = new Dimension(im.getWidth(), im.getHeight());
+                        if(!d.equals(current))
+                        {
+                            setPreferredSize(d);
+                            frame.pack();
+                        }
                         image = im;
                         repaint();
                     }

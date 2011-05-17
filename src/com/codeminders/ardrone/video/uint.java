@@ -69,9 +69,14 @@ public class uint
             bb.put(bp.array()[start + 2]);
             bb.put(bp.array()[start + 1]);
             bb.put(bp.array()[start + 0]);
+//            bb.put(bp.get(start + 3));
+//            bb.put(bp.get(start + 2));
+//            bb.put(bp.get(start + 1));
+//            bb.put(bp.get(start    ));
             bb.flip();
             this.base2 = bb.getInt();
-        } catch(Exception e)
+        }
+        catch(Exception e)
         {
             throw new RuntimeException("error creating uint", e);
         }
