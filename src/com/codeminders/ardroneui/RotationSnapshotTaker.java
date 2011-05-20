@@ -7,11 +7,11 @@ import com.codeminders.ardrone.ARDrone;
 
 public class RotationSnapshotTaker
 {
-    private static final int TAKEOFF_TIMEOUT = 3000;
+    private static final int  TAKEOFF_TIMEOUT = 5000;
 
     private static final long CONNECT_TIMEOUT = 1000;
 
-    private static Logger log = Logger.getLogger(RotationSnapshotTaker.class.getName());
+    private static Logger     log             = Logger.getLogger(RotationSnapshotTaker.class.getName());
 
     /**
      * @param args
@@ -20,7 +20,6 @@ public class RotationSnapshotTaker
     {
         setupLog();
 
-        log.entering("RotationSnapshotTaker", "main");
         ARDrone drone;
         try
         {
@@ -29,21 +28,25 @@ public class RotationSnapshotTaker
             drone.waitForReady(CONNECT_TIMEOUT);
             drone.clearEmergencySignal();
             drone.trim();
+            log.info("Taking off");
             drone.takeOff();
             Thread.sleep(TAKEOFF_TIMEOUT);
-            long mstart = System.currentTimeMillis();
 
-            //while((mstart + 3000) > System.currentTimeMillis())
-            //    drone.move(0f, 0f, 0f, 0f);
+            log.info("Flying");
+            long mstart = System.currentTimeMillis();
+            while((mstart + 3000) > System.currentTimeMillis())
+                drone.move(0f, 0f, 0f, 0f);
             // Thread.sleep(5000);
 
+            log.info("Landing");
             drone.land();
+            log.info("Disconnecting");
             drone.disconnect();
         } catch(Throwable e)
         {
             e.printStackTrace();
         }
-        log.exiting("RotationSnapshotTaker", "main");
+        log.info("done");
     }
 
     private static void setupLog()
