@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import com.codeminders.ardrone.commands.ATCommand;
 import com.codeminders.ardrone.commands.QuitCommand;
 
-public class CmdSender implements Runnable
+public class CommandSender implements Runnable
 {
     private static final int CMD_PORT = 5556;
 
@@ -20,7 +20,7 @@ public class CmdSender implements Runnable
 
     private Logger           log      = Logger.getLogger(getClass().getName());
 
-    public CmdSender(CommandQueue cmd_queue, ARDrone drone, InetAddress drone_addr, DatagramSocket cmd_socket)
+    public CommandSender(CommandQueue cmd_queue, ARDrone drone, InetAddress drone_addr, DatagramSocket cmd_socket)
     {
         this.cmd_queue = cmd_queue;
         this.drone = drone;
