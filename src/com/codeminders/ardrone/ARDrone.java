@@ -126,6 +126,7 @@ public class ARDrone
                 // Ignoring exceptions on disconnection
             }
             log.fine("State changed from " + state + " to " + State.ERROR + " with exception " + ex);
+            log.log(Level.FINER, "Stack trace", ex);
             state = State.ERROR;
             state_mutex.notifyAll();
         }
