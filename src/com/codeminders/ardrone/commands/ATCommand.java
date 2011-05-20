@@ -1,3 +1,4 @@
+
 package com.codeminders.ardrone.commands;
 
 import java.io.UnsupportedEncodingException;
@@ -12,7 +13,7 @@ public abstract class ATCommand extends DroneCommand
             return p.toString();
 
         if(p instanceof Float)
-            return Integer.toString(Float.floatToIntBits((Float)p));
+            return Integer.toString(Float.floatToIntBits((Float) p));
 
         if(p instanceof String)
             return "\"" + p + "\"";
@@ -32,8 +33,7 @@ public abstract class ATCommand extends DroneCommand
         try
         {
             return getCommandString(seq).getBytes("ASCII");
-        }
-        catch(UnsupportedEncodingException e)
+        } catch(UnsupportedEncodingException e)
         {
             // never happens
             return null;
@@ -41,7 +41,6 @@ public abstract class ATCommand extends DroneCommand
     }
 
     protected abstract Object[] getParameters();
-
 
     private String getParametersString()
     {
@@ -57,7 +56,7 @@ public abstract class ATCommand extends DroneCommand
     @Override
     public int getPriority()
     {
-        return MIN_PRIORITY; 
+        return MIN_PRIORITY;
     }
 
     @Override
@@ -70,5 +69,14 @@ public abstract class ATCommand extends DroneCommand
         builder.append(getParametersString());
         builder.append("]");
         return builder.toString();
-    }    
+    }
+
+    public boolean equals(Object obj)
+    {
+        if(obj == null || !(obj instanceof ATCommand))
+            return false;
+        ATCommand o = (ATCommand) obj;
+        return o.getCommandString(0).equals(getCommandString(0));
+    }
+
 }

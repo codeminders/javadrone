@@ -22,14 +22,21 @@ public class CommandQueue
         while(true)
         {
             if(data.isEmpty())
+            {
+                log.finest("Waiting for data");
                 wait();
-            else
-                return data.pollLast();
+            } else
+            {
+                DroneCommand res = data.pollLast();
+                log.finest("["+data.size()+"] Returning "+res);
+                return res;
+            }
         }
     }
 
     public synchronized void add(DroneCommand cmd)
     {
+        log.finest("["+data.size()+"] Adding command " +cmd);
         Iterator<DroneCommand> i = data.iterator();
         int p = cmd.getPriority();
         int pos = -1;

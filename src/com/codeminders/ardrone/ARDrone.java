@@ -45,7 +45,7 @@ public class ARDrone
 
     private NavDataReader                   nav_data_reader;
     private VideoReader                     video_reader;
-    private CommandSender                       cmd_sender;
+    private CommandSender                   cmd_sender;
 
     private Thread                          nav_data_reader_thread;
     private Thread                          cmd_sending_thread;
@@ -191,10 +191,17 @@ public class ARDrone
 
     private void doDisconnect() throws IOException
     {
-        cmd_queue.add(new QuitCommand());
-        nav_data_reader.stop();
-        video_reader.stop();
-        cmd_socket.close();
+        if(cmd_queue != null)
+            cmd_queue.add(new QuitCommand());
+
+        if(nav_data_reader != null)
+            nav_data_reader.stop();
+
+        if(video_reader != null)
+            video_reader.stop();
+
+        if(cmd_socket != null)
+            cmd_socket.close();
 
         // Only the following method can throw an exception.
         // We call it last, to ensure it won't prevent other
