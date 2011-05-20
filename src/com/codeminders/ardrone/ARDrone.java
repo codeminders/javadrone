@@ -24,7 +24,7 @@ public class ARDrone
         HORIZONTAL_ONLY, VERTICAL_ONLY, VERTICAL_IN_HORIZONTAL, HORIZONTAL_IN_VERTICAL
     }
 
-    private Logger                              log              = Logger.getLogger("ARDrone");
+    private Logger                              log              = Logger.getLogger(getClass().getName());
 
     private static final int                    CMD_QUEUE_SIZE   = 64;
     private State                               state            = State.DISCONNECTED;
