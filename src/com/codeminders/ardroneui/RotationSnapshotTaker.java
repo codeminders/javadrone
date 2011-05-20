@@ -8,8 +8,7 @@ import com.codeminders.ardrone.ARDrone;
 public class RotationSnapshotTaker
 {
     private static final int  TAKEOFF_TIMEOUT = 5000;
-
-    private static final long CONNECT_TIMEOUT = 1000;
+    private static final long CONNECT_TIMEOUT = 3000;
 
     private static Logger     log             = Logger.getLogger(RotationSnapshotTaker.class.getName());
 
