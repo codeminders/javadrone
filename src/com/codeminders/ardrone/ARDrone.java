@@ -24,41 +24,40 @@ public class ARDrone
         HORIZONTAL_ONLY, VERTICAL_ONLY, VERTICAL_IN_HORIZONTAL, HORIZONTAL_IN_VERTICAL
     }
 
-    private Logger                              log              = Logger.getLogger(getClass().getName());
+    private Logger                          log              = Logger.getLogger(getClass().getName());
 
-    private static final int                    CMD_QUEUE_SIZE   = 64;
-    private State                               state            = State.DISCONNECTED;
-    private Object                              state_mutex      = new Object();
+    private static final int                CMD_QUEUE_SIZE   = 64;
+    private State                           state            = State.DISCONNECTED;
+    private Object                          state_mutex      = new Object();
 
-    private static final int                    NAVDATA_PORT     = 5554;
-    private static final int                    VIDEO_PORT       = 5555;
+    private static final int                NAVDATA_PORT     = 5554;
+    private static final int                VIDEO_PORT       = 5555;
     // private static final int CONTROL_PORT = 5559;
 
-    private static byte[]                       DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
+    private static byte[]                   DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
-    private InetAddress                         drone_addr;
-    private DatagramSocket                      cmd_socket;
+    private InetAddress                     drone_addr;
+    private DatagramSocket                  cmd_socket;
     // private Socket control_socket;
 
-    private PriorityBlockingQueue<DroneCommand> cmd_queue        = new PriorityBlockingQueue<DroneCommand>(
-                                                                         CMD_QUEUE_SIZE);
-    private BlockingQueue<NavData>              navdata_queue    = new LinkedBlockingQueue<NavData>();
+    private CommandQueue                    cmd_queue        = new CommandQueue(CMD_QUEUE_SIZE);
+    private BlockingQueue<NavData>          navdata_queue    = new LinkedBlockingQueue<NavData>();
 
-    private NavDataReader                       nav_data_reader;
-    private VideoReader                         video_reader;
-    private CmdSender                           cmd_sender;
+    private NavDataReader                   nav_data_reader;
+    private VideoReader                     video_reader;
+    private CmdSender                       cmd_sender;
 
-    private Thread                              nav_data_reader_thread;
-    private Thread                              cmd_sending_thread;
-    private Thread                              video_reader_thread;
+    private Thread                          nav_data_reader_thread;
+    private Thread                          cmd_sending_thread;
+    private Thread                          video_reader_thread;
 
-    private boolean                             combinedYawMode  = true;
+    private boolean                         combinedYawMode  = true;
 
-    private boolean                             emergencyMode    = true;
-    private Object                              emergency_mutex  = new Object();
+    private boolean                         emergencyMode    = true;
+    private Object                          emergency_mutex  = new Object();
 
-    private List<DroneStatusChangeListener>     status_listeners = new LinkedList<DroneStatusChangeListener>();
-    private List<DroneVideoListener>            image_listeners  = new LinkedList<DroneVideoListener>();
+    private List<DroneStatusChangeListener> status_listeners = new LinkedList<DroneStatusChangeListener>();
+    private List<DroneVideoListener>        image_listeners  = new LinkedList<DroneVideoListener>();
 
     public ARDrone() throws UnknownHostException
     {
@@ -137,7 +136,7 @@ public class ARDrone
         synchronized(emergency_mutex)
         {
             if(isEmergencyMode())
-                queueCommand(new EmergencyCommand());
+                cmd_queue.add(new EmergencyCommand());
         }
     }
 
@@ -176,7 +175,7 @@ public class ARDrone
 
     public void disableAutomaticVideoBitrate() throws IOException
     {
-        queueCommand(new ConfigureCommand("video:bitrate_control_mode", "0"));
+        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode", "0"));
     }
 
     public void disconnect() throws IOException
@@ -192,7 +191,7 @@ public class ARDrone
 
     private void doDisconnect() throws IOException
     {
-        queueCommand(new QuitCommand());
+        cmd_queue.add(new QuitCommand());
         nav_data_reader.stop();
         video_reader.stop();
         cmd_socket.close();
@@ -214,7 +213,7 @@ public class ARDrone
      */
     public void enableAutomaticVideoBitrate() throws IOException
     {
-        queueCommand(new ConfigureCommand("video:bitrate_control_mode", "1"));
+        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode", "1"));
     }
 
     public List<DroneVideoListener> getImageListeners()
@@ -229,7 +228,7 @@ public class ARDrone
 
     public void hover() throws IOException
     {
-        queueCommand(new HoverCommand());
+        cmd_queue.add(new HoverCommand());
     }
 
     public boolean isCombinedYawMode()
@@ -244,7 +243,7 @@ public class ARDrone
 
     public void land() throws IOException
     {
-        queueCommand(new LandCommand());
+        cmd_queue.add(new LandCommand());
     }
 
     /**
@@ -304,7 +303,7 @@ public class ARDrone
                 if(nd.isCommunicationProblemOccurred())
                 {
                     // 50ms communications watchdog has been triggered
-                    queueCommand(new KeepAliveCommand());
+                    cmd_queue.add(new KeepAliveCommand());
                 }
             }
         } catch(IOException e)
@@ -320,12 +319,12 @@ public class ARDrone
 
     public void playAnimation(int animation_no, int duration) throws IOException
     {
-        queueCommand(new PlayAnimationCommand(animation_no, duration));
+        cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
     }
 
     public void playLED(int animation_no, float freq, int duration) throws IOException
     {
-        queueCommand(new PlayLEDCommand(animation_no, freq, duration));
+        cmd_queue.add(new PlayLEDCommand(animation_no, freq, duration));
     }
 
     public void selectVideoChannel(VideoChannel c) throws IOException
@@ -362,7 +361,7 @@ public class ARDrone
             return;
         }
 
-        queueCommand(new ConfigureCommand("video:video_channel", s));
+        cmd_queue.add(new ConfigureCommand("video:video_channel", s));
     }
 
     public void sendAllNavigationData() throws IOException
@@ -380,7 +379,7 @@ public class ARDrone
         synchronized(emergency_mutex)
         {
             if(!isEmergencyMode())
-                queueCommand(new EmergencyCommand());
+                cmd_queue.add(new EmergencyCommand());
         }
     }
 
@@ -391,18 +390,18 @@ public class ARDrone
 
     public void setConfigOption(String name, String value) throws IOException
     {
-        queueCommand(new ConfigureCommand(name, value));
-        queueCommand(new ControlCommand(5, 0));
+        cmd_queue.add(new ConfigureCommand(name, value));
+        cmd_queue.add(new ControlCommand(5, 0));
     }
 
     public void takeOff() throws IOException
     {
-        queueCommand(new TakeOffCommand());
+        cmd_queue.add(new TakeOffCommand());
     }
 
     public void trim() throws IOException
     {
-        queueCommand(new FlatTrimCommand());
+        cmd_queue.add(new FlatTrimCommand());
     }
 
     // Callback used by VideoReciver
@@ -460,11 +459,6 @@ public class ARDrone
                 }
             }
         }
-    }
-    
-    protected void queueCommand(DroneCommand cmd)
-    {
-        cmd_queue.add(cmd);
     }
 
 }
