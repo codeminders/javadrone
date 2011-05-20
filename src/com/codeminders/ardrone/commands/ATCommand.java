@@ -59,4 +59,16 @@ public abstract class ATCommand extends DroneCommand
     {
         return MIN_PRIORITY; 
     }
+
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ATCommand [ID=");
+        builder.append(getID());
+        builder.append(", param=");
+        builder.append(getParametersString());
+        builder.append("]");
+        return builder.toString();
+    }    
 }

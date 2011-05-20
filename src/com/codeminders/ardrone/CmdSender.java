@@ -4,6 +4,7 @@ package com.codeminders.ardrone;
 import java.io.IOException;
 import java.net.*;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.logging.Logger;
 
 import com.codeminders.ardrone.commands.ATCommand;
 import com.codeminders.ardrone.commands.QuitCommand;
@@ -18,6 +19,7 @@ public class CmdSender implements Runnable
     private DatagramSocket                      cmd_socket;
     private int                                 sequence = 1;
 
+    private Logger                              log      = Logger.getLogger(getClass().getName());
 
     public CmdSender(PriorityBlockingQueue<DroneCommand> cmd_queue, ARDrone drone, InetAddress drone_addr,
             DatagramSocket cmd_socket)
@@ -45,7 +47,9 @@ public class CmdSender implements Runnable
                 if(c instanceof ATCommand)
                 {
                     ATCommand cmd = (ATCommand) c;
-                    byte[] pdata = cmd.getPacket(sequence++); //TODO: pass sequence number
+                    log.fine("Q["+cmd_queue.size()+"]Sending AT command "+c);
+                    byte[] pdata = cmd.getPacket(sequence++); // TODO: pass
+                                                              // sequence number
                     DatagramPacket p = new DatagramPacket(pdata, pdata.length, drone_addr, CMD_PORT);
                     cmd_socket.send(p);
                 }

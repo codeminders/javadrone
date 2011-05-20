@@ -33,8 +33,8 @@ public class RotationSnapshotTaker
             Thread.sleep(TAKEOFF_TIMEOUT);
             long mstart = System.currentTimeMillis();
 
-            while((mstart + 3000) > System.currentTimeMillis())
-                drone.move(0f, 0f, 0f, 0f);
+            //while((mstart + 3000) > System.currentTimeMillis())
+            //    drone.move(0f, 0f, 0f, 0f);
             // Thread.sleep(5000);
 
             drone.land();
