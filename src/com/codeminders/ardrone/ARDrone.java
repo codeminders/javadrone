@@ -45,7 +45,7 @@ public class ARDrone
 
     private NavDataReader                   nav_data_reader;
     private VideoReader                     video_reader;
-    private CmdSender                       cmd_sender;
+    private CommandSender                       cmd_sender;
 
     private Thread                          nav_data_reader_thread;
     private Thread                          cmd_sending_thread;
@@ -152,7 +152,7 @@ public class ARDrone
             cmd_socket = new DatagramSocket();
             // control_socket = new Socket(drone_addr, CONTROL_PORT);
 
-            cmd_sender = new CmdSender(cmd_queue, this, drone_addr, cmd_socket);
+            cmd_sender = new CommandSender(cmd_queue, this, drone_addr, cmd_socket);
             cmd_sending_thread = new Thread(cmd_sender);
             cmd_sending_thread.start();
 
