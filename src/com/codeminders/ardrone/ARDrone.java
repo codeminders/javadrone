@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.*;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,24 +23,23 @@ public class ARDrone
         HORIZONTAL_ONLY, VERTICAL_ONLY, VERTICAL_IN_HORIZONTAL, HORIZONTAL_IN_VERTICAL
     }
 
-    private Logger                          log              = Logger.getLogger(getClass().getName());
+    private Logger                          log               = Logger.getLogger(getClass().getName());
 
-    private static final int                CMD_QUEUE_SIZE   = 64;
-    private State                           state            = State.DISCONNECTED;
-    private Object                          state_mutex      = new Object();
+    private static final int                CMD_QUEUE_SIZE    = 64;
+    private State                           state             = State.DISCONNECTED;
+    private Object                          state_mutex       = new Object();
 
-    private static final int                NAVDATA_PORT     = 5554;
-    private static final int                VIDEO_PORT       = 5555;
+    private static final int                NAVDATA_PORT      = 5554;
+    private static final int                VIDEO_PORT        = 5555;
     // private static final int CONTROL_PORT = 5559;
 
-    private static byte[]                   DEFAULT_DRONE_IP = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
+    private static byte[]                   DEFAULT_DRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
     private InetAddress                     drone_addr;
     private DatagramSocket                  cmd_socket;
     // private Socket control_socket;
 
-    private CommandQueue                    cmd_queue        = new CommandQueue(CMD_QUEUE_SIZE);
-    private BlockingQueue<NavData>          navdata_queue    = new LinkedBlockingQueue<NavData>();
+    private CommandQueue                    cmd_queue         = new CommandQueue(CMD_QUEUE_SIZE);
 
     private NavDataReader                   nav_data_reader;
     private VideoReader                     video_reader;
@@ -51,13 +49,14 @@ public class ARDrone
     private Thread                          cmd_sending_thread;
     private Thread                          video_reader_thread;
 
-    private boolean                         combinedYawMode  = true;
+    private boolean                         combinedYawMode   = true;
 
-    private boolean                         emergencyMode    = true;
-    private Object                          emergency_mutex  = new Object();
+    private boolean                         emergencyMode     = true;
+    private Object                          emergency_mutex   = new Object();
 
-    private List<DroneStatusChangeListener> status_listeners = new LinkedList<DroneStatusChangeListener>();
-    private List<DroneVideoListener>        image_listeners  = new LinkedList<DroneVideoListener>();
+    private List<DroneStatusChangeListener> status_listeners  = new LinkedList<DroneStatusChangeListener>();
+    private List<DroneVideoListener>        image_listeners   = new LinkedList<DroneVideoListener>();
+    private List<NavDataListener>           navdata_listeners = new LinkedList<NavDataListener>();
 
     public ARDrone() throws UnknownHostException
     {
@@ -71,7 +70,10 @@ public class ARDrone
 
     public void addImageListener(DroneVideoListener l)
     {
-        image_listeners.add(l);
+        synchronized(image_listeners)
+        {
+            image_listeners.add(l);
+        }
     }
 
     public void addStatusChangeListener(DroneStatusChangeListener l)
@@ -79,6 +81,14 @@ public class ARDrone
         synchronized(status_listeners)
         {
             status_listeners.add(l);
+        }
+    }
+
+    public void addNavDataListener(NavDataListener l)
+    {
+        synchronized(navdata_listeners)
+        {
+            navdata_listeners.add(l);
         }
     }
 
@@ -233,6 +243,11 @@ public class ARDrone
         return status_listeners;
     }
 
+    public List<NavDataListener> getNavDataListeners()
+    {
+        return navdata_listeners;
+    }
+
     public void hover() throws IOException
     {
         cmd_queue.add(new HoverCommand());
@@ -320,7 +335,11 @@ public class ARDrone
 
         if(state == State.DEMO)
         {
-            navdata_queue.add(nd);
+            synchronized(navdata_listeners)
+            {
+                for(NavDataListener l : navdata_listeners)
+                    l.navDataReceived(nd);
+            }
         }
     }
 
@@ -414,8 +433,11 @@ public class ARDrone
     // Callback used by VideoReciver
     public void videoFrameReceived(BufferedImage image)
     {
-        for(DroneVideoListener l : image_listeners)
-            l.frameReceived(image);
+        synchronized(image_listeners)
+        {
+            for(DroneVideoListener l : image_listeners)
+                l.frameReceived(image);
+        }
     }
 
     /**
