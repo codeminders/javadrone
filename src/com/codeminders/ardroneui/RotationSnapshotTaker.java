@@ -23,27 +23,32 @@ public class RotationSnapshotTaker
         try
         {
             drone = new ARDrone();
-            drone.connect();
-            drone.waitForReady(CONNECT_TIMEOUT);
-            drone.clearEmergencySignal();
-            drone.trim();
-            log.info("Taking off");
-            drone.takeOff();
-            Thread.sleep(TAKEOFF_TIMEOUT);
+            try
+            {
+                drone.connect();
+                drone.waitForReady(CONNECT_TIMEOUT);
+                drone.clearEmergencySignal();
+                drone.trim();
+                log.info("Taking off");
+                drone.takeOff();
+                Thread.sleep(TAKEOFF_TIMEOUT);
 
-            log.info("Flying");
-            long mstart = System.currentTimeMillis();
-            while((mstart + 3000) > System.currentTimeMillis())
-                drone.move(0f, 0f, 0f, 0f);
-            // Thread.sleep(5000);
+                log.info("Flying");
+                long mstart = System.currentTimeMillis();
+                while((mstart + 3000) > System.currentTimeMillis())
+                    drone.move(0f, 0f, 0f, 0f);
+                // Thread.sleep(5000);
 
-            log.info("Landing");
-            drone.land();
-            log.info("Disconnecting");
-            drone.disconnect();
-        } catch(Throwable e)
+                log.info("Landing");
+                drone.land();
+            } finally
+            {
+                log.info("Disconnecting");
+                drone.disconnect();
+            }
+        } catch(Exception e1)
         {
-            e.printStackTrace();
+            e1.printStackTrace();
         }
         log.info("done");
     }
