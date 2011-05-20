@@ -137,7 +137,7 @@ public class ARDrone
         synchronized(emergency_mutex)
         {
             if(isEmergencyMode())
-                cmd_queue.add(new EmergencyCommand());
+                queueCommand(new EmergencyCommand());
         }
     }
 
@@ -176,7 +176,7 @@ public class ARDrone
 
     public void disableAutomaticVideoBitrate() throws IOException
     {
-        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode", "0"));
+        queueCommand(new ConfigureCommand("video:bitrate_control_mode", "0"));
     }
 
     public void disconnect() throws IOException
@@ -192,7 +192,7 @@ public class ARDrone
 
     private void doDisconnect() throws IOException
     {
-        cmd_queue.add(new QuitCommand());
+        queueCommand(new QuitCommand());
         nav_data_reader.stop();
         video_reader.stop();
         cmd_socket.close();
@@ -214,7 +214,7 @@ public class ARDrone
      */
     public void enableAutomaticVideoBitrate() throws IOException
     {
-        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode", "1"));
+        queueCommand(new ConfigureCommand("video:bitrate_control_mode", "1"));
     }
 
     public List<DroneVideoListener> getImageListeners()
@@ -229,7 +229,7 @@ public class ARDrone
 
     public void hover() throws IOException
     {
-        cmd_queue.add(new HoverCommand());
+        queueCommand(new HoverCommand());
     }
 
     public boolean isCombinedYawMode()
@@ -244,7 +244,7 @@ public class ARDrone
 
     public void land() throws IOException
     {
-        cmd_queue.add(new LandCommand());
+        queueCommand(new LandCommand());
     }
 
     /**
@@ -304,7 +304,7 @@ public class ARDrone
                 if(nd.isCommunicationProblemOccurred())
                 {
                     // 50ms communications watchdog has been triggered
-                    cmd_queue.add(new KeepAliveCommand());
+                    queueCommand(new KeepAliveCommand());
                 }
             }
         } catch(IOException e)
@@ -320,12 +320,12 @@ public class ARDrone
 
     public void playAnimation(int animation_no, int duration) throws IOException
     {
-        cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
+        queueCommand(new PlayAnimationCommand(animation_no, duration));
     }
 
     public void playLED(int animation_no, float freq, int duration) throws IOException
     {
-        cmd_queue.add(new PlayLEDCommand(animation_no, freq, duration));
+        queueCommand(new PlayLEDCommand(animation_no, freq, duration));
     }
 
     public void selectVideoChannel(VideoChannel c) throws IOException
@@ -362,7 +362,7 @@ public class ARDrone
             return;
         }
 
-        cmd_queue.add(new ConfigureCommand("video:video_channel", s));
+        queueCommand(new ConfigureCommand("video:video_channel", s));
     }
 
     public void sendAllNavigationData() throws IOException
@@ -380,7 +380,7 @@ public class ARDrone
         synchronized(emergency_mutex)
         {
             if(!isEmergencyMode())
-                cmd_queue.add(new EmergencyCommand());
+                queueCommand(new EmergencyCommand());
         }
     }
 
@@ -391,18 +391,18 @@ public class ARDrone
 
     public void setConfigOption(String name, String value) throws IOException
     {
-        cmd_queue.add(new ConfigureCommand(name, value));
-        cmd_queue.add(new ControlCommand(5, 0));
+        queueCommand(new ConfigureCommand(name, value));
+        queueCommand(new ControlCommand(5, 0));
     }
 
     public void takeOff() throws IOException
     {
-        cmd_queue.add(new TakeOffCommand());
+        queueCommand(new TakeOffCommand());
     }
 
     public void trim() throws IOException
     {
-        cmd_queue.add(new FlatTrimCommand());
+        queueCommand(new FlatTrimCommand());
     }
 
     // Callback used by VideoReciver
@@ -460,6 +460,11 @@ public class ARDrone
                 }
             }
         }
+    }
+    
+    protected void queueCommand(DroneCommand cmd)
+    {
+        cmd_queue.add(cmd);
     }
 
 }
