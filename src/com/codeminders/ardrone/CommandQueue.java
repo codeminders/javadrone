@@ -1,32 +1,38 @@
 
 package com.codeminders.ardrone;
 
-import java.util.PriorityQueue;
+import java.util.LinkedList;
 
 public class CommandQueue
 {
-    private final PriorityQueue<DroneCommand> q;
+    private LinkedList<DroneCommand> data;
+    private int                      maxSize;
 
-    public CommandQueue(int cmdQueueSize)
+    public CommandQueue(int maxSize)
     {
-        q = new PriorityQueue<DroneCommand>(cmdQueueSize);
+        data = new LinkedList<DroneCommand>();
+        this.maxSize = maxSize;
     }
 
-    public DroneCommand take() throws InterruptedException
+    public synchronized DroneCommand take() throws InterruptedException
     {
-        // TODO Auto-generated method stub
-        return null;
+        while(true)
+        {
+            if(data.isEmpty())
+                wait();
+            else
+                return data.pop();
+        }
     }
 
-    public void add(DroneCommand cmd)
+    public synchronized void add(DroneCommand cmd)
     {
         // TODO Auto-generated method stub
     }
 
-    public int size()
+    public synchronized int size()
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return data.size();
     }
 
 }
