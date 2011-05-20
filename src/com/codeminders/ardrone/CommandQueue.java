@@ -21,22 +21,21 @@ public class CommandQueue
     {
         while(true)
         {
-            if(data.isEmpty())
+            DroneCommand res = data.pollLast();
+            if(res != null)
             {
-                log.finest("Waiting for data");
-                wait();
+                log.finest("[" + data.size() + "] Returning " + res);
+                return res;
             } else
             {
-                DroneCommand res = data.pollLast();
-                log.finest("["+data.size()+"] Returning "+res);
-                return res;
+                //log.finest("Waiting for data");
+                wait();
             }
         }
     }
 
     public synchronized void add(DroneCommand cmd)
     {
-        log.finest("["+data.size()+"] Adding command " +cmd);
         Iterator<DroneCommand> i = data.iterator();
         int p = cmd.getPriority();
         int pos = -1;
@@ -54,16 +53,24 @@ public class CommandQueue
             {
                 // Found insertion point.
                 if(!x.equals(cmd))
+                {
+                    //log.finest("[" + data.size() + "] Adding command " + cmd);
                     data.add(pos, cmd);
-                else
-                    log.finest("Not adding duplicate element " + cmd);
+                    notify();
+                }
+                // else
+                // log.finest("Not adding duplicate element " + cmd);
                 cmd = null; // inserted
                 break;
             }
         }
 
         if(cmd != null)
+        {
+            //log.finest("[" + data.size() + "] Adding command " + cmd);
             data.addLast(cmd);
+            notify();
+        }
 
         if(data.size() > maxSize)
         {
