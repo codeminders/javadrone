@@ -9,7 +9,7 @@ public class NavData
 
 
     public static enum Mode { BOOTSTRAP, DEMO }
-    private static final Logger log = Logger.getLogger("NavData");
+    private static final Logger log = Logger.getLogger(NavData.class.getName());
 
     /**
      * Convert the byte array to an int.

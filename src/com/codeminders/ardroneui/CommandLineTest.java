@@ -5,6 +5,8 @@ import com.codeminders.ardrone.ARDrone;
 public class CommandLineTest
 {
 
+    private static final long CONNECT_TIMEOUT = 1000;
+
     /**
      * @param args
      */
@@ -15,6 +17,7 @@ public class CommandLineTest
         {
             drone = new ARDrone();
             drone.connect();
+            drone.waitForReady(CONNECT_TIMEOUT);
             drone.trim();
             Thread.sleep(1000);
             drone.takeOff();
