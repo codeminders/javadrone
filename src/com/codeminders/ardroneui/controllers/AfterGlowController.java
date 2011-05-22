@@ -18,13 +18,14 @@ public class AfterGlowController extends PS3Controller
     private static final int PRODUCT_ID       = 25346;
 
     private static final int BUFSIZE          = 32;
-    static final int         EXPECTED_BUFSIZE = 27;
+    private static final int EXPECTED_BUFSIZE = 27;
+
     public static boolean isA(HIDDeviceInfo hidDeviceInfo)
     {
         return(hidDeviceInfo.getVendor_id() == VENDOR_ID && hidDeviceInfo.getProduct_id() == PRODUCT_ID);
     }
 
-    byte[]                   buf              = new byte[BUFSIZE];
+    private byte[] buf = new byte[BUFSIZE];
 
     public AfterGlowController() throws HIDDeviceNotFoundException, IOException
     {
@@ -93,7 +94,7 @@ public class AfterGlowController extends PS3Controller
                 leftJoystickPress, rightJoystickPress, PS, hatSwitchLeftRight, hatSwitchUpDown, leftJoystickX,
                 leftJoystickY, rightJoystickX, rightJoystickY);
 
-        //System.err.println(res.toString());
+        // System.err.println(res.toString());
 
         return res;
     }
