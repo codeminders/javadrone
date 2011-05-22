@@ -38,6 +38,12 @@ public class NavData
         }
         return value;
     }
+    
+    public static float byteArrayToFloat(byte[] b, int offset)
+    {
+        return Float.intBitsToFloat(byteArrayToInt(b, offset));
+    }
+    
     /**
      * Convert the byte array to an int starting from the given offset.
      *
@@ -88,6 +94,19 @@ public class NavData
 
         //TODO: calculate checksum
 
+        data.battery = byteArrayToInt(buf, 24);
+        data.altitude = ((float)byteArrayToInt(buf, 40)/1000);
+        
+        data.pitch = byteArrayToFloat(buf, 28)/1000;
+        data.roll = byteArrayToFloat(buf, 32)/1000;
+        data.yaw = byteArrayToFloat(buf, 36)/1000;
+        data.latitude = byteArrayToFloat(buf, 44);
+        data.longitude = byteArrayToFloat(buf, 48);
+        data.heading = byteArrayToFloat(buf, 52);
+        data.altitudeUS = ((float)byteArrayToInt(buf, 56)/1000);
+        data.altitudeBaro = byteArrayToFloat(buf, 60);
+        data.altitudeBaroRaw = byteArrayToFloat(buf, 64);
+        
         return data;
     }
     private static void parseState(NavData data, int state)
@@ -207,6 +226,18 @@ public class NavData
 
     protected int sequence;
 
+    protected int battery;
+    protected float altitude;
+    protected float pitch;
+    protected float roll;
+    protected float yaw;
+    protected float latitude;
+    protected float longitude;
+    protected float heading;
+    protected float altitudeUS;
+    protected float altitudeBaro;
+    protected float altitudeBaroRaw;
+    
     public ControlAlgorithm getControlAlgorithm()
     {
         return controlAlgorithm;
@@ -411,5 +442,49 @@ public class NavData
 //  | | ADC Watchdog : (1) delay in uart2 dsr (> 5ms), (0) uart2 is good // Check frequency of uart2 dsr (com with adc)
 //  | Communication Watchdog : (1) com problem, (0) Com is ok // Check if we have an active connection with a client
 //  Emergency landing : (0) no emergency, (1) emergency
+
+    public int getBattery() {
+        return battery;
+}
+
+    public float getAltitude() {
+        return altitude;
+    }
+
+    public float getPitch() {
+        return pitch;
+    }
+
+    public float getRoll() {
+        return roll;
+    }
+
+    public float getYaw() {
+        return yaw;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public float getHeading() {
+        return heading;
+    }
+
+    public float getAltitudeUS() {
+        return altitudeUS;
+    }
+
+    public float getAltitudeBaro() {
+        return altitudeBaro;
+    }
+
+    public float getAltitudeBaroRaw() {
+        return altitudeBaroRaw;
+    }
 
 }
