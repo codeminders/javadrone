@@ -22,7 +22,7 @@ public class ARDrone
     {
         HORIZONTAL_ONLY, VERTICAL_ONLY, VERTICAL_IN_HORIZONTAL, HORIZONTAL_IN_VERTICAL
     }
-
+    
     public enum Animation
     {
         PHI_M30_DEG(0), PHI_30_DEG(1), THETA_M30_DEG(2), THETA_30_DEG(3), THETA_20DEG_YAW_200DEG(4), THETA_20DEG_YAW_M200DEG(
@@ -64,8 +64,16 @@ public class ARDrone
 
     public enum ConfigOption
     {
-        ALTITUDE_MAX("control:altitude_max"), EULER_ANGLE_MAX("control:euler_angle_max"), CONTROL_VZ_MAX(
-                "control:control_vz_max"), CONTROL_YAW("control:control_yaw");
+        ACCS_OFFSET("control:accs_offset"), ACCS_GAINS("control:accs_gains"), GYROS_OFFSET("control:gyros_offset"),
+        GYROS_GAINS("control:gyros_gains"), GYROS110_OFFSET("control:gyros110_offset"), GYROS110_GAINS("control:gyros110_gains"),
+        GYRO_OFFSET_THR_X("control:gyro_offset_thr_x"), GYRO_OFFSET_THR_Y("control:gyro_offset_thr_y"), GYRO_OFFSET_THR_Z("control:gyro_offset_thr_z"),
+        PWM_REF_GYROS("control:pwm_ref_gyros"), CONTROL_LEVEL("control:control_level"), SHIELD_ENABLE("control:shield_enable"),
+        EULER_ANGLE_MAX("control:euler_angle_max"), ALTITUDE_MAX("control:altitude_max"), ALTITUDE_MIN("control:altitude_min"),
+        CONTROL_TRIM_Z("control:control_trim_z"), CONTROL_IPHONE_TILT("control:control_iphone_tilt"), CONTROL_VZ_MAX("control:control_vz_max"),
+        CONTROL_YAW("control:control_yaw"), OUTDOOR("control:outdoor"), FLIGHT_WITHOUT_SHELL("control:flight_without_shell"),
+        BRUSHLESS("control:brushless"), AUTONOMOUS_FLIGHT("control:autonomous_flight"), MANUAL_TRIM("control:manual_trim"),
+        INDOOR_EULER_ANGLE_MAX("control:indoor_euler_angle_max"), INDOOR_CONTROL_VZ_MAX("control:indoor_control_vz_max"), INDOOR_CONTROL_YAW("control:indoor_control_yaw"),
+        OUTDOOR_EULER_ANGLE_MAX("control:outdoor_euler_angle_max"), OUTDOOR_CONTROL_VZ_MAX("control:outdoor_control_vz_max"), OUTDOOR_CONTROL_YAW("outdoor_control:control_yaw");
 
         private String value;
 
@@ -409,7 +417,7 @@ public class ARDrone
     {
         cmd_queue.add(new PlayAnimationCommand(animation.getValue(), duration));
     }
-
+    
     public void playLED(int animation_no, float freq, int duration) throws IOException
     {
         cmd_queue.add(new PlayLEDCommand(animation_no, freq, duration));
@@ -419,7 +427,7 @@ public class ARDrone
     {
         cmd_queue.add(new PlayLEDCommand(animation.getValue(), freq, duration));
     }
-
+    
     public void selectVideoChannel(VideoChannel c) throws IOException
     {
         /*
@@ -435,19 +443,19 @@ public class ARDrone
         switch(c)
         {
         case HORIZONTAL_ONLY: // ARDRONE_VIDEO_CHANNEL_HORI
-            s = "1";
+            s = "0";
             break;
 
         case VERTICAL_ONLY: // ARDRONE_VIDEO_CHANNEL_VERT
-            s = "2";
+            s = "1";
             break;
 
         case VERTICAL_IN_HORIZONTAL: // ARDRONE_VIDEO_CHANNEL_LARGE_HORI_SMALL_VERT
-            s = "3";
+            s = "2";
             break;
 
         case HORIZONTAL_IN_VERTICAL: // ARDRONE_VIDEO_CHANNEL_LARGE_VERT_SMALL_HORI
-            s = "4";
+            s = "3";
             break;
         default:
             assert (false);

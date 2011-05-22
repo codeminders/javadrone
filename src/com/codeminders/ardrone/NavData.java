@@ -93,13 +93,14 @@ public class NavData
         //TODO: read options
 
         //TODO: calculate checksum
-
+        if(buf.length<27) return data;
         data.battery = byteArrayToInt(buf, 24);
-        data.altitude = ((float)byteArrayToInt(buf, 40)/1000);
-        
         data.pitch = byteArrayToFloat(buf, 28)/1000;
         data.roll = byteArrayToFloat(buf, 32)/1000;
         data.yaw = byteArrayToFloat(buf, 36)/1000;
+        
+        if(buf.length<43) return data;
+        data.altitude = ((float)byteArrayToInt(buf, 40)/1000);
         data.latitude = byteArrayToFloat(buf, 44);
         data.longitude = byteArrayToFloat(buf, 48);
         data.heading = byteArrayToFloat(buf, 52);
@@ -180,6 +181,17 @@ public class NavData
         sb.append("isADCWatchdogDelayed: " + data.isADCWatchdogDelayed() + "\n");
         sb.append("isCommunicationProblemOccurred: " + data.isCommunicationProblemOccurred() + "\n");
         sb.append("IsEmergency: " + data.isEmergency() + "\n");
+        sb.append("Battery: " + data.getBattery() + "\n");
+        sb.append("Altidtude: " + data.getAltitude() + "\n");
+        sb.append("Pitch: " + data.getPitch() + "\n");
+        sb.append("Roll: " + data.getRoll() + "\n");
+        sb.append("Yaw: " + data.getYaw() + "\n");
+        sb.append("Latitude: " + data.getLatitude() + "\n");
+        sb.append("Longitude: " + data.getLongitude() + "\n");
+        sb.append("Heading: " + data.getHeading() + "\n");
+        sb.append("Altitude (US): " + data.getAltitudeUS() + "\n");
+        sb.append("Altitude (Baro): " + data.getAltitudeBaro() + "\n");
+        sb.append("Altitude (Baro Raw): " + data.getAltitudeBaroRaw() + "\n");
 
         log.log(Level.FINEST, sb.toString());
     }
@@ -445,7 +457,7 @@ public class NavData
 
     public int getBattery() {
         return battery;
-}
+    }
 
     public float getAltitude() {
         return altitude;
