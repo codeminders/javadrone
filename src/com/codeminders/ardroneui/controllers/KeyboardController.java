@@ -39,25 +39,52 @@ public class KeyboardController extends PS3Controller implements KeyListener
     @Override
     public void keyReleased(KeyEvent e)
     {
-        mapBooleanKey(e, false);
+        synchronized(state)
+        {
+            mapBooleanKey(e, false);
+        }
     }
 
     private void mapBooleanKey(KeyEvent e, boolean value)
     {
-        char c = e.getKeyChar();
+        int c = e.getKeyCode();
         switch(c)
         {
-        case '\n':
+        case KeyEvent.VK_ENTER:
             state.start = value;
             break;
-        case ' ':
+        case KeyEvent.VK_SPACE:
             state.select = value;
             break;
-        case 'r':
+        case KeyEvent.VK_R:
             state.PS = value;
             break;
-        case 'w':
+        case KeyEvent.VK_C:
             state.triangle = value;
+            break;
+        case KeyEvent.VK_W:
+            state.leftJoystickY = value ? -127 : 0;
+            break;
+        case KeyEvent.VK_A:
+            state.leftJoystickX = value ? -127 : 0;
+            break;
+        case KeyEvent.VK_S:
+            state.leftJoystickY = value ? 127 : 0;
+            break;
+        case KeyEvent.VK_D:
+            state.leftJoystickX = value ? 127 : 0;
+            break;
+        case KeyEvent.VK_UP:
+            state.rightJoystickY = value ? -127 : 0;
+            break;
+        case KeyEvent.VK_LEFT:
+            state.rightJoystickX = value ? -127 : 0;
+            break;
+        case KeyEvent.VK_DOWN:
+            state.rightJoystickY = value ? 127 : 0;
+            break;
+        case KeyEvent.VK_RIGHT:
+            state.rightJoystickX = value ? 127 : 0;
             break;
         }
     }
