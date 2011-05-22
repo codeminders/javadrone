@@ -52,12 +52,12 @@ public class HIDAPITest
                 while(true)
                 {
                     int n = dev.read(buf);
-                    if(n!=49)
+                    if(n != 49)
                     {
                         System.err.println("Unexpected data packet size!");
                         return;
                     }
-                    
+
                     BitSet current = arrayToBitSet(buf, n);
                     if(old != null)
                     {
@@ -111,7 +111,6 @@ public class HIDAPITest
         return bs;
     }
 
-    @SuppressWarnings("unused")
     private static void printHEX(byte[] buf, int n)
     {
         for(int i = 0; i < n; i++)
