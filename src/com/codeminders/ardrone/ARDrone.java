@@ -23,6 +23,63 @@ public class ARDrone
         HORIZONTAL_ONLY, VERTICAL_ONLY, VERTICAL_IN_HORIZONTAL, HORIZONTAL_IN_VERTICAL
     }
 
+    public enum Animation
+    {
+        PHI_M30_DEG(0), PHI_30_DEG(1), THETA_M30_DEG(2), THETA_30_DEG(3), THETA_20DEG_YAW_200DEG(4), THETA_20DEG_YAW_M200DEG(
+                5), TURNAROUND(6), TURNAROUND_GODOWN(7), YAW_SHAKE(8), YAW_DANCE(9), PHI_DANCE(10), THETA_DANCE(11), VZ_DANCE(
+                12), WAVE(13), PHI_THETA_MIXED(14), DOUBLE_PHI_THETA_MIXED(15), ANIM_MAYDAY(16);
+
+        private int value;
+
+        private Animation(int value)
+        {
+            this.value = value;
+        }
+
+        public int getValue()
+        {
+            return value;
+        }
+    }
+
+    public enum LED
+    {
+        BLINK_GREEN_RED(0), BLINK_GREEN(1), BLINK_RED(2), BLINK_ORANGE(3), SNAKE_GREEN_RED(4), FIRE(5), STANDARD(6), RED(
+                7), GREEN(8), RED_SNAKE(9), BLANK(10), RIGHT_MISSILE(11), LEFT_MISSILE(12), DOUBLE_MISSILE(13), FRONT_LEFT_GREEN_OTHERS_RED(
+                14), FRONT_RIGHT_GREEN_OTHERS_RED(15), REAR_RIGHT_GREEN_OTHERS_RED(16), REAR_LEFT_GREEN_OTHERS_RED(17), LEFT_GREEN_RIGHT_RED(
+                18), LEFT_RED_RIGHT_GREEN(19), BLINK_STANDARD(20);
+
+        private int value;
+
+        private LED(int value)
+        {
+            this.value = value;
+        }
+
+        public int getValue()
+        {
+            return value;
+        }
+    }
+
+    public enum ConfigOption
+    {
+        ALTITUDE_MAX("control:altitude_max"), EULER_ANGLE_MAX("control:euler_angle_max"), CONTROL_VZ_MAX(
+                "control:control_vz_max"), CONTROL_YAW("control:control_yaw");
+
+        private String value;
+
+        private ConfigOption(String value)
+        {
+            this.value = value;
+        }
+
+        public String getValue()
+        {
+            return value;
+        }
+    }
+
     private Logger                          log               = Logger.getLogger(getClass().getName());
 
     private static final int                CMD_QUEUE_SIZE    = 64;
@@ -348,9 +405,19 @@ public class ARDrone
         cmd_queue.add(new PlayAnimationCommand(animation_no, duration));
     }
 
+    public void playAnimation(Animation animation, int duration) throws IOException
+    {
+        cmd_queue.add(new PlayAnimationCommand(animation.getValue(), duration));
+    }
+
     public void playLED(int animation_no, float freq, int duration) throws IOException
     {
         cmd_queue.add(new PlayLEDCommand(animation_no, freq, duration));
+    }
+
+    public void playLED(LED animation, float freq, int duration) throws IOException
+    {
+        cmd_queue.add(new PlayLEDCommand(animation.getValue(), freq, duration));
     }
 
     public void selectVideoChannel(VideoChannel c) throws IOException
@@ -417,6 +484,12 @@ public class ARDrone
     public void setConfigOption(String name, String value) throws IOException
     {
         cmd_queue.add(new ConfigureCommand(name, value));
+        cmd_queue.add(new ControlCommand(5, 0));
+    }
+
+    public void setConfigOption(ConfigOption option, String value) throws IOException
+    {
+        cmd_queue.add(new ConfigureCommand(option.getValue(), value));
         cmd_queue.add(new ControlCommand(5, 0));
     }
 
