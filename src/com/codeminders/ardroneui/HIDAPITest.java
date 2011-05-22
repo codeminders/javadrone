@@ -2,6 +2,7 @@
 package com.codeminders.ardroneui;
 
 import java.io.IOException;
+import java.util.BitSet;
 
 import com.codeminders.hidapi.*;
 
@@ -17,13 +18,13 @@ public class HIDAPITest
     private static final int  BUFSIZE              = 2048;
 
     // "Afterglow" controller for PS3
-    //static final int          VENDOR_ID            = 3695;
-    //static final int          PRODUCT_ID           = 25346;
+    // static final int VENDOR_ID = 3695;
+    // static final int PRODUCT_ID = 25346;
 
     // Sony PLAYSTATION(R)3 Controller
     static final int          VENDOR_ID            = 1356;
     static final int          PRODUCT_ID           = 616;
-    
+
     /**
      * @param args
      */
@@ -45,22 +46,25 @@ public class HIDAPITest
             try
             {
                 byte[] buf = new byte[BUFSIZE];
+                BitSet old = null;
+
                 dev.enableBlocking();
                 while(true)
                 {
                     int n = dev.read(buf);
-                    for(int i = 0; i < n; i++)
+                    if(n!=49)
                     {
-                        int v = buf[i];
-                        if(v < 0)
-                            v = v + 256;
-                        String hs = Integer.toHexString(v);
-                        if(v < 16)
-                            System.err.print("0");
-                        System.err.print(hs + " ");
+                        System.err.println("Unexpected data packet size!");
+                        return;
                     }
-                    System.err.println("");
-
+                    
+                    BitSet current = arrayToBitSet(buf, n);
+                    if(old != null)
+                    {
+                        printHEX(buf, n);
+                        printBitSetDiff(current, old);
+                    }
+                    old = current;
                     try
                     {
                         Thread.sleep(READ_UPDATE_DELAY_MS);
@@ -77,6 +81,50 @@ public class HIDAPITest
         {
             e.printStackTrace();
         }
+    }
+
+    private static void printBitSetDiff(BitSet current, BitSet old)
+    {
+        if(current.length() != old.length())
+        {
+            System.err.println("BitSet size does not match!");
+            return;
+        }
+
+        BitSet diff = (BitSet) current.clone();
+        diff.xor(old);
+        System.err.println(diff);
+    }
+
+    private static BitSet arrayToBitSet(byte[] buf, int n)
+    {
+        BitSet bs = new BitSet(n * 8);
+        for(int i = 0; i < n; i++)
+        {
+            byte b = buf[i];
+            for(int j = 0; j < 8; j++)
+            {
+                if((b & (1 << j)) > 0)
+                    bs.set(i * 8 + j);
+            }
+        }
+        return bs;
+    }
+
+    @SuppressWarnings("unused")
+    private static void printHEX(byte[] buf, int n)
+    {
+        for(int i = 0; i < n; i++)
+        {
+            int v = buf[i];
+            if(v < 0)
+                v = v + 256;
+            String hs = Integer.toHexString(v);
+            if(v < 16)
+                System.err.print("0");
+            System.err.print(hs + " ");
+        }
+        System.err.println("");
     }
 
     private static void listDevices()
