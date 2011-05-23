@@ -51,19 +51,12 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
                 horizon1.setRoll(data.getRoll());
                 altimeter1.setValue(data.getAltitude() * 1000);
                 airCompass1.setValue(data.getYaw());
-                radialBargraph1.setValue(data.getBattery());
-                if (data.getBattery() < 15) {
-                    radialBargraph1.setBarGraphColor(ColorDef.RED);
-                } else if (data.getBattery() < 50) {
-                    radialBargraph1.setBarGraphColor(ColorDef.ORANGE);
-                } else {
-                    radialBargraph1.setBarGraphColor(ColorDef.GREEN);
-                }
+                batteryGraph.setValue(data.getBattery());
                 if (data.isBatteryTooLow()) {
-                    radialBargraph1.setLedBlinking(true);
+                    batteryGraph.setLedBlinking(true);
                     indicator1.setOn(true);
                 } else {
-                    radialBargraph1.setLedBlinking(false);
+                    batteryGraph.setLedBlinking(false);
                     indicator1.setOn(false);
 
                 }
@@ -114,7 +107,6 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         jPanel1 = new javax.swing.JPanel();
         indicator1 = new eu.hansolo.steelseries.extras.Indicator();
         indicator4 = new eu.hansolo.steelseries.extras.Indicator();
-        radialBargraph1 = new eu.hansolo.steelseries.gauges.RadialBargraph();
         horizon1 = new eu.hansolo.steelseries.extras.Horizon();
         airCompass1 = new eu.hansolo.steelseries.extras.AirCompass();
         altimeter1 = new eu.hansolo.steelseries.extras.Altimeter();
@@ -122,6 +114,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         jPanel2 = new javax.swing.JPanel();
         indicator2 = new eu.hansolo.steelseries.extras.Indicator();
         indicator3 = new eu.hansolo.steelseries.extras.Indicator();
+        batteryGraph = new eu.hansolo.steelseries.gauges.Radial1Vertical();
 
         setOpaque(false);
         setLayout(new java.awt.GridBagLayout());
@@ -168,31 +161,6 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
 
         add(jPanel1, new java.awt.GridBagConstraints());
 
-        radialBargraph1.setToolTipText("battery status");
-        radialBargraph1.setFrame3dEffectVisible(true);
-        radialBargraph1.setLcdUnitString("%");
-        radialBargraph1.setLcdVisible(false);
-        radialBargraph1.setMinimumSize(new java.awt.Dimension(60, 60));
-        radialBargraph1.setTitle("Battery");
-        radialBargraph1.setUnitString("");
-
-        javax.swing.GroupLayout radialBargraph1Layout = new javax.swing.GroupLayout(radialBargraph1);
-        radialBargraph1.setLayout(radialBargraph1Layout);
-        radialBargraph1Layout.setHorizontalGroup(
-            radialBargraph1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 140, Short.MAX_VALUE)
-        );
-        radialBargraph1Layout.setVerticalGroup(
-            radialBargraph1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 140, Short.MAX_VALUE)
-        );
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = -60;
-        gridBagConstraints.ipady = -60;
-        add(radialBargraph1, gridBagConstraints);
-
         horizon1.setToolTipText("artificial horizon");
         horizon1.setFrame3dEffectVisible(true);
         horizon1.setMinimumSize(new java.awt.Dimension(60, 60));
@@ -209,6 +177,8 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = -20;
         gridBagConstraints.ipady = -20;
@@ -230,6 +200,8 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = -20;
         gridBagConstraints.ipady = -20;
@@ -268,6 +240,8 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         );
 
         gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = -60;
         gridBagConstraints.ipady = -60;
@@ -313,11 +287,41 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         gridBagConstraints.gridy = 1;
         jPanel2.add(indicator3, gridBagConstraints);
 
-        add(jPanel2, new java.awt.GridBagConstraints());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 5;
+        gridBagConstraints.gridy = 0;
+        add(jPanel2, gridBagConstraints);
+
+        batteryGraph.setThreshold(100.0);
+        batteryGraph.setTitle("Battery");
+        batteryGraph.setTrackStartColor(new java.awt.Color(255, 0, 0));
+        batteryGraph.setTrackStopColor(new java.awt.Color(0, 255, 0));
+        batteryGraph.setTrackVisible(true);
+        batteryGraph.setUnitString("%");
+
+        javax.swing.GroupLayout batteryGraphLayout = new javax.swing.GroupLayout(batteryGraph);
+        batteryGraph.setLayout(batteryGraphLayout);
+        batteryGraphLayout.setHorizontalGroup(
+            batteryGraphLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 140, Short.MAX_VALUE)
+        );
+        batteryGraphLayout.setVerticalGroup(
+            batteryGraphLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 140, Short.MAX_VALUE)
+        );
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = -60;
+        gridBagConstraints.ipady = -60;
+        add(batteryGraph, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private eu.hansolo.steelseries.extras.AirCompass airCompass1;
     private eu.hansolo.steelseries.extras.Altimeter altimeter1;
+    private eu.hansolo.steelseries.gauges.Radial1Vertical batteryGraph;
     private eu.hansolo.steelseries.extras.Horizon horizon1;
     private eu.hansolo.steelseries.extras.Indicator indicator1;
     private eu.hansolo.steelseries.extras.Indicator indicator2;
@@ -326,6 +330,5 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private eu.hansolo.steelseries.extras.Led led1;
-    private eu.hansolo.steelseries.gauges.RadialBargraph radialBargraph1;
     // End of variables declaration//GEN-END:variables
 }
