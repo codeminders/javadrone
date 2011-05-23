@@ -143,7 +143,8 @@ public class DroneConfig extends javax.swing.JDialog {
         maxYawLabel.setText("Rotation Speed");
         getContentPane().add(maxYawLabel);
 
-        maxYaw.setMaximum(400);
+        maxYaw.setMaximum(611);
+        maxYaw.setMinimum(70);
         maxYaw.setValue(200);
         maxYaw.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {

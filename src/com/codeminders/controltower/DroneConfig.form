@@ -76,7 +76,8 @@
     </Component>
     <Component class="javax.swing.JSlider" name="maxYaw">
       <Properties>
-        <Property name="maximum" type="int" value="400"/>
+        <Property name="maximum" type="int" value="611"/>
+        <Property name="minimum" type="int" value="70"/>
         <Property name="value" type="int" value="200"/>
       </Properties>
       <Events>
