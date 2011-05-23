@@ -7,62 +7,31 @@ package com.codeminders.controltower;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneVideoListener;
-import com.codeminders.ardrone.NavData;
-import com.codeminders.ardrone.NavDataListener;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 
 /**
  *
  * @author normenhansen
  */
-public class VideoPanel extends javax.swing.JPanel implements NavDataListener, DroneVideoListener {
+public class VideoPanel extends javax.swing.JPanel implements DroneVideoListener {
 
     private ARDrone drone;
-    private AtomicBoolean drawWarnings = new AtomicBoolean(true);
     private AtomicReference<BufferedImage> image = new AtomicReference<BufferedImage>();
-    private AtomicReference<NavData> currentData = new AtomicReference<NavData>(new NavData());
-    private BufferedImage batteryImage;
-    private BufferedImage commImage;
-    private BufferedImage windImage;
-    private BufferedImage emergencyImage;
 
     /** Creates new form VideoPanel */
     public VideoPanel() {
         initComponents();
-        try {
-            batteryImage = ImageIO.read(getClass().getResourceAsStream("/com/codeminders/controltower/images/battery_warning.png"));
-            commImage = ImageIO.read(getClass().getResourceAsStream("/com/codeminders/controltower/images/comm_warning.png"));
-            windImage = ImageIO.read(getClass().getResourceAsStream("/com/codeminders/controltower/images/wind_warning.png"));
-            emergencyImage = ImageIO.read(getClass().getResourceAsStream("/com/codeminders/controltower/images/warning.png"));
-        } catch (IOException ex) {
-            Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, "{0}", ex);
-        }
     }
 
     public void setDrone(ARDrone drone){
         this.drone = drone;
         drone.addImageListener(this);
-        drone.addNavDataListener(this);
     }
     
-    public void setDrawWarnings(boolean draw) {
-        drawWarnings.set(draw);
-    }
-
-    @Override
-    public void navDataReceived(NavData nd) {
-        currentData.set(nd);
-    }
-
     @Override
     public void frameReceived(BufferedImage im) {
         image.set(im);
@@ -74,37 +43,15 @@ public class VideoPanel extends javax.swing.JPanel implements NavDataListener, D
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        NavData data = currentData.get();
         int width = getWidth();
         int height = getHeight();
-        int imageWidth = width / 10;
-        int imageHeight = height / 10;
         drawDroneImage(g2d, width, height);
-        drawWarnings(g2d, width, height, data, imageWidth, imageHeight);
     }
 
     private void drawDroneImage(Graphics2D g2d, int width, int height) {
         BufferedImage im = image.get();
         if (im != null) {
             g2d.drawImage(im, 0, 0, width, height, null);
-        }
-    }
-
-    private void drawWarnings(Graphics2D g2d, int width, int height, NavData data, int imageWidth, int imageHeight) {
-        if (!drawWarnings.get()) {
-            return;
-        }
-        if (data.isBatteryTooLow()) {
-            g2d.drawImage(batteryImage, 0, 0, imageWidth, imageHeight, null);
-        }
-        if (data.isCommunicationProblemOccurred()) {
-            g2d.drawImage(commImage, 0, height - imageHeight, imageWidth, imageHeight, null);
-        }
-        if (data.isTooMuchWind()) {
-            g2d.drawImage(windImage, width - imageWidth, height - imageHeight, imageWidth, imageHeight, null);
-        }
-        if (data.isEmergency()) {
-            g2d.drawImage(emergencyImage, width - imageWidth, 0, imageWidth, imageHeight, null);
         }
     }
 
