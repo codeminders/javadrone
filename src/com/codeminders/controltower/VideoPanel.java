@@ -7,10 +7,12 @@ package com.codeminders.controltower;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneVideoListener;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -21,17 +23,22 @@ public class VideoPanel extends javax.swing.JPanel implements DroneVideoListener
 
     private ARDrone drone;
     private AtomicReference<BufferedImage> image = new AtomicReference<BufferedImage>();
+    private AtomicBoolean preserveAspect = new AtomicBoolean(true);
 
     /** Creates new form VideoPanel */
     public VideoPanel() {
         initComponents();
     }
 
-    public void setDrone(ARDrone drone){
+    public void setDrone(ARDrone drone) {
         this.drone = drone;
         drone.addImageListener(this);
     }
     
+    public void setPreserveAspect(boolean preserve){
+        preserveAspect.set(preserve);
+    }
+
     @Override
     public void frameReceived(BufferedImage im) {
         image.set(im);
@@ -50,8 +57,29 @@ public class VideoPanel extends javax.swing.JPanel implements DroneVideoListener
 
     private void drawDroneImage(Graphics2D g2d, int width, int height) {
         BufferedImage im = image.get();
+        if (im == null) {
+            return;
+        }
+        int xPos = 0;
+        int yPos = 0;
+        if(preserveAspect.get()){
+            g2d.setColor(Color.BLACK);
+            g2d.fill3DRect(0, 0, width, height, false);
+            float widthUnit = ((float) width / 4.0f);
+            float heightAspect = (float) height / widthUnit;
+            float heightUnit = ((float) height / 3.0f);
+            float widthAspect = (float) width / heightUnit;
+
+            if (widthAspect > 4) {
+                xPos = (int) (width - (heightUnit * 4)) / 2;
+                width = (int) (heightUnit * 4);
+            } else if (heightAspect > 3) {
+                yPos = (int) (height - (widthUnit * 3)) / 2;
+                height = (int) (widthUnit * 3);
+            }
+        }
         if (im != null) {
-            g2d.drawImage(im, 0, 0, width, height, null);
+            g2d.drawImage(im, xPos, yPos, width, height, null);
         }
     }
 
