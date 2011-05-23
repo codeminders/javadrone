@@ -51,7 +51,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private ImageIcon controllerOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
     private VideoPanel video = new VideoPanel();
     private BottomGaugePanel gauges = new BottomGaugePanel();
-    
+
     static {
         System.loadLibrary("hidapi-jni");
     }
@@ -349,6 +349,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jSeparator3 = new javax.swing.JToolBar.Separator();
         jPanel1 = new javax.swing.JPanel();
         jSeparator7 = new javax.swing.JToolBar.Separator();
+        instrumentButton = new javax.swing.JButton();
         configureButton = new javax.swing.JButton();
         jSeparator6 = new javax.swing.JToolBar.Separator();
         videoPanel = new javax.swing.JPanel();
@@ -391,7 +392,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 619, Short.MAX_VALUE)
+            .addGap(0, 522, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -401,8 +402,21 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jToolBar1.add(jPanel1);
         jToolBar1.add(jSeparator7);
 
+        instrumentButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/instruments.gif"))); // NOI18N
+        instrumentButton.setText("instruments");
+        instrumentButton.setToolTipText("toggle instruments");
+        instrumentButton.setFocusable(false);
+        instrumentButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        instrumentButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                instrumentButtonActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(instrumentButton);
+
         configureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/objects_039.gif"))); // NOI18N
         configureButton.setText("tuning");
+        configureButton.setToolTipText("show tuning settings");
         configureButton.setFocusable(false);
         configureButton.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         configureButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -453,6 +467,21 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 //        retryController.set(true);
     }//GEN-LAST:event_controllerStatusMouseReleased
 
+    private void instrumentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_instrumentButtonActionPerformed
+        Dimension dim = jPanel2.getSize();
+        if (dim.getHeight() > 0) {
+            dim.setSize(dim.getWidth(), 0);
+            jPanel2.setPreferredSize(dim);
+            jPanel2.setSize(dim);
+            jPanel2.setVisible(false);
+        } else {
+            dim.setSize(dim.getWidth(), 210);
+            jPanel2.setPreferredSize(dim);
+            jPanel2.setSize(dim);
+            jPanel2.setVisible(true);
+        }
+    }//GEN-LAST:event_instrumentButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -476,6 +505,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private javax.swing.JButton configureButton;
     private javax.swing.JLabel controllerStatus;
     private javax.swing.JLabel droneStatus;
+    private javax.swing.JButton instrumentButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JToolBar.Separator jSeparator1;
