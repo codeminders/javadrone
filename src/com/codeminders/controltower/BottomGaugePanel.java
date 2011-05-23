@@ -292,6 +292,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         gridBagConstraints.gridy = 0;
         add(jPanel2, gridBagConstraints);
 
+        batteryGraph.setFrame3dEffectVisible(true);
         batteryGraph.setThreshold(100.0);
         batteryGraph.setTitle("Battery");
         batteryGraph.setTrackStartColor(new java.awt.Color(255, 0, 0));
