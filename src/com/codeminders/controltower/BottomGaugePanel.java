@@ -127,6 +127,8 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         jPanel1.setOpaque(false);
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
+        indicator1.setToolTipText("battery low");
+        indicator1.setFrame3dEffectVisible(true);
         indicator1.setSymbolType(eu.hansolo.steelseries.tools.SymbolType.BATTERY);
 
         javax.swing.GroupLayout indicator1Layout = new javax.swing.GroupLayout(indicator1);
@@ -142,6 +144,8 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
 
         jPanel1.add(indicator1, new java.awt.GridBagConstraints());
 
+        indicator4.setToolTipText("comm problem");
+        indicator4.setFrame3dEffectVisible(true);
         indicator4.setSymbolType(eu.hansolo.steelseries.tools.SymbolType.BREAK);
 
         javax.swing.GroupLayout indicator4Layout = new javax.swing.GroupLayout(indicator4);
@@ -162,6 +166,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
 
         add(jPanel1, new java.awt.GridBagConstraints());
 
+        radialBargraph1.setToolTipText("battery status");
         radialBargraph1.setFrame3dEffectVisible(true);
         radialBargraph1.setLcdUnitString("%");
         radialBargraph1.setLcdVisible(false);
@@ -186,6 +191,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         gridBagConstraints.ipady = -60;
         add(radialBargraph1, gridBagConstraints);
 
+        horizon1.setToolTipText("artificial horizon");
         horizon1.setFrame3dEffectVisible(true);
         horizon1.setMinimumSize(new java.awt.Dimension(60, 60));
 
@@ -206,6 +212,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         gridBagConstraints.ipady = -20;
         add(horizon1, gridBagConstraints);
 
+        airCompass1.setToolTipText("plane compass");
         airCompass1.setFrame3dEffectVisible(true);
         airCompass1.setMinimumSize(new java.awt.Dimension(60, 60));
 
@@ -226,6 +233,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         gridBagConstraints.ipady = -20;
         add(airCompass1, gridBagConstraints);
 
+        altimeter1.setToolTipText("altimeter");
         altimeter1.setFrame3dEffectVisible(true);
         altimeter1.setMinimumSize(new java.awt.Dimension(60, 60));
 
@@ -266,6 +274,8 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         jPanel2.setOpaque(false);
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
+        indicator2.setToolTipText("emergency");
+        indicator2.setFrame3dEffectVisible(true);
         indicator2.setSymbolType(eu.hansolo.steelseries.tools.SymbolType.ATTENTION);
 
         javax.swing.GroupLayout indicator2Layout = new javax.swing.GroupLayout(indicator2);
@@ -281,6 +291,8 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
 
         jPanel2.add(indicator2, new java.awt.GridBagConstraints());
 
+        indicator3.setToolTipText("engine problem");
+        indicator3.setFrame3dEffectVisible(true);
         indicator3.setSymbolType(eu.hansolo.steelseries.tools.SymbolType.ENGINE);
 
         javax.swing.GroupLayout indicator3Layout = new javax.swing.GroupLayout(indicator3);
