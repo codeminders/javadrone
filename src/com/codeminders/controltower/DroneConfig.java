@@ -127,10 +127,12 @@ public class DroneConfig extends javax.swing.JDialog {
         getContentPane().add(maxAngle);
 
         maxSpeedLabel.setText("Max Speed");
+        maxSpeedLabel.setEnabled(false);
         getContentPane().add(maxSpeedLabel);
 
         maxSpeed.setMaximum(3000);
         maxSpeed.setValue(2000);
+        maxSpeed.setEnabled(false);
         maxSpeed.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 updateSpeed(evt);
@@ -138,7 +140,7 @@ public class DroneConfig extends javax.swing.JDialog {
         });
         getContentPane().add(maxSpeed);
 
-        maxYawLabel.setText("Max Yaw");
+        maxYawLabel.setText("Rotation Speed");
         getContentPane().add(maxYawLabel);
 
         maxYaw.setMaximum(400);
@@ -215,7 +217,7 @@ public class DroneConfig extends javax.swing.JDialog {
     private void updateYaw(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_updateYaw
         float value = Math.round(Math.toDegrees((float) maxYaw.getValue() / 100.0f));
         maxYaw.setToolTipText(value + "°/s");
-        maxYawLabel.setText("Max Yaw (" + value + "°/s)");
+        maxYawLabel.setText("Rotation Speed (" + value + "°/s)");
     }//GEN-LAST:event_updateYaw
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
