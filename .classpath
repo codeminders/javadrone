@@ -3,5 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/hidapi.jar"/>
+	<classpathentry kind="lib" path="lib/SteelSeries/SteelSeries-3.9.2.jar"/>
+	<classpathentry kind="lib" path="lib/SteelSeries/trident-6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
