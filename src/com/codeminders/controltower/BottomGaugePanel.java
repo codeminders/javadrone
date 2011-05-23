@@ -33,7 +33,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
     public BottomGaugePanel() {
         initComponents();
         try {
-            commImage = ImageIO.read(getClass().getResourceAsStream("/com/codeminders/controltower/images/gaugeback_bottom.png"));
+            commImage = ImageIO.read(getClass().getResourceAsStream("/com/codeminders/controltower/images/gaugeback_bottom2.png"));
         } catch (IOException ex) {
             Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, "{0}", ex);
         }
