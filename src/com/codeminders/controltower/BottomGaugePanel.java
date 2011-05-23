@@ -54,16 +54,18 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
                 radialBargraph1.setValue(data.getBattery());
                 if (data.getBattery() < 15) {
                     radialBargraph1.setBarGraphColor(ColorDef.RED);
-                    radialBargraph1.setLedBlinking(true);
-                    indicator1.setOn(true);
                 } else if (data.getBattery() < 50) {
                     radialBargraph1.setBarGraphColor(ColorDef.ORANGE);
-                    radialBargraph1.setLedBlinking(false);
-                    indicator1.setOn(false);
                 } else {
                     radialBargraph1.setBarGraphColor(ColorDef.GREEN);
+                }
+                if (data.isBatteryTooLow()) {
+                    radialBargraph1.setLedBlinking(true);
+                    indicator1.setOn(true);
+                } else {
                     radialBargraph1.setLedBlinking(false);
                     indicator1.setOn(false);
+
                 }
                 if (data.isUltrasonicSensorDeaf()) {
                     led1.setLedBlinking(true);
