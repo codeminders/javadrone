@@ -182,7 +182,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         PS3Controller dev;
         try {
 
-            drone.setCombinedYawMode(true);
             drone.addStatusChangeListener(new DroneStatusChangeListener() {
 
                 @Override
@@ -191,6 +190,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                         System.err.println("Configure");
                         configWindow.updateDrone();
                         drone.selectVideoChannel(VideoChannel.HORIZONTAL_ONLY);
+                        drone.setCombinedYawMode(true);
                         drone.trim();
                     } catch (IOException e) {
                         drone.changeToErrorState(e);
