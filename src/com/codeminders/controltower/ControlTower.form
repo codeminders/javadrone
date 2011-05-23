@@ -23,14 +23,17 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="jToolBar1" alignment="0" pref="379" max="32767" attributes="1"/>
-          <Component id="videoPanel" alignment="0" pref="379" max="32767" attributes="0"/>
+          <Component id="jToolBar1" alignment="0" pref="800" max="32767" attributes="1"/>
+          <Component id="videoPanel" alignment="0" pref="800" max="32767" attributes="1"/>
+          <Component id="jPanel2" alignment="0" pref="800" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
-              <Component id="videoPanel" pref="279" max="32767" attributes="0"/>
+              <Component id="videoPanel" pref="508" max="32767" attributes="1"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jPanel2" min="-2" pref="209" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jToolBar1" min="-2" pref="25" max="-2" attributes="0"/>
           </Group>
@@ -99,7 +102,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="88" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="522" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -109,23 +112,21 @@
             </DimensionLayout>
           </Layout>
         </Container>
-        <Component class="javax.swing.JToolBar$Separator" name="jSeparator2">
+        <Component class="javax.swing.JToolBar$Separator" name="jSeparator7">
         </Component>
-        <Component class="javax.swing.JToggleButton" name="instrumentsButton">
+        <Component class="javax.swing.JButton" name="instrumentButton">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/com/codeminders/controltower/images/instruments.gif"/>
             </Property>
-            <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Instruments"/>
+            <Property name="text" type="java.lang.String" value="instruments"/>
+            <Property name="toolTipText" type="java.lang.String" value="toggle instruments"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="instrumentsButtonActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="instrumentButtonActionPerformed"/>
           </Events>
-        </Component>
-        <Component class="javax.swing.JToolBar$Separator" name="jSeparator7">
         </Component>
         <Component class="javax.swing.JButton" name="configureButton">
           <Properties>
@@ -133,6 +134,7 @@
               <Image iconType="3" name="/com/codeminders/controltower/images/objects_039.gif"/>
             </Property>
             <Property name="text" type="java.lang.String" value="tuning"/>
+            <Property name="toolTipText" type="java.lang.String" value="show tuning settings"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="4"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
@@ -154,6 +156,10 @@
           <Dimension value="[320, 240]"/>
         </Property>
       </Properties>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+    </Container>
+    <Container class="javax.swing.JPanel" name="jPanel2">
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
     </Container>
