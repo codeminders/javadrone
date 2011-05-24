@@ -25,10 +25,12 @@ public class CommandQueue
             if(res != null)
             {
                 log.finest("[" + data.size() + "] Returning " + res);
+                if(res.isSticky())
+                    data.addLast(res);
                 return res;
             } else
             {
-                //log.finest("Waiting for data");
+                // log.finest("Waiting for data");
                 wait();
             }
         }
@@ -54,7 +56,8 @@ public class CommandQueue
                 // Found insertion point.
                 if(!x.equals(cmd))
                 {
-                    //log.finest("[" + data.size() + "] Adding command " + cmd);
+                    // log.finest("[" + data.size() + "] Adding command " +
+                    // cmd);
                     data.add(pos, cmd);
                     notify();
                 }
@@ -67,7 +70,7 @@ public class CommandQueue
 
         if(cmd != null)
         {
-            //log.finest("[" + data.size() + "] Adding command " + cmd);
+            // log.finest("[" + data.size() + "] Adding command " + cmd);
             data.addLast(cmd);
             notify();
         }
@@ -81,6 +84,12 @@ public class CommandQueue
     public synchronized int size()
     {
         return data.size();
+    }
+
+    public synchronized void clear()
+    {
+        data.clear();
+        notify();
     }
 
 }

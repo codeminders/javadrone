@@ -12,4 +12,10 @@ public class LandCommand extends RefCommand
     {
         return HIGH_PRIORITY;
     }
+    
+    public boolean isSticky()
+    {
+        return true;
+    }
+
 }
