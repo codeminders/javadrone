@@ -24,7 +24,6 @@ import javax.imageio.ImageIO;
  *
  * @author normenhansen
  */
-@SuppressWarnings("serial")
 public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListener {
 
     private BufferedImage commImage;
