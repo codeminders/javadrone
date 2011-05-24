@@ -50,7 +50,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private ImageIcon controllerOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
     private VideoPanel video = new VideoPanel();
     private BottomGaugePanel gauges = new BottomGaugePanel();
-    private boolean flying;
+    private AtomicBoolean flying = new AtomicBoolean(false);
 
     static {
         System.loadLibrary("hidapi-jni");
@@ -155,7 +155,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     @Override
     public void navDataReceived(NavData nd) {
         updateBatteryStatus(nd.getBattery());
-        this.flying = nd.isFlying();
+        this.flying.set(nd.isFlying());
     }
 
     private void cycleVideoChannel(ARDrone drone) throws IOException {
@@ -241,33 +241,44 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                         if (pad_change.isStartChanged() && pad_change.isStart()) {
                             System.err.println("Taking off");
                             drone.takeOff();
-                        } else if (pad_change.isSelectChanged() && pad_change.isSelect()) {
+                        }
+                        if (pad_change.isSelectChanged() && pad_change.isSelect()) {
                             System.err.println("Landing");
                             drone.land();
-                        } else if (pad_change.isPSChanged() && pad_change.isPS()) {
+                        }
+                        if (pad_change.isPSChanged() && pad_change.isPS()) {
                             System.err.println("Reseting");
 
                             drone.clearEmergencySignal();
                             drone.trim();
-                        } else if (pad_change.isTriangleChanged() && pad_change.isTriangle()) {
+                        }
+                        if (pad_change.isTriangleChanged() && pad_change.isTriangle()) {
                             System.err.println("Video cycle");
                             cycleVideoChannel(drone);
-                        } else if (pad_change.isCrossChanged() && pad_change.isCross()) {
+                        }
+                        if (pad_change.isCrossChanged() && pad_change.isCross()) {
                             drone.playAnimation(8, 500);
                             drone.playLED(ARDrone.LED.FIRE, 10, 1);
-                        } else if (pad_change.isSquareChanged() && pad_change.isSquare()) {
+                        }
+                        if (pad_change.isSquareChanged() && pad_change.isSquare()) {
                             drone.playAnimation(5, 500);
-                        } else if (pad_change.isCircleChanged() && pad_change.isCircle()) {
+                        }
+                        if (pad_change.isCircleChanged() && pad_change.isCircle()) {
                             drone.playAnimation(4, 500);
-                        } else if (pad_change.isL1Changed() && pad_change.isL1()) {
+                        }
+                        if (pad_change.isL1Changed() && pad_change.isL1()) {
                             drone.playLED(1, 10, 2);
-                        } else if (pad_change.isR1Changed() && pad_change.isR1()) {
+                        }
+                        if (pad_change.isR1Changed() && pad_change.isR1()) {
                             drone.playLED(2, 10, 2);
-                        } else if (pad_change.isL2Changed() && pad_change.isL2()) {
+                        }
+                        if (pad_change.isL2Changed() && pad_change.isL2()) {
                             drone.playLED(3, 10, 2);
-                        } else if (pad_change.isR2Changed() && pad_change.isR2()) {
+                        }
+                        if (pad_change.isR2Changed() && pad_change.isR2()) {
                             drone.playLED(4, 10, 2);
-                        } else if(flying) {
+                        }
+                        if(flying.get()) {
                             // Detecting if we need to move the drone
 
                             int leftX = pad.getLeftJoystickX();
