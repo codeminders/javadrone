@@ -13,7 +13,6 @@ package com.codeminders.controltower;
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
-import eu.hansolo.steelseries.tools.ColorDef;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -25,6 +24,7 @@ import javax.imageio.ImageIO;
  *
  * @author normenhansen
  */
+@SuppressWarnings("serial")
 public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListener {
 
     private BufferedImage commImage;
@@ -46,6 +46,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
     private void updateGauges(final NavData data) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 horizon1.setPitch(data.getPitch() * -1);
                 horizon1.setRoll(data.getRoll());
