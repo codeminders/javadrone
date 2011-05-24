@@ -24,7 +24,7 @@ public class CommandQueue
             DroneCommand res = data.pollLast();
             if(res != null)
             {
-                log.finest("[" + data.size() + "] Returning " + res);
+                //log.finest("[" + data.size() + "] Returning " + res);
                 if(res.isSticky())
                     data.addLast(res);
                 return res;

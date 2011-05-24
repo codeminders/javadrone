@@ -63,7 +63,8 @@ public abstract class ATCommand extends DroneCommand
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        builder.append("ATCommand [ID=");
+        builder.append(getClass().getSimpleName());
+        builder.append(" [ID=");
         builder.append(getID());
         builder.append(", param=");
         builder.append(getParametersString());

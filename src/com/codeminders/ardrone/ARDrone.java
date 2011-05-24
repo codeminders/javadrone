@@ -384,7 +384,8 @@ public class ARDrone
         {
             synchronized(state_mutex)
             {
-                if((state == State.TAKING_OFF && nd.isFlying()) || (state == State.LANDING && !nd.isFlying()))
+                if((state == State.TAKING_OFF && nd.isFlying()) || 
+                   (state == State.LANDING && nd.motorsDown))
                 {
                     cmd_queue.clear(); // Maybe we should just remove
                                        // LAND/TAKEOFF comand
