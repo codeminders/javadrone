@@ -50,6 +50,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private ImageIcon controllerOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
     private VideoPanel video = new VideoPanel();
     private BottomGaugePanel gauges = new BottomGaugePanel();
+    private boolean flying;
 
     static {
         System.loadLibrary("hidapi-jni");
@@ -154,6 +155,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     @Override
     public void navDataReceived(NavData nd) {
         updateBatteryStatus(nd.getBattery());
+        this.flying = nd.isFlying();
     }
 
     private void cycleVideoChannel(ARDrone drone) throws IOException {
@@ -265,7 +267,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                             drone.playLED(3, 10, 2);
                         } else if (pad_change.isR2Changed() && pad_change.isR2()) {
                             drone.playLED(4, 10, 2);
-                        } else {
+                        } else if(flying) {
                             // Detecting if we need to move the drone
 
                             int leftX = pad.getLeftJoystickX();
