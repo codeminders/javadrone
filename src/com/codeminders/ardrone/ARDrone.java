@@ -15,14 +15,14 @@ public class ARDrone
 {
     public enum State
     {
-        DISCONNECTED, CONNECTING, BOOTSTRAP, DEMO, ERROR
+        DISCONNECTED, CONNECTING, BOOTSTRAP, DEMO, ERROR, TAKING_OFF, LANDING
     }
 
     public enum VideoChannel
     {
         HORIZONTAL_ONLY, VERTICAL_ONLY, VERTICAL_IN_HORIZONTAL, HORIZONTAL_IN_VERTICAL
     }
-    
+
     public enum Animation
     {
         PHI_M30_DEG(0), PHI_30_DEG(1), THETA_M30_DEG(2), THETA_30_DEG(3), THETA_20DEG_YAW_200DEG(4), THETA_20DEG_YAW_M200DEG(
@@ -64,16 +64,19 @@ public class ARDrone
 
     public enum ConfigOption
     {
-        ACCS_OFFSET("control:accs_offset"), ACCS_GAINS("control:accs_gains"), GYROS_OFFSET("control:gyros_offset"),
-        GYROS_GAINS("control:gyros_gains"), GYROS110_OFFSET("control:gyros110_offset"), GYROS110_GAINS("control:gyros110_gains"),
-        GYRO_OFFSET_THR_X("control:gyro_offset_thr_x"), GYRO_OFFSET_THR_Y("control:gyro_offset_thr_y"), GYRO_OFFSET_THR_Z("control:gyro_offset_thr_z"),
-        PWM_REF_GYROS("control:pwm_ref_gyros"), CONTROL_LEVEL("control:control_level"), SHIELD_ENABLE("control:shield_enable"),
-        EULER_ANGLE_MAX("control:euler_angle_max"), ALTITUDE_MAX("control:altitude_max"), ALTITUDE_MIN("control:altitude_min"),
-        CONTROL_TRIM_Z("control:control_trim_z"), CONTROL_IPHONE_TILT("control:control_iphone_tilt"), CONTROL_VZ_MAX("control:control_vz_max"),
-        CONTROL_YAW("control:control_yaw"), OUTDOOR("control:outdoor"), FLIGHT_WITHOUT_SHELL("control:flight_without_shell"),
-        BRUSHLESS("control:brushless"), AUTONOMOUS_FLIGHT("control:autonomous_flight"), MANUAL_TRIM("control:manual_trim"),
-        INDOOR_EULER_ANGLE_MAX("control:indoor_euler_angle_max"), INDOOR_CONTROL_VZ_MAX("control:indoor_control_vz_max"), INDOOR_CONTROL_YAW("control:indoor_control_yaw"),
-        OUTDOOR_EULER_ANGLE_MAX("control:outdoor_euler_angle_max"), OUTDOOR_CONTROL_VZ_MAX("control:outdoor_control_vz_max"), OUTDOOR_CONTROL_YAW("outdoor_control:control_yaw");
+        ACCS_OFFSET("control:accs_offset"), ACCS_GAINS("control:accs_gains"), GYROS_OFFSET("control:gyros_offset"), GYROS_GAINS(
+                "control:gyros_gains"), GYROS110_OFFSET("control:gyros110_offset"), GYROS110_GAINS(
+                "control:gyros110_gains"), GYRO_OFFSET_THR_X("control:gyro_offset_thr_x"), GYRO_OFFSET_THR_Y(
+                "control:gyro_offset_thr_y"), GYRO_OFFSET_THR_Z("control:gyro_offset_thr_z"), PWM_REF_GYROS(
+                "control:pwm_ref_gyros"), CONTROL_LEVEL("control:control_level"), SHIELD_ENABLE("control:shield_enable"), EULER_ANGLE_MAX(
+                "control:euler_angle_max"), ALTITUDE_MAX("control:altitude_max"), ALTITUDE_MIN("control:altitude_min"), CONTROL_TRIM_Z(
+                "control:control_trim_z"), CONTROL_IPHONE_TILT("control:control_iphone_tilt"), CONTROL_VZ_MAX(
+                "control:control_vz_max"), CONTROL_YAW("control:control_yaw"), OUTDOOR("control:outdoor"), FLIGHT_WITHOUT_SHELL(
+                "control:flight_without_shell"), BRUSHLESS("control:brushless"), AUTONOMOUS_FLIGHT(
+                "control:autonomous_flight"), MANUAL_TRIM("control:manual_trim"), INDOOR_EULER_ANGLE_MAX(
+                "control:indoor_euler_angle_max"), INDOOR_CONTROL_VZ_MAX("control:indoor_control_vz_max"), INDOOR_CONTROL_YAW(
+                "control:indoor_control_yaw"), OUTDOOR_EULER_ANGLE_MAX("control:outdoor_euler_angle_max"), OUTDOOR_CONTROL_VZ_MAX(
+                "control:outdoor_control_vz_max"), OUTDOOR_CONTROL_YAW("outdoor_control:control_yaw");
 
         private String value;
 
@@ -330,7 +333,9 @@ public class ARDrone
 
     public void land() throws IOException
     {
+        // TODO: Review of possible race condition
         cmd_queue.add(new LandCommand());
+        changeState(State.LANDING);
     }
 
     /**
@@ -379,6 +384,13 @@ public class ARDrone
         {
             synchronized(state_mutex)
             {
+                if((state == State.TAKING_OFF && nd.isFlying()) || (state == State.LANDING && !nd.isFlying()))
+                {
+                    cmd_queue.clear(); // Maybe we should just remove
+                                       // LAND/TAKEOFF comand
+                                       // instead of nuking whole queue?
+                }
+
                 if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
                 {
                     changeState(State.BOOTSTRAP);
@@ -392,6 +404,7 @@ public class ARDrone
                     // 50ms communications watchdog has been triggered
                     cmd_queue.add(new KeepAliveCommand());
                 }
+
             }
         } catch(IOException e)
         {
@@ -417,7 +430,7 @@ public class ARDrone
     {
         cmd_queue.add(new PlayAnimationCommand(animation.getValue(), duration));
     }
-    
+
     public void playLED(int animation_no, float freq, int duration) throws IOException
     {
         cmd_queue.add(new PlayLEDCommand(animation_no, freq, duration));
@@ -427,7 +440,7 @@ public class ARDrone
     {
         cmd_queue.add(new PlayLEDCommand(animation.getValue(), freq, duration));
     }
-    
+
     public void selectVideoChannel(VideoChannel c) throws IOException
     {
         /*
@@ -503,7 +516,9 @@ public class ARDrone
 
     public void takeOff() throws IOException
     {
+        // TODO: review for possible race condition
         cmd_queue.add(new TakeOffCommand());
+        changeState(State.TAKING_OFF);
     }
 
     public void trim() throws IOException

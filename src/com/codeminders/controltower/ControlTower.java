@@ -24,8 +24,7 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.logging.*;
 import javax.swing.ImageIcon;
 
 /**
@@ -58,6 +57,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     /** Creates new form ControlTower */
     public ControlTower() {
+        setupLog();
         setAlwaysOnTop(true);
         initComponents();
         configWindow = new DroneConfig(this, true);
@@ -504,6 +504,27 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     public void setControlThreshold(float sens) {
         CONTROL_THRESHOLD = sens;
     }
+    
+    private static void setupLog()
+    {
+        Logger topLogger = java.util.logging.Logger.getLogger("");
+        Handler consoleHandler = null;
+        for(Handler handler : topLogger.getHandlers())
+            if(handler instanceof ConsoleHandler)
+            {
+                consoleHandler = handler;
+                break;
+            }
+
+        if(consoleHandler == null)
+        {
+            consoleHandler = new ConsoleHandler();
+            topLogger.addHandler(consoleHandler);
+        }
+        topLogger.setLevel(Level.ALL);
+        consoleHandler.setLevel(java.util.logging.Level.ALL);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel batteryStatus;
     private javax.swing.JButton configureButton;

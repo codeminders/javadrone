@@ -6,4 +6,10 @@ public class TakeOffCommand extends RefCommand
     {
         value |= (1<<9);
     }
+    
+    public boolean isSticky()
+    {
+        return true;
+    }
+
 }

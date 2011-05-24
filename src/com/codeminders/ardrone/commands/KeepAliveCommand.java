@@ -18,6 +18,6 @@ public class KeepAliveCommand extends ATCommand
     @Override
     public int getPriority()
     {
-        return HIGH_PRIORITY;
+        return VERY_HIGH_PRIORITY;
     }
 }
