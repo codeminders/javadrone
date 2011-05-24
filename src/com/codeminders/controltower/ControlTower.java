@@ -19,7 +19,6 @@ import com.codeminders.ardroneui.controllers.SonyPS3Controller;
 import com.codeminders.hidapi.HIDDeviceInfo;
 import com.codeminders.hidapi.HIDDeviceNotFoundException;
 import com.codeminders.hidapi.HIDManager;
-import eu.hansolo.steelseries.tools.ColorDef;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.IOException;
@@ -33,6 +32,7 @@ import javax.swing.ImageIcon;
  *
  * @author normenhansen
  */
+@SuppressWarnings("serial")
 public class ControlTower extends javax.swing.JFrame implements DroneStatusChangeListener, NavDataListener {
 
     private static final long READ_UPDATE_DELAY_MS = 5L;
@@ -82,6 +82,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private void updateDroneStatus(final boolean available) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 if (!available) {
                     droneStatus.setForeground(Color.RED);
@@ -98,6 +99,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private void updateControllerStatus(final boolean available) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 if (!available) {
                     controllerStatus.setForeground(Color.RED);
@@ -114,6 +116,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private void updateBatteryStatus(final int value) {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 batteryStatus.setText(value + "%");
                 if (value < 15) {
@@ -130,6 +133,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private void resetStatus() {
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 droneStatus.setForeground(Color.RED);
                 droneStatus.setIcon(droneOff);
@@ -489,6 +493,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         final ControlTower tower = new ControlTower();
         java.awt.EventQueue.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
 //                tower.setLocationRelativeTo(null);
                 tower.setVisible(true);

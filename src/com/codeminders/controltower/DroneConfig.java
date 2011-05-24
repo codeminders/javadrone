@@ -16,6 +16,7 @@ import java.util.prefs.Preferences;
  *
  * @author normenhansen
  */
+@SuppressWarnings("serial")
 public class DroneConfig extends javax.swing.JDialog {
 
     private ARDrone drone;

@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author normenhansen
  */
+@SuppressWarnings("serial")
 public class VideoPanel extends javax.swing.JPanel implements DroneVideoListener {
 
     private ARDrone drone;
