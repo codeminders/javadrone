@@ -35,6 +35,9 @@ public class ControlConfig extends javax.swing.JDialog {
         buttonList.setSelectedIndex(0);
     }
 
+    /**
+     * Initializes the list of available buttons
+     */
     private void initButtonList() {
         CONTROL_KEY[] keys = CONTROL_KEY.values();
         String[] str = new String[keys.length];
@@ -45,6 +48,9 @@ public class ControlConfig extends javax.swing.JDialog {
         buttonList.setListData(str);
     }
 
+    /**
+     * Initializes the dropdown for available commands
+     */
     private void initCommandList() {
         commandList.removeAllItems();
         COMMAND[] keys = COMMAND.values();
@@ -55,6 +61,9 @@ public class ControlConfig extends javax.swing.JDialog {
         }
     }
 
+    /**
+     * Sets to animation mode (enable duration)
+     */
     private void setAnimMode() {
         valueList.removeAllItems();
         Animation[] keys = Animation.values();
@@ -67,6 +76,9 @@ public class ControlConfig extends javax.swing.JDialog {
         frequencySpinner.setEnabled(false);
     }
 
+    /**
+     * Sets to LED mode (enable duration and frequency)
+     */
     private void setLEDMode() {
         valueList.removeAllItems();
         LED[] keys = LED.values();
@@ -79,6 +91,9 @@ public class ControlConfig extends javax.swing.JDialog {
         frequencySpinner.setEnabled(true);
     }
 
+    /**
+     * Sets to Default mode (disable duration and frequency)
+     */
     private void setDefaultMode() {
         valueList.removeAllItems();
         valueList.setEnabled(false);
@@ -86,6 +101,9 @@ public class ControlConfig extends javax.swing.JDialog {
         frequencySpinner.setEnabled(false);
     }
 
+    /**
+     * Switches the mode based on the command selection
+     */
     private void switchMode() {
         if (commandList.getSelectedItem() == null || "None".equals((String) commandList.getSelectedItem())) {
             setDefaultMode();
@@ -105,6 +123,9 @@ public class ControlConfig extends javax.swing.JDialog {
         }
     }
 
+    /**
+     * Updates the UI elements based on the selected button / command index
+     */
     private void updateButtonSelection() {
         String controlKey = (String) buttonList.getSelectedValue();
         if (controlKey == null) {
@@ -140,6 +161,10 @@ public class ControlConfig extends javax.swing.JDialog {
         delaySpinner.setValue(control.getDelay());
     }
 
+    /**
+     * Stores the current settings configured in the UI in the command list
+     * for the selected button
+     */
     private void storeButtonCommands() {
         AssignableControl control = null;
         String controlString = (String) buttonList.getSelectedValue();
@@ -179,6 +204,9 @@ public class ControlConfig extends javax.swing.JDialog {
         map.setControls(key, list);
     }
 
+    /**
+     * Resets the UI display
+     */
     private void resetView() {
         setDefaultMode();
         index = 0;
