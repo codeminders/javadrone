@@ -370,6 +370,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
         droneStatus.setForeground(java.awt.Color.red);
         droneStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_off.gif"))); // NOI18N
+        droneStatus.setToolTipText("drone status (lit = connected)");
         droneStatus.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 droneStatusMouseReleased(evt);
@@ -377,7 +378,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         });
         jToolBar1.add(droneStatus);
 
-        batteryStatus.setFont(new java.awt.Font("Lucida Grande", 1, 10));
+        batteryStatus.setFont(new java.awt.Font("Lucida Grande", 1, 10)); // NOI18N
         batteryStatus.setForeground(java.awt.Color.red);
         batteryStatus.setText("0%");
         jToolBar1.add(batteryStatus);
@@ -385,6 +386,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
         controllerStatus.setForeground(java.awt.Color.red);
         controllerStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"))); // NOI18N
+        controllerStatus.setToolTipText("controller status (green = available)");
         controllerStatus.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 controllerStatusMouseReleased(evt);
@@ -393,6 +395,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jToolBar1.add(controllerStatus);
 
         jButton1.setText("mapping");
+        jButton1.setToolTipText("map controller buttons");
         jButton1.setFocusable(false);
         jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -432,7 +435,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
         configureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/objects_039.gif"))); // NOI18N
         configureButton.setText("tuning");
-        configureButton.setToolTipText("show tuning settings");
+        configureButton.setToolTipText("show drone tuning settings");
         configureButton.setFocusable(false);
         configureButton.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         configureButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);

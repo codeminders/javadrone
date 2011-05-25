@@ -64,6 +64,7 @@
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/com/codeminders/controltower/images/drone_off.gif"/>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" value="drone status (lit = connected)"/>
           </Properties>
           <Events>
             <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="droneStatusMouseReleased"/>
@@ -90,6 +91,7 @@
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/com/codeminders/controltower/images/controller_off.png"/>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" value="controller status (green = available)"/>
           </Properties>
           <Events>
             <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="controllerStatusMouseReleased"/>
@@ -98,6 +100,7 @@
         <Component class="javax.swing.JButton" name="jButton1">
           <Properties>
             <Property name="text" type="java.lang.String" value="mapping"/>
+            <Property name="toolTipText" type="java.lang.String" value="map controller buttons"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
@@ -145,7 +148,7 @@
               <Image iconType="3" name="/com/codeminders/controltower/images/objects_039.gif"/>
             </Property>
             <Property name="text" type="java.lang.String" value="tuning"/>
-            <Property name="toolTipText" type="java.lang.String" value="show tuning settings"/>
+            <Property name="toolTipText" type="java.lang.String" value="show drone tuning settings"/>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="4"/>
             <Property name="verticalTextPosition" type="int" value="3"/>

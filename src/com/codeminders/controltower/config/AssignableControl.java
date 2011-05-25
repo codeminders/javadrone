@@ -9,7 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * This class represents one control mapping for a button and at the same
+ * time implements all control logic for button presses.
  * @author normenhansen
  */
 public class AssignableControl {
@@ -43,14 +44,18 @@ public class AssignableControl {
     private float frequency;
     private int duration;
     private int delay;
-    private String prefString = "";
+    private String prefString;
     private static final VideoChannel[] VIDEO_CYCLE = {VideoChannel.HORIZONTAL_ONLY,
         VideoChannel.VERTICAL_ONLY, VideoChannel.VERTICAL_IN_HORIZONTAL, VideoChannel.HORIZONTAL_IN_VERTICAL};
     private int video_index = 0;
 
+    /**
+     * Creates the control from a string that is stored in the java preferences of this app
+     * @param prefString 
+     */
     public AssignableControl(String prefString) {
         String[] strings = prefString.split("/");
-        if (strings.length < 0) {
+        if (strings.length < 3) {
             throw new IllegalStateException("preference string malformed");
         }
         key = CONTROL_KEY.valueOf(strings[0]);
@@ -93,6 +98,11 @@ public class AssignableControl {
         prefString = key.name() + "/" + command.name() + "/" + delay;
     }
 
+    /**
+     * Sends the command to the supplied drone
+     * @param drone
+     * @throws IOException 
+     */
     public void sendToDrone(ARDrone drone) throws IOException {
         switch (command) {
             case PLAY_ANIMATION:
@@ -147,6 +157,11 @@ public class AssignableControl {
         }
     }
 
+    /**
+     * Used for VIDEO_CYCLE commands to cycle the video channel
+     * @param drone
+     * @throws IOException 
+     */
     private void cycleVideoChannel(ARDrone drone) throws IOException {
         if (++video_index == VIDEO_CYCLE.length) {
             video_index = 0;
@@ -190,6 +205,10 @@ public class AssignableControl {
         return delay;
     }
 
+    /**
+     * Gets the complete data of this object as a string for storing into java preferences
+     * @return 
+     */
     public String getPrefString() {
         return prefString;
     }
