@@ -54,10 +54,10 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
                 airCompass1.setValue(data.getYaw());
                 batteryGraph.setValue(data.getBattery());
                 if (data.isBatteryTooLow()) {
-                    batteryGraph.setLedBlinking(true);
+                    batteryGraph.setThreshold(0);
                     indicator1.setOn(true);
                 } else {
-                    batteryGraph.setLedBlinking(false);
+                    batteryGraph.setThreshold(100);
                     indicator1.setOn(false);
 
                 }
