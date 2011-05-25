@@ -104,12 +104,12 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="160" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="180" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="160" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="180" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -131,12 +131,12 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="160" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="180" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="160" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="180" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -161,14 +161,14 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" pref="62" max="-2" attributes="0"/>
                   <Component id="led1" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="62" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="1" attributes="0">
-                  <EmptySpace pref="29" max="32767" attributes="0"/>
+                  <EmptySpace pref="89" max="32767" attributes="0"/>
                   <Component id="led1" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
               </Group>
@@ -207,12 +207,15 @@
       <SubComponents>
         <Container class="eu.hansolo.steelseries.extras.Indicator" name="indicator2">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="emergency"/>
+            <Property name="toolTipText" type="java.lang.String" value="emergency (click to reset)"/>
             <Property name="frame3dEffectVisible" type="boolean" value="true"/>
             <Property name="symbolType" type="eu.hansolo.steelseries.tools.SymbolType" editor="org.netbeans.modules.form.editors.EnumEditor">
               <Value id="ATTENTION"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="resetDrone"/>
+          </Events>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
               <GridBagConstraints gridX="-1" gridY="-1" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
@@ -284,12 +287,12 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="80" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="140" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="80" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="140" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
