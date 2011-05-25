@@ -4,6 +4,8 @@ package com.codeminders.ardrone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.tools.javac.util.Log;
+
 public class NavData
 {
     public static enum NavDataTag
@@ -147,64 +149,76 @@ public class NavData
      */
     public static int byteArrayToShort(byte[] b, int offset)
     {
-        return b[offset] * 256 + b[offset + 1];
+        return (b[offset] & 0x000000FF) << 8 + b[offset + 1];
     }
 
-    public static NavData createFromData(byte[] buf)
+    public static NavData createFromData(byte[] buf) throws NavDataFormatException
     {
         NavData data = new NavData();
 
-        // log.finest("NavData packet received. len: " + buf.length);
         int offset = 0;
 
         data.mode = (buf.length == 24) ? NavData.Mode.BOOTSTRAP : NavData.Mode.DEMO;
         // log.finest("Mode: " + data.getMode());
 
-        // int header = byteArrayToInt(buf, offset);
+        int header = byteArrayToInt(buf, offset);
+        if(header != 0x55667788)
+            throw new NavDataFormatException("Error parsing NavData");
         offset += 4;
 
         int state = byteArrayToInt(buf, offset);
         offset += 4;
 
-        // data.sequence = byteArrayToInt(buf, offset);
-        // offset += 4;
-        // log.finest("Sequence: " + data.getSequence());
-
-        // int vision = byteArrayToInt(buf, offset);
-        // offset += 4;
-        // System.err.print("Vision: " + vision);
-
         parseState(data, state);
 
-        // printState(data);
-        // int i = 0;
-        // for(byte b : buf)
-        // {
-        // System.err.print("0x" + Integer.toHexString((int)b) + " ");
-        // if(++i % 24 == 0)
-        // System.err.println();
-        // }
+        data.sequence = byteArrayToInt(buf, offset);
+        offset += 4;
 
-        // TODO: read options
+        // int vision_flag = byteArrayToInt(buf, offset);
+        offset += 4;
+
+        // Read options
+        while(offset < buf.length)
+        {
+            int option_tag = byteArrayToShort(buf, offset);
+            offset += 2;
+            int option_len = byteArrayToShort(buf, offset);
+            offset += 2;
+            if(option_tag == NavDataTag.NAVDATA_DEMO_TAG.getValue())
+            {
+                parseDemoNavData(data, buf, offset);
+            } else
+            {
+                log.fine("Skipping unknown NavData option with tag=" + option_tag);
+            }
+            offset = offset + option_len;
+        }
 
         // TODO: calculate checksum
-        if(buf.length < 27)
-            return data;
-
-        data.battery = byteArrayToInt(buf, 24);
-        data.pitch = byteArrayToFloat(buf, 28) / 1000;
-        data.roll = byteArrayToFloat(buf, 32) / 1000;
-        data.yaw = byteArrayToFloat(buf, 36) / 1000;
-
-        if(buf.length < 43)
-            return data;
-
-        data.altitude = ((float) byteArrayToInt(buf, 40) / 1000);
-        data.vx = byteArrayToFloat(buf, 44);
-        data.vy = byteArrayToFloat(buf, 48);
-        data.vz = byteArrayToFloat(buf, 52);
 
         return data;
+    }
+
+    private static void parseDemoNavData(NavData data, byte[] buf, int offset)
+    {
+        int raw_ctrl_state = byteArrayToInt(buf, offset);
+        offset += 4;
+        data.battery = byteArrayToInt(buf, offset);
+        offset += 4;
+        data.pitch = byteArrayToFloat(buf, offset) / 1000;
+        offset += 4;
+        data.roll = byteArrayToFloat(buf, offset) / 1000;
+        offset += 4;
+        data.yaw = byteArrayToFloat(buf, offset) / 1000;
+        offset += 4;
+        data.altitude = ((float) byteArrayToInt(buf, offset) / 1000);
+        offset += 4;
+        data.vx = byteArrayToFloat(buf, offset);
+        offset += 4;
+        data.vy = byteArrayToFloat(buf, offset);
+        offset += 4;
+        data.vz = byteArrayToFloat(buf, offset);
+        offset += 4;
     }
 
     private static void parseState(NavData data, int state)
