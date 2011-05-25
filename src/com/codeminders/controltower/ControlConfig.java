@@ -108,11 +108,11 @@ public class ControlConfig extends javax.swing.JDialog {
             resetView();
             return;
         }
-        AssignableControl control = list.get(index);
-        if (control == null) {
+        if (list.size() <= index) {
             resetView();
             return;
         }
+        AssignableControl control = list.get(index);
         jLabel4.setText((index + 1) + "");
         commandList.setSelectedItem(control.getCommand().name());
         if (control.getCommand() == COMMAND.PLAY_ANIMATION) {
@@ -131,15 +131,23 @@ public class ControlConfig extends javax.swing.JDialog {
 
     private void storeButtonCommands() {
         AssignableControl control = null;
-        CONTROL_KEY key = CONTROL_KEY.valueOf((String) buttonList.getSelectedValue());
-        COMMAND command = COMMAND.valueOf((String) commandList.getSelectedItem());
+        String controlString = (String) buttonList.getSelectedValue();
+        String commandString = (String) commandList.getSelectedItem();
+        if (controlString == null) {
+            return;
+        }
+        CONTROL_KEY key = CONTROL_KEY.valueOf(controlString);
         if (key == null) {
             return;
         }
-        if (command == null) {
+        if ("None".equals(commandString)) {
             if (list.size() > index) {
                 list.remove(index);
             }
+            return;
+        }
+        COMMAND command = COMMAND.valueOf((String) commandList.getSelectedItem());
+        if (command == null) {
             return;
         }
         if (command == COMMAND.PLAY_ANIMATION) {
