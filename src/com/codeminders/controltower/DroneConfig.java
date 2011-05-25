@@ -71,7 +71,7 @@ public class DroneConfig extends javax.swing.JDialog {
             drone.setConfigOption("control:altitude_max", maxAltitude.getValue() + "");
             drone.setConfigOption("control:euler_angle_max", (((float) maxAngle.getValue()) / 100.0f) + "");
             drone.setConfigOption("control:control_vz_max", maxSpeed.getValue() + "");
-            drone.setConfigOption("control:control_yaw", (((float) maxAngle.getValue()) / 100.0f) + "");
+            drone.setConfigOption("control:control_yaw", (((float) maxYaw.getValue()) / 100.0f) + "");
             tower.setControlThreshold(((float) controllerDeadzone.getValue()) / 100.0f);
         } catch (IOException ex) {
             Logger.getLogger(DroneConfig.class.getName()).log(Level.SEVERE, "Exception Setting data: {0}", ex);
@@ -126,13 +126,11 @@ public class DroneConfig extends javax.swing.JDialog {
         });
         getContentPane().add(maxAngle);
 
-        maxSpeedLabel.setText("Max Speed");
-        maxSpeedLabel.setEnabled(false);
+        maxSpeedLabel.setText("Vertical Speed");
         getContentPane().add(maxSpeedLabel);
 
         maxSpeed.setMaximum(3000);
         maxSpeed.setValue(2000);
-        maxSpeed.setEnabled(false);
         maxSpeed.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 updateSpeed(evt);
@@ -204,9 +202,9 @@ public class DroneConfig extends javax.swing.JDialog {
     }//GEN-LAST:event_updateAngle
 
     private void updateSpeed(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_updateSpeed
-        float value = (float) maxSpeed.getValue() / 100.0f;
+        float value = (float) maxSpeed.getValue() / 1000.0f;
         maxSpeed.setToolTipText(value + "m/s");
-        maxSpeedLabel.setText("Max Speed (" + value + "m/s)");
+        maxSpeedLabel.setText("Vertical Speed (" + value + "m/s)");
     }//GEN-LAST:event_updateSpeed
 
     private void updateDeadZone(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_updateDeadZone

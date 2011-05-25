@@ -55,15 +55,13 @@
     </Component>
     <Component class="javax.swing.JLabel" name="maxSpeedLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Max Speed"/>
-        <Property name="enabled" type="boolean" value="false"/>
+        <Property name="text" type="java.lang.String" value="Vertical Speed"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JSlider" name="maxSpeed">
       <Properties>
         <Property name="maximum" type="int" value="3000"/>
         <Property name="value" type="int" value="2000"/>
-        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="updateSpeed"/>
