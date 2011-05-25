@@ -6,6 +6,53 @@ import java.util.logging.Logger;
 
 public class NavData
 {
+    public static enum ControlAlgorithm
+    {
+        EULER_ANGELS_CONTROL, ANGULAR_SPEED_CONTROL
+    }
+
+    public static enum CtrlState
+    {
+        DEFAULT, INIT, LANDED, FLYING, HOVERING, TEST, TRANS_TAKEOFF, TRANS_GOTOFIX, TRANS_LANDING;
+
+        public static CtrlState fromInt(int v) throws NavDataFormatException
+        {
+            switch(v)
+            {
+            case 0:
+                return DEFAULT;
+            case 1:
+                return INIT;
+            case 2:
+                return LANDED;
+            case 3:
+                return FLYING;
+            case 4:
+                return HOVERING;
+            case 5:
+                return TEST;
+            case 6:
+                return TRANS_TAKEOFF;
+            case 7:
+                return TRANS_GOTOFIX;
+            case 8:
+                return TRANS_LANDING;
+            default:
+                throw new NavDataFormatException("Invalid control state " + v);
+            }
+        }
+    }
+
+    public static enum FlyingState
+    {
+        FLYING, TAKING_OFF, LANDING, LANDED;
+    }
+
+    public static enum Mode
+    {
+        BOOTSTRAP, DEMO
+    }
+
     public static enum NavDataTag
     {
         NAVDATA_DEMO_TAG(0), NAVDATA_TIME_TAG(1), NAVDATA_RAW_MEASURES_TAG(2), NAVDATA_PHYS_MEASURES_TAG(3), NAVDATA_GYROS_OFFSETS_TAG(
@@ -27,104 +74,11 @@ public class NavData
         }
     }
 
-    public static enum ControlAlgorithm
-    {
-        EULER_ANGELS_CONTROL, ANGULAR_SPEED_CONTROL
-    }
-
-    public static enum Mode
-    {
-        BOOTSTRAP, DEMO
-    }
-
-    public static enum CtrlState
-    {
-        // TODO: values are not real, for now!
-        DEFAULT(0), FLYING(1), HOVERING(2), TRANS_GOTOFIX(3), TRANS_TAKEOFF(4), TRANS_LANDING(5), LANDED(6);
-
-        private int value;
-
-        private CtrlState(int value)
-        {
-            this.value = value;
-        }
-
-        public int getValue()
-        {
-            return value;
-        }
-
-        public static CtrlState fromInt(int v) throws NavDataFormatException
-        {
-            switch(v)
-            {
-            case 0:
-                return DEFAULT;
-            case 1:
-                return FLYING;
-            case 2:
-                return HOVERING;
-            case 3:
-                return TRANS_GOTOFIX;
-            case 4:
-                return TRANS_TAKEOFF;
-            case 5:
-                return TRANS_LANDING;
-            case 6:
-                return LANDED;
-            default:
-                throw new NavDataFormatException("Invalid control state " + v);
-            }
-        }
-    }
-
-    public static enum FlyingState
-    {
-        // TODO: values are not real, for now!
-        FLYING(0), TAKING_OFF(1), LANDING(2), LANDED(3);
-
-        private int value;
-
-        private FlyingState(int value)
-        {
-            this.value = value;
-        }
-
-        public int getValue()
-        {
-            return value;
-        }
-    }
-
     private static final Logger log = Logger.getLogger(NavData.class.getName());
 
-    public static FlyingState getFlyingState(CtrlState state)
+    public static float byteArrayToFloat(byte[] b, int offset)
     {
-        FlyingState tmp_state;
-        switch(state)
-        {
-        case FLYING:
-        case HOVERING:
-        case TRANS_GOTOFIX:
-            tmp_state = FlyingState.FLYING;
-            break;
-
-        case TRANS_TAKEOFF:
-            tmp_state = FlyingState.TAKING_OFF;
-            break;
-
-        case TRANS_LANDING:
-            tmp_state = FlyingState.LANDING;
-            break;
-
-        case DEFAULT:
-        case LANDED:
-        default:
-            tmp_state = FlyingState.LANDED;
-            break;
-        }
-
-        return tmp_state;
+        return Float.intBitsToFloat(byteArrayToInt(b, offset));
     }
 
     /**
@@ -154,11 +108,6 @@ public class NavData
             value += (b[i + offset] & 0x000000FF) << shift;
         }
         return value;
-    }
-
-    public static float byteArrayToFloat(byte[] b, int offset)
-    {
-        return Float.intBitsToFloat(byteArrayToInt(b, offset));
     }
 
     /**
@@ -218,6 +167,35 @@ public class NavData
         // TODO: calculate checksum
 
         return data;
+    }
+
+    public static FlyingState getFlyingState(CtrlState state)
+    {
+        FlyingState tmp_state;
+        switch(state)
+        {
+        case FLYING:
+        case HOVERING:
+        case TRANS_GOTOFIX:
+            tmp_state = FlyingState.FLYING;
+            break;
+
+        case TRANS_TAKEOFF:
+            tmp_state = FlyingState.TAKING_OFF;
+            break;
+
+        case TRANS_LANDING:
+            tmp_state = FlyingState.LANDING;
+            break;
+
+        case DEFAULT:
+        case LANDED:
+        default:
+            tmp_state = FlyingState.LANDED;
+            break;
+        }
+
+        return tmp_state;
     }
 
     private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
@@ -380,9 +358,29 @@ public class NavData
     protected float            vy;
     protected float            vz;
 
+    public float getAltitude()
+    {
+        return altitude;
+    }
+
+    public int getBattery()
+    {
+        return battery;
+    }
+
     public ControlAlgorithm getControlAlgorithm()
     {
         return controlAlgorithm;
+    }
+
+    public CtrlState getControlState()
+    {
+        return ctrl_state;
+    }
+
+    public float getLongitude()
+    {
+        return vy;
     }
 
     public Mode getMode()
@@ -390,9 +388,34 @@ public class NavData
         return mode;
     }
 
+    public float getPitch()
+    {
+        return pitch;
+    }
+
+    public float getRoll()
+    {
+        return roll;
+    }
+
     public int getSequence()
     {
         return sequence;
+    }
+
+    public float getVx()
+    {
+        return vx;
+    }
+
+    public float getVz()
+    {
+        return vz;
+    }
+
+    public float getYaw()
+    {
+        return yaw;
     }
 
     public boolean isAcquisitionThreadOn()
@@ -500,51 +523,6 @@ public class NavData
         return timerElapsed;
     }
 
-    public boolean isTooMuchWind()
-    {
-        return tooMuchWind;
-    }
-
-    public boolean isTrimReceived()
-    {
-        return trimReceived;
-    }
-
-    public boolean isTrimRunning()
-    {
-        return trimRunning;
-    }
-
-    public boolean isTrimSucceeded()
-    {
-        return trimSucceeded;
-    }
-
-    public boolean isUltrasonicSensorDeaf()
-    {
-        return ultrasonicSensorDeaf;
-    }
-
-    public boolean isUserFeedbackOn()
-    {
-        return userFeedbackOn;
-    }
-
-    public boolean isVideoEnabled()
-    {
-        return videoEnabled;
-    }
-
-    public boolean isVideoThreadOn()
-    {
-        return videoThreadOn;
-    }
-
-    public boolean isVisionEnabled()
-    {
-        return visionEnabled;
-    }
-
     // Define masks for ARDrone state
     // 31 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
     // x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x -> state
@@ -601,49 +579,49 @@ public class NavData
     // have an active connection with a client
     // Emergency landing : (0) no emergency, (1) emergency
 
-    public int getBattery()
+    public boolean isTooMuchWind()
     {
-        return battery;
+        return tooMuchWind;
     }
 
-    public float getAltitude()
+    public boolean isTrimReceived()
     {
-        return altitude;
+        return trimReceived;
     }
 
-    public float getPitch()
+    public boolean isTrimRunning()
     {
-        return pitch;
+        return trimRunning;
     }
 
-    public float getRoll()
+    public boolean isTrimSucceeded()
     {
-        return roll;
+        return trimSucceeded;
     }
 
-    public float getYaw()
+    public boolean isUltrasonicSensorDeaf()
     {
-        return yaw;
+        return ultrasonicSensorDeaf;
     }
 
-    public float getVx()
+    public boolean isUserFeedbackOn()
     {
-        return vx;
+        return userFeedbackOn;
     }
 
-    public float getLongitude()
+    public boolean isVideoEnabled()
     {
-        return vy;
+        return videoEnabled;
     }
 
-    public float getVz()
+    public boolean isVideoThreadOn()
     {
-        return vz;
+        return videoThreadOn;
     }
 
-    public CtrlState getControlState()
+    public boolean isVisionEnabled()
     {
-        return ctrl_state;
+        return visionEnabled;
     }
 
 }
