@@ -46,6 +46,27 @@ public class NavData
     public static enum FlyingState
     {
         FLYING, TAKING_OFF, LANDING, LANDED;
+
+        public static FlyingState fromControlState(CtrlState state)
+        {
+            switch(state)
+            {
+            case FLYING:
+            case HOVERING:
+            case TRANS_GOTOFIX:
+                return FlyingState.FLYING;
+
+            case TRANS_TAKEOFF:
+                return FlyingState.TAKING_OFF;
+
+            case TRANS_LANDING:
+                return FlyingState.LANDING;
+
+            default:
+                return FlyingState.LANDED;
+            }
+        }
+
     }
 
     public static enum Mode
@@ -167,35 +188,6 @@ public class NavData
         // TODO: calculate checksum
 
         return data;
-    }
-
-    public static FlyingState getFlyingState(CtrlState state)
-    {
-        FlyingState tmp_state;
-        switch(state)
-        {
-        case FLYING:
-        case HOVERING:
-        case TRANS_GOTOFIX:
-            tmp_state = FlyingState.FLYING;
-            break;
-
-        case TRANS_TAKEOFF:
-            tmp_state = FlyingState.TAKING_OFF;
-            break;
-
-        case TRANS_LANDING:
-            tmp_state = FlyingState.LANDING;
-            break;
-
-        case DEFAULT:
-        case LANDED:
-        default:
-            tmp_state = FlyingState.LANDED;
-            break;
-        }
-
-        return tmp_state;
     }
 
     private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
@@ -622,6 +614,11 @@ public class NavData
     public boolean isVisionEnabled()
     {
         return visionEnabled;
+    }
+
+    public FlyingState getFlyingState()
+    {
+        return FlyingState.fromControlState(ctrl_state);
     }
 
 }
