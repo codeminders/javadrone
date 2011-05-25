@@ -15,8 +15,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 
@@ -430,15 +429,16 @@ public class MJPEGGenerator
 
     private class AVIIndexList
     {
-        public byte[]    fcc = new byte[] { 'i', 'd', 'x', '1' };
-        public int       cb  = 0;
-        public ArrayList ind = new ArrayList();
+        public byte[]         fcc = new byte[] { 'i', 'd', 'x', '1' };
+        public int            cb  = 0;
+        public List<AVIIndex> ind = new ArrayList<AVIIndex>();
 
         public AVIIndexList()
         {
 
         }
 
+        @SuppressWarnings("unused")
         public void addAVIIndex(AVIIndex ai)
         {
             ind.add(ai);
