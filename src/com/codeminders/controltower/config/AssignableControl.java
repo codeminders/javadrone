@@ -14,6 +14,12 @@ import java.util.logging.Logger;
  */
 public class AssignableControl {
 
+    public enum COMMAND {
+
+        TAKEOFF, LAND, TRIM, CLEAR_EMERGENCY, PLAY_ANIMATION, PLAY_LED, RESET,
+        VIDEO_CYCLE, FRONTAL_CAM, BOTTOM_CAM, BOTTOM_CAM_SMALL, FRONTAL_CAM_SMALL
+    }
+
     public enum CONTROL_KEY {
 
         PS, SELECT, START, LEFT_STICK, RIGHT_STICK, TRIANGLE, CIRCLE, CROSS, SQUARE, L1, L2, R1, R2
@@ -22,12 +28,6 @@ public class AssignableControl {
     public enum CONTROL_AXIS {
 
         LEFT_X, LEFT_Y, RIGHT_X, RIGHT_Y
-    }
-
-    public enum COMMAND {
-
-        TAKEOFF, LAND, TRIM, CLEAR_EMERGENCY, PLAY_ANIMATION, PLAY_LED, RESET,
-        VIDEO_CYCLE, FRONTAL_CAM, BOTTOM_CAM, BOTTOM_CAM_SMALL, FRONTAL_CAM_SMALL
     }
 
     public enum DRONE_AXIS {
