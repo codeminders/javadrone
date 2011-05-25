@@ -166,7 +166,6 @@ public class ControlConfig extends javax.swing.JDialog {
             list.remove(index + 1);
         }
         map.setControls(key, list);
-        map.storeMap();
     }
 
     private void resetView() {
