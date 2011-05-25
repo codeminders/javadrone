@@ -4,8 +4,6 @@ package com.codeminders.ardrone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.tools.javac.util.Log;
-
 public class NavData
 {
     public static enum NavDataTag
@@ -55,6 +53,29 @@ public class NavData
         {
             return value;
         }
+
+        public static CtrlState fromInt(int v) throws NavDataFormatException
+        {
+            switch(v)
+            {
+            case 0:
+                return DEFAULT;
+            case 1:
+                return FLYING;
+            case 2:
+                return HOVERING;
+            case 3:
+                return TRANS_GOTOFIX;
+            case 4:
+                return TRANS_TAKEOFF;
+            case 5:
+                return TRANS_LANDING;
+            case 6:
+                return LANDED;
+            default:
+                throw new NavDataFormatException("Invalid control state " + v);
+            }
+        }
     }
 
     public static enum FlyingState
@@ -77,7 +98,7 @@ public class NavData
 
     private static final Logger log = Logger.getLogger(NavData.class.getName());
 
-    private static FlyingState getFlyingState(CtrlState state)
+    public static FlyingState getFlyingState(CtrlState state)
     {
         FlyingState tmp_state;
         switch(state)
@@ -199,9 +220,10 @@ public class NavData
         return data;
     }
 
-    private static void parseDemoNavData(NavData data, byte[] buf, int offset)
+    private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
     {
-        int raw_ctrl_state = byteArrayToInt(buf, offset);
+        data.ctrl_state = CtrlState.fromInt(byteArrayToInt(buf, offset));
+
         offset += 4;
         data.battery = byteArrayToInt(buf, offset);
         offset += 4;
@@ -348,6 +370,7 @@ public class NavData
 
     protected int              sequence;
 
+    protected CtrlState        ctrl_state;
     protected int              battery;
     protected float            altitude;
     protected float            pitch;
@@ -616,6 +639,11 @@ public class NavData
     public float getVz()
     {
         return vz;
+    }
+
+    public CtrlState getControlState()
+    {
+        return ctrl_state;
     }
 
 }
