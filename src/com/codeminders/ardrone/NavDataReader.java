@@ -93,7 +93,7 @@ public class NavDataReader implements Runnable
                     }
                 }
             }
-        } catch(IOException e)
+        } catch(Exception e)
         {
             drone.changeToErrorState(e);
         }

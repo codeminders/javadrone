@@ -522,7 +522,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     }
 
     private static void setupLog() {
-        Logger topLogger = java.util.logging.Logger.getLogger("com.codeminders");
+        Logger topLogger = java.util.logging.Logger.getLogger("");
         Handler consoleHandler = null;
         for (Handler handler : topLogger.getHandlers()) {
             if (handler instanceof ConsoleHandler) {
