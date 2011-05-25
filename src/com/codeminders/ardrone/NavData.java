@@ -146,11 +146,9 @@ public class NavData
     public static NavData createFromData(byte[] buf) throws NavDataFormatException
     {
         NavData data = new NavData();
+        data.mode = NavData.Mode.BOOTSTRAP; // Assume we are in bootstrap
 
         int offset = 0;
-
-        data.mode = (buf.length == 24) ? NavData.Mode.BOOTSTRAP : NavData.Mode.DEMO;
-        // log.finest("Mode: " + data.getMode());
 
         int header = byteArrayToInt(buf, offset);
         if(header != 0x55667788)
@@ -178,6 +176,7 @@ public class NavData
             if(option_tag == NavDataTag.NAVDATA_DEMO_TAG.getValue())
             {
                 parseDemoNavData(data, buf, offset);
+                data.mode = NavData.Mode.DEMO;
             } else
             {
                 log.fine("Skipping unknown NavData option with tag=" + option_tag);
@@ -285,6 +284,7 @@ public class NavData
         sb.append("isADCWatchdogDelayed: " + data.isADCWatchdogDelayed() + "\n");
         sb.append("isCommunicationProblemOccurred: " + data.isCommunicationProblemOccurred() + "\n");
         sb.append("IsEmergency: " + data.isEmergency() + "\n");
+        sb.append("CtrlState: " + data.getControlState() + "\n");
         sb.append("Battery: " + data.getBattery() + "\n");
         sb.append("Altidtude: " + data.getAltitude() + "\n");
         sb.append("Pitch: " + data.getPitch() + "\n");
@@ -298,6 +298,7 @@ public class NavData
     }
 
     protected Mode             mode;
+
     // state flags
     protected boolean          flying;
     protected boolean          videoEnabled;
@@ -325,21 +326,17 @@ public class NavData
     protected boolean          PICVersionNumberOK;
     protected boolean          ATCodedThreadOn;
     protected boolean          navDataThreadOn;
-
     protected boolean          videoThreadOn;
-
     protected boolean          acquisitionThreadOn;
-
     protected boolean          controlWatchdogDelayed;
-
     protected boolean          ADCWatchdogDelayed;
-
     protected boolean          communicationProblemOccurred;
-
     protected boolean          emergency;
 
+    // Common nav data
     protected int              sequence;
 
+    // Demo nav data
     protected CtrlState        ctrl_state;
     protected int              battery;
     protected float            altitude;
