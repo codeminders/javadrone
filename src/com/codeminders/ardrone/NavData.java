@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 public class NavData
 {
-
     public static enum NavDataTag
     {
         NAVDATA_DEMO_TAG(0), NAVDATA_TIME_TAG(1), NAVDATA_RAW_MEASURES_TAG(2), NAVDATA_PHYS_MEASURES_TAG(3), NAVDATA_GYROS_OFFSETS_TAG(
@@ -201,12 +200,9 @@ public class NavData
             return data;
 
         data.altitude = ((float) byteArrayToInt(buf, 40) / 1000);
-        data.latitude = byteArrayToFloat(buf, 44);
-        data.longitude = byteArrayToFloat(buf, 48);
-        data.heading = byteArrayToFloat(buf, 52);
-        data.altitudeUS = ((float) byteArrayToInt(buf, 56) / 1000);
-        data.altitudeBaro = byteArrayToFloat(buf, 60);
-        data.altitudeBaroRaw = byteArrayToFloat(buf, 64);
+        data.vx = byteArrayToFloat(buf, 44);
+        data.vy = byteArrayToFloat(buf, 48);
+        data.vz = byteArrayToFloat(buf, 52);
 
         return data;
     }
@@ -288,12 +284,9 @@ public class NavData
         sb.append("Pitch: " + data.getPitch() + "\n");
         sb.append("Roll: " + data.getRoll() + "\n");
         sb.append("Yaw: " + data.getYaw() + "\n");
-        sb.append("Latitude: " + data.getLatitude() + "\n");
-        sb.append("Longitude: " + data.getLongitude() + "\n");
-        sb.append("Heading: " + data.getHeading() + "\n");
-        sb.append("Altitude (US): " + data.getAltitudeUS() + "\n");
-        sb.append("Altitude (Baro): " + data.getAltitudeBaro() + "\n");
-        sb.append("Altitude (Baro Raw): " + data.getAltitudeBaroRaw() + "\n");
+        sb.append("X velocity: " + data.getVx() + "\n");
+        sb.append("Y velocity: " + data.getLongitude() + "\n");
+        sb.append("Z velocity: " + data.getVz() + "\n");
 
         log.log(Level.FINEST, sb.toString());
     }
@@ -346,12 +339,9 @@ public class NavData
     protected float            pitch;
     protected float            roll;
     protected float            yaw;
-    protected float            latitude;
-    protected float            longitude;
-    protected float            heading;
-    protected float            altitudeUS;
-    protected float            altitudeBaro;
-    protected float            altitudeBaroRaw;
+    protected float            vx;
+    protected float            vy;
+    protected float            vz;
 
     public ControlAlgorithm getControlAlgorithm()
     {
@@ -599,34 +589,19 @@ public class NavData
         return yaw;
     }
 
-    public float getLatitude()
+    public float getVx()
     {
-        return latitude;
+        return vx;
     }
 
     public float getLongitude()
     {
-        return longitude;
+        return vy;
     }
 
-    public float getHeading()
+    public float getVz()
     {
-        return heading;
-    }
-
-    public float getAltitudeUS()
-    {
-        return altitudeUS;
-    }
-
-    public float getAltitudeBaro()
-    {
-        return altitudeBaro;
-    }
-
-    public float getAltitudeBaroRaw()
-    {
-        return altitudeBaroRaw;
+        return vz;
     }
 
 }
