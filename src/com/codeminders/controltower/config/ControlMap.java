@@ -17,7 +17,8 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 /**
- *
+ * This class stores the button mapping and manages
+ * button command sending to the drone
  * @author normenhansen
  */
 public class ControlMap {
@@ -31,6 +32,12 @@ public class ControlMap {
         loadMap();
     }
 
+    /**
+     * Called from the update loop in ControlTower when a button is pressed
+     * @param drone
+     * @param key
+     * @throws IOException 
+     */
     public synchronized void sendCommand(ARDrone drone, CONTROL_KEY key) throws IOException {
         List<AssignableControl> commands = map.get(key);
         if (commands == null) {
@@ -46,6 +53,11 @@ public class ControlMap {
         }
     }
 
+    /**
+     * Executes a command for a drone with its assigned delay using an Executor
+     * @param command
+     * @param drone 
+     */
     private void delayCommand(final AssignableControl command, final ARDrone drone) {
         exec.schedule(new Callable<Object>() {
 
@@ -57,15 +69,28 @@ public class ControlMap {
         }, command.getDelay(), TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Gets the list of control commands that are assigned to a certain key
+     * @param key
+     * @return 
+     */
     public List<AssignableControl> getControls(CONTROL_KEY key) {
         return map.get(key);
     }
 
+    /**
+     * Sets the list of control commands for a certain key
+     * @param key
+     * @param controls 
+     */
     public synchronized void setControls(CONTROL_KEY key, List<AssignableControl> controls) {
         map.put(key, controls);
         storeMap();
     }
 
+    /**
+     * Loads the mapping from the java preferences
+     */
     private void loadMap() {
         boolean found = false;
         try {
@@ -80,7 +105,7 @@ public class ControlMap {
                         commands = new LinkedList<AssignableControl>();
                         map.put(command.getKey(), commands);
                     }
-                    commands.add(command);
+                    commands.add(0, command);
                     Logger.getLogger(ControlMap.class.getName()).log(Level.FINE, "Load command:{0}", command.getPrefString());
                     found = true;
                 }
@@ -94,6 +119,9 @@ public class ControlMap {
         }
     }
 
+    /**
+     * Creates the default mapping in case no settings are stored yet
+     */
     private void createDefaultMapping() {
         map.put(CONTROL_KEY.PS, new LinkedList<AssignableControl>());
         map.get(CONTROL_KEY.PS).add(new AssignableControl(CONTROL_KEY.PS, AssignableControl.COMMAND.RESET, 0));
@@ -105,6 +133,9 @@ public class ControlMap {
         map.get(CONTROL_KEY.TRIANGLE).add(new AssignableControl(CONTROL_KEY.TRIANGLE, AssignableControl.COMMAND.VIDEO_CYCLE, 0));
     }
 
+    /**
+     * Stores the mapping in the java preferences
+     */
     private void storeMap() {
         clearMap();
         int i = 0;
@@ -123,6 +154,9 @@ public class ControlMap {
         }
     }
 
+    /**
+     * Clears the used preferences from all mappings
+     */
     private void clearMap() {
         String[] keys;
         try {
