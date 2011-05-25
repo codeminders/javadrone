@@ -3,16 +3,19 @@ package com.codeminders.ardrone;
 
 public abstract class DroneCommand implements Comparable
 {
-    protected static final int MIN_PRIORITY       = 0;
-    protected static final int HIGH_PRIORITY      = 50;
-    protected static final int VERY_HIGH_PRIORITY = 90;
-    protected static final int MAX_PRIORITY       = 100;
+    protected static final int  MIN_PRIORITY           = 0;
+    protected static final int  HIGH_PRIORITY          = 50;
+    protected static final int  VERY_HIGH_PRIORITY     = 90;
+    protected static final int  MAX_PRIORITY           = 100;
+    protected static final long DEFAULT_STICKY_RATE_MS = 10;
+
+    private int                 sticky_counter         = 0;
 
     @Override
     public int compareTo(Object arg0)
     {
         DroneCommand o = (DroneCommand) arg0;
-        //TODO: take into account isSticky()
+        // TODO: take into account isSticky()
         return o.getPriority() - this.getPriority();
     }
 
@@ -21,6 +24,26 @@ public abstract class DroneCommand implements Comparable
     public boolean isSticky()
     {
         return false;
+    }
+
+    /**
+     * For sticky packets indicates how many times it has been sent.
+     * 
+     * @return current value
+     */
+    public int incrementStickyCounter()
+    {
+        return ++sticky_counter;
+    }
+
+    /**
+     * For sticky packets indicates delay between sending repeated packets;
+     * 
+     * @return
+     */
+    public long getStickyRate()
+    {
+        return DEFAULT_STICKY_RATE_MS;
     }
 
 }

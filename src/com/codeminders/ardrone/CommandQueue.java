@@ -9,6 +9,7 @@ public class CommandQueue
 {
     private LinkedList<DroneCommand> data;
     private int                      maxSize;
+    @SuppressWarnings("unused")
     private Logger                   log = Logger.getLogger(getClass().getName());
 
     public CommandQueue(int maxSize)
@@ -24,9 +25,14 @@ public class CommandQueue
             DroneCommand res = data.pollLast();
             if(res != null)
             {
-                //log.finest("[" + data.size() + "] Returning " + res);
+                // log.finest("[" + data.size() + "] Returning " + res);
                 if(res.isSticky())
+                {
+                    int sc = res.incrementStickyCounter();
                     data.addLast(res);
+                    if(sc == 1)
+                        Thread.sleep(res.getStickyRate());
+                }
                 return res;
             } else
             {
