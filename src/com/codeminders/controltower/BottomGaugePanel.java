@@ -58,9 +58,11 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
                 batteryGraph.setValue(data.getBattery());
                 if (data.isBatteryTooLow()) {
                     batteryGraph.setThreshold(0);
+                    batteryGraph.setLedBlinking(true);
                     indicator1.setOn(true);
                 } else {
-                    batteryGraph.setThreshold(100);
+                    batteryGraph.setThreshold(110);
+                    batteryGraph.setLedBlinking(false);
                     indicator1.setOn(false);
 
                 }
@@ -301,7 +303,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         add(jPanel2, gridBagConstraints);
 
         batteryGraph.setFrame3dEffectVisible(true);
-        batteryGraph.setThreshold(100.0);
+        batteryGraph.setThreshold(110.0);
         batteryGraph.setTitle("Battery");
         batteryGraph.setTrackStartColor(new java.awt.Color(255, 0, 0));
         batteryGraph.setTrackStopColor(new java.awt.Color(0, 255, 0));

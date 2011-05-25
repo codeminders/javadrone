@@ -267,7 +267,7 @@
     <Container class="eu.hansolo.steelseries.gauges.Radial1Vertical" name="batteryGraph">
       <Properties>
         <Property name="frame3dEffectVisible" type="boolean" value="true"/>
-        <Property name="threshold" type="double" value="100.0"/>
+        <Property name="threshold" type="double" value="110.0"/>
         <Property name="title" type="java.lang.String" value="Battery"/>
         <Property name="trackStartColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="0" green="0" red="ff" type="rgb"/>
