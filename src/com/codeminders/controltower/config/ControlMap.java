@@ -45,9 +45,10 @@ public class ControlMap {
 
     public synchronized void setControls(CONTROL_KEY key, List<AssignableControl> controls) {
         map.put(key, controls);
+        storeMap();
     }
 
-    public synchronized void loadMap() {
+    private synchronized void loadMap() {
         boolean found = false;
         try {
             String[] keys = prefs.keys();
@@ -86,7 +87,7 @@ public class ControlMap {
         map.get(CONTROL_KEY.TRIANGLE).add(new AssignableControl(CONTROL_KEY.TRIANGLE, AssignableControl.COMMAND.VIDEO_CYCLE, 0));
     }
 
-    public synchronized void storeMap() {
+    private synchronized void storeMap() {
         clearMap();
         int i = 0;
         Collection<List<AssignableControl>> list = map.values();
