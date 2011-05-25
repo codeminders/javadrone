@@ -26,7 +26,6 @@ public class DroneConfig extends javax.swing.JDialog {
     /** Creates new form DroneConfig */
     public DroneConfig(ControlTower tower, boolean modal) {
         super(tower, modal);
-        setLocationRelativeTo(tower);
         this.tower = tower;
         prefs = Preferences.userNodeForPackage(this.getClass());
         initComponents();
