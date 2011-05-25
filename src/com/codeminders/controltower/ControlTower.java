@@ -40,19 +40,19 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private static final long READ_UPDATE_DELAY_MS = 5L;
     private static final long CONNECT_TIMEOUT = 8000L;
     private static float CONTROL_THRESHOLD = 0.5f;
-    private ImageIcon droneOn = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_on.gif"));
-    private ImageIcon droneOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_off.gif"));
-    private ImageIcon controllerOn = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_on.png"));
-    private ImageIcon controllerOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
-    private AtomicBoolean running = new AtomicBoolean(false);
-    private AtomicBoolean flying = new AtomicBoolean(false);
+    private final ImageIcon droneOn = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_on.gif"));
+    private final ImageIcon droneOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_off.gif"));
+    private final ImageIcon controllerOn = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_on.png"));
+    private final ImageIcon controllerOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
+    private final AtomicBoolean running = new AtomicBoolean(false);
+    private final AtomicBoolean flying = new AtomicBoolean(false);
     private ARDrone drone;
-    private AtomicReference<PS3Controller> dev = new AtomicReference<PS3Controller>();
-    private VideoPanel video = new VideoPanel();
-    private DroneConfig droneConfigWindow;
-    private ControlConfig controlConfigWindow;
-    private BottomGaugePanel gauges = new BottomGaugePanel();
-    private ControlMap controlMap = new ControlMap();
+    private final AtomicReference<PS3Controller> dev = new AtomicReference<PS3Controller>();
+    private final VideoPanel video = new VideoPanel();
+    private final DroneConfig droneConfigWindow;
+    private final ControlConfig controlConfigWindow;
+    private final BottomGaugePanel gauges = new BottomGaugePanel();
+    private final ControlMap controlMap = new ControlMap();
 
     static {
         System.loadLibrary("hidapi-jni");

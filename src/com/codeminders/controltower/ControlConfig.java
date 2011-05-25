@@ -55,7 +55,7 @@ public class ControlConfig extends javax.swing.JDialog {
         }
     }
 
-    private void initAnimMode() {
+    private void setAnimMode() {
         valueList.removeAllItems();
         Animation[] keys = Animation.values();
         for (int i = 0; i < keys.length; i++) {
@@ -67,7 +67,7 @@ public class ControlConfig extends javax.swing.JDialog {
         frequencySpinner.setEnabled(false);
     }
 
-    private void initLEDMode() {
+    private void setLEDMode() {
         valueList.removeAllItems();
         LED[] keys = LED.values();
         for (int i = 0; i < keys.length; i++) {
@@ -79,7 +79,7 @@ public class ControlConfig extends javax.swing.JDialog {
         frequencySpinner.setEnabled(true);
     }
 
-    private void initDefaultMode() {
+    private void setDefaultMode() {
         valueList.removeAllItems();
         valueList.setEnabled(false);
         durationSpinner.setEnabled(false);
@@ -87,42 +87,53 @@ public class ControlConfig extends javax.swing.JDialog {
     }
 
     private void switchMode() {
+        if (commandList.getSelectedItem() == null || "None".equals((String) commandList.getSelectedItem())) {
+            setDefaultMode();
+            return;
+        }
         String str = (String) commandList.getSelectedItem();
         if (str == null) {
             return;
         }
         COMMAND command = COMMAND.valueOf(str);
         if (command == COMMAND.PLAY_ANIMATION) {
-            initAnimMode();
+            setAnimMode();
         } else if (command == COMMAND.PLAY_LED) {
-            initLEDMode();
+            setLEDMode();
         } else {
-            initDefaultMode();
+            setDefaultMode();
         }
     }
 
-    private void updateButtonSelection(String controlKey) {
+    private void updateButtonSelection() {
+        String controlKey = (String) buttonList.getSelectedValue();
+        if (controlKey == null) {
+            resetView();
+            return;
+        }
         list = map.getControls(CONTROL_KEY.valueOf(controlKey));
+        jLabel4.setText((index + 1) + "");
         if (list == null) {
             list = new LinkedList<AssignableControl>();
-            resetView();
+            commandList.setSelectedIndex(0);
+            setDefaultMode();
             return;
         }
         if (list.size() <= index) {
-            resetView();
+            commandList.setSelectedIndex(0);
+            setDefaultMode();
             return;
         }
         AssignableControl control = list.get(index);
-        jLabel4.setText((index + 1) + "");
         commandList.setSelectedItem(control.getCommand().name());
         if (control.getCommand() == COMMAND.PLAY_ANIMATION) {
-            initAnimMode();
+            setAnimMode();
             valueList.setSelectedItem(control.getAnim().name());
         } else if (control.getCommand() == COMMAND.PLAY_LED) {
-            initLEDMode();
+            setLEDMode();
             valueList.setSelectedItem(control.getLed().name());
         } else {
-            initDefaultMode();
+            setDefaultMode();
         }
         durationSpinner.setValue(control.getDuration());
         frequencySpinner.setValue(control.getFrequency());
@@ -169,16 +180,13 @@ public class ControlConfig extends javax.swing.JDialog {
     }
 
     private void resetView() {
-        initDefaultMode();
+        setDefaultMode();
         index = 0;
         jLabel4.setText("1");
         commandList.setSelectedIndex(0);
         durationSpinner.setValue(0);
         frequencySpinner.setValue(0);
         delaySpinner.setValue(0);
-    }
-
-    private void updateAxis(String controlKey) {
     }
 
     /** This method is called from within the constructor to
@@ -199,9 +207,6 @@ public class ControlConfig extends javax.swing.JDialog {
         frequencySpinner = new javax.swing.JSpinner();
         jLabel3 = new javax.swing.JLabel();
         jToolBar1 = new javax.swing.JToolBar();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
-        jSeparator1 = new javax.swing.JToolBar.Separator();
         jButton4 = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
@@ -260,33 +265,22 @@ public class ControlConfig extends javax.swing.JDialog {
         jToolBar1.setFloatable(false);
         jToolBar1.setRollover(true);
 
-        jButton5.setText("+");
-        jButton5.setEnabled(false);
-        jButton5.setFocusable(false);
-        jButton5.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton5);
-
-        jButton6.setText("-");
-        jButton6.setEnabled(false);
-        jButton6.setFocusable(false);
-        jButton6.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton6.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton6);
-        jToolBar1.add(jSeparator1);
-
         jButton4.setText("prev");
-        jButton4.setEnabled(false);
         jButton4.setFocusable(false);
         jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
         jToolBar1.add(jButton4);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 10, Short.MAX_VALUE)
+            .addGap(0, 35, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -302,7 +296,7 @@ public class ControlConfig extends javax.swing.JDialog {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 9, Short.MAX_VALUE)
+            .addGap(0, 35, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -312,10 +306,14 @@ public class ControlConfig extends javax.swing.JDialog {
         jToolBar1.add(jPanel2);
 
         jButton3.setText("next");
-        jButton3.setEnabled(false);
         jButton3.setFocusable(false);
         jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
         jToolBar1.add(jButton3);
         jToolBar1.add(jSeparator3);
 
@@ -329,9 +327,9 @@ public class ControlConfig extends javax.swing.JDialog {
 
         jLabel5.setText("Commands");
 
-        jLabel6.setText("Delay");
+        jLabel6.setText("Delay (ms)");
 
-        delaySpinner.setEnabled(false);
+        delaySpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(0), null, null, Integer.valueOf(100)));
         delaySpinner.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 storeCommandz(evt);
@@ -346,12 +344,12 @@ public class ControlConfig extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 146, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(valueList, javax.swing.GroupLayout.Alignment.LEADING, 0, 208, Short.MAX_VALUE)
-                    .addComponent(commandList, javax.swing.GroupLayout.Alignment.LEADING, 0, 208, Short.MAX_VALUE)
+                    .addComponent(valueList, javax.swing.GroupLayout.Alignment.LEADING, 0, 209, Short.MAX_VALUE)
+                    .addComponent(commandList, javax.swing.GroupLayout.Alignment.LEADING, 0, 209, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -359,11 +357,11 @@ public class ControlConfig extends javax.swing.JDialog {
                             .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(durationSpinner, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
-                            .addComponent(frequencySpinner, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)
-                            .addComponent(delaySpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 134, Short.MAX_VALUE)))
-                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
-                    .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE))
+                            .addComponent(durationSpinner, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                            .addComponent(frequencySpinner, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                            .addComponent(delaySpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)))
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+                    .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -402,17 +400,11 @@ public class ControlConfig extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void listSelection(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listSelection
-        String str = (String) buttonList.getSelectedValue();
-        if (str != null) {
-            updateButtonSelection(str);
-        }
+        index = 0;
+        updateButtonSelection();
     }//GEN-LAST:event_listSelection
 
     private void updateCommandSelection(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_updateCommandSelection
-        if (commandList.getSelectedItem() == null || "None".equals((String) commandList.getSelectedItem())) {
-            initDefaultMode();
-            return;
-        }
         switchMode();
     }//GEN-LAST:event_updateCommandSelection
 
@@ -423,6 +415,20 @@ public class ControlConfig extends javax.swing.JDialog {
     private void storeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_storeButtonActionPerformed
         storeButtonCommands();
     }//GEN-LAST:event_storeButtonActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        if (index > 0) {
+            index--;
+            updateButtonSelection();
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        if (index < list.size()) {
+            index++;
+            updateButtonSelection();
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JList buttonList;
     private javax.swing.JComboBox commandList;
@@ -431,8 +437,6 @@ public class ControlConfig extends javax.swing.JDialog {
     private javax.swing.JSpinner frequencySpinner;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -442,7 +446,6 @@ public class ControlConfig extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JToolBar.Separator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JToolBar.Separator jSeparator3;
     private javax.swing.JToolBar jToolBar1;
