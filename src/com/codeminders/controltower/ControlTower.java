@@ -24,6 +24,7 @@ import java.awt.Dimension;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.*;
 import javax.swing.ImageIcon;
 
@@ -39,18 +40,18 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private static float CONTROL_THRESHOLD = 0.5f;
     private int video_index = 0;
     private static final VideoChannel[] VIDEO_CYCLE = {VideoChannel.HORIZONTAL_ONLY,
-        /*VideoChannel.VERTICAL_ONLY,*/ VideoChannel.VERTICAL_IN_HORIZONTAL/*, VideoChannel.HORIZONTAL_IN_VERTICAL*/};
-    private AtomicBoolean running = new AtomicBoolean(false);
-    private AtomicBoolean retryController = new AtomicBoolean(false);
-    private DroneConfig configWindow;
-    private ARDrone drone;
+        VideoChannel.VERTICAL_ONLY, VideoChannel.VERTICAL_IN_HORIZONTAL, VideoChannel.HORIZONTAL_IN_VERTICAL};
     private ImageIcon droneOn = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_on.gif"));
     private ImageIcon droneOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_off.gif"));
     private ImageIcon controllerOn = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_on.png"));
     private ImageIcon controllerOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
-    private VideoPanel video = new VideoPanel();
-    private BottomGaugePanel gauges = new BottomGaugePanel();
+    private AtomicBoolean running = new AtomicBoolean(false);
     private AtomicBoolean flying = new AtomicBoolean(false);
+    private ARDrone drone;
+    private AtomicReference<PS3Controller> dev = new AtomicReference<PS3Controller>();
+    private VideoPanel video = new VideoPanel();
+    private DroneConfig configWindow;
+    private BottomGaugePanel gauges = new BottomGaugePanel();
 
     static {
         System.loadLibrary("hidapi-jni");
@@ -64,12 +65,8 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         configWindow = new DroneConfig(this, true);
         videoPanel.add(video);
         jPanel2.add(gauges);
+        initController();
         initDrone();
-        configWindow.setDrone(drone);
-        gauges.setDrone(drone);
-        video.setDrone(drone);
-        drone.addStatusChangeListener(this);
-        drone.addNavDataListener(this);
     }
 
     private void initDrone() {
@@ -77,7 +74,13 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             drone = new ARDrone();
         } catch (UnknownHostException ex) {
             Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, "Error creating drone object!", ex);
+            return;
         }
+        configWindow.setDrone(drone);
+        gauges.setDrone(drone);
+        video.setDrone(drone);
+        drone.addStatusChangeListener(this);
+        drone.addNavDataListener(this);
     }
 
     private void updateDroneStatus(final boolean available) {
@@ -138,8 +141,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             public void run() {
                 droneStatus.setForeground(Color.RED);
                 droneStatus.setIcon(droneOff);
-                controllerStatus.setForeground(Color.RED);
-                controllerStatus.setIcon(controllerOff);
                 batteryStatus.setForeground(Color.RED);
                 batteryStatus.setText("0%");
             }
@@ -165,6 +166,30 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         drone.selectVideoChannel(VIDEO_CYCLE[video_index]);
     }
 
+    private void initController() {
+        PS3Controller current = dev.get();
+        if (current != null) {
+            try {
+                current.close();
+            } catch (IOException ex) {
+                Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        try {
+            dev.set(findController());
+        } catch (IOException ex) {
+            Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, "{0}", ex);
+        }
+        if (dev.get() == null) {
+            System.err.println("No suitable controller found! Using keyboard");
+            dev.set(new KeyboardController(this));
+            updateControllerStatus(false);
+        } else {
+            System.err.println("Gamepad controller found");
+            updateControllerStatus(true);
+        }
+    }
+
     private static PS3Controller findController() throws IOException {
         HIDDeviceInfo[] devs = HIDManager.listDevices();
         for (int i = 0; i < devs.length; i++) {
@@ -183,9 +208,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             return;
         }
         running.set(true);
-        retryController.set(false);
         resetStatus();
-        PS3Controller dev;
         try {
 
             drone.addStatusChangeListener(new DroneStatusChangeListener() {
@@ -209,32 +232,10 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             drone.waitForReady(CONNECT_TIMEOUT);
             System.err.println("Connected to the drone");
             try {
-                dev = findController();
-                if (dev == null) {
-                    System.err.println("No suitable controller found! Using keyboard");
-                    dev = new KeyboardController(this);
-                } else {
-                    System.err.println("Gamepad controller found");
-                }
-
                 try {
                     PS3ControllerState oldpad = null;
                     while (running.get()) {
-                        if (retryController.get()) {
-                            System.err.println("Retry finding controller");
-                            dev = findController();
-                            if (dev == null) {
-                                dev = new KeyboardController(this);
-                            }
-                            retryController.set(false);
-                        }
-                        PS3ControllerState pad = dev.read();
-                        if (pad == null || dev instanceof KeyboardController) {
-                            updateControllerStatus(false);
-                        } else {
-                            updateControllerStatus(true);
-                        }
-
+                        PS3ControllerState pad = dev.get().read();
                         PS3ControllerStateChange pad_change = new PS3ControllerStateChange(oldpad, pad);
                         oldpad = pad;
 
@@ -278,7 +279,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                         if (pad_change.isR2Changed() && pad_change.isR2()) {
                             drone.playLED(4, 10, 2);
                         }
-                        if(flying.get()) {
+                        if (flying.get()) {
                             // Detecting if we need to move the drone
 
                             int leftX = pad.getLeftJoystickX();
@@ -322,7 +323,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                         }
                     }
                 } finally {
-                    dev.close();
                 }
             } finally {
                 drone.disconnect();
@@ -480,7 +480,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     }//GEN-LAST:event_droneStatusMouseReleased
 
     private void controllerStatusMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_controllerStatusMouseReleased
-//        retryController.set(true);
+        initController();
     }//GEN-LAST:event_controllerStatusMouseReleased
 
     private void instrumentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_instrumentButtonActionPerformed
@@ -507,7 +507,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
             @Override
             public void run() {
-//                tower.setLocationRelativeTo(null);
+                tower.setLocationRelativeTo(null);
                 tower.setVisible(true);
             }
         });
@@ -517,27 +517,24 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     public void setControlThreshold(float sens) {
         CONTROL_THRESHOLD = sens;
     }
-    
-    private static void setupLog()
-    {
+
+    private static void setupLog() {
         Logger topLogger = java.util.logging.Logger.getLogger("");
         Handler consoleHandler = null;
-        for(Handler handler : topLogger.getHandlers())
-            if(handler instanceof ConsoleHandler)
-            {
+        for (Handler handler : topLogger.getHandlers()) {
+            if (handler instanceof ConsoleHandler) {
                 consoleHandler = handler;
                 break;
             }
+        }
 
-        if(consoleHandler == null)
-        {
+        if (consoleHandler == null) {
             consoleHandler = new ConsoleHandler();
             topLogger.addHandler(consoleHandler);
         }
         topLogger.setLevel(Level.ALL);
         consoleHandler.setLevel(java.util.logging.Level.ALL);
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel batteryStatus;
     private javax.swing.JButton configureButton;

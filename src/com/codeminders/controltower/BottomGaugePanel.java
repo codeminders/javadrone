@@ -16,6 +16,7 @@ import com.codeminders.ardrone.NavDataListener;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -28,6 +29,7 @@ import javax.imageio.ImageIO;
 public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListener {
 
     private BufferedImage commImage;
+    private AtomicReference<ARDrone> drone = new AtomicReference<ARDrone>();
 
     /** Creates new form BottomGaugePanel */
     public BottomGaugePanel() {
@@ -40,6 +42,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
     }
 
     public void setDrone(ARDrone drone) {
+        this.drone.set(drone);
         drone.addNavDataListener(this);
     }
 
@@ -250,9 +253,14 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         jPanel2.setOpaque(false);
         jPanel2.setLayout(new java.awt.GridBagLayout());
 
-        indicator2.setToolTipText("emergency");
+        indicator2.setToolTipText("emergency (click to reset)");
         indicator2.setFrame3dEffectVisible(true);
         indicator2.setSymbolType(eu.hansolo.steelseries.tools.SymbolType.ATTENTION);
+        indicator2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                resetDrone(evt);
+            }
+        });
 
         javax.swing.GroupLayout indicator2Layout = new javax.swing.GroupLayout(indicator2);
         indicator2.setLayout(indicator2Layout);
@@ -319,6 +327,18 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         gridBagConstraints.ipady = -60;
         add(batteryGraph, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void resetDrone(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resetDrone
+        ARDrone drone=this.drone.get();
+        if(drone!=null){
+            try {
+                drone.clearEmergencySignal();
+            } catch (IOException ex) {
+                Logger.getLogger(BottomGaugePanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }//GEN-LAST:event_resetDrone
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private eu.hansolo.steelseries.extras.AirCompass airCompass1;
     private eu.hansolo.steelseries.extras.Altimeter altimeter1;
