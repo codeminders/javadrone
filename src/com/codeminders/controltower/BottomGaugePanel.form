@@ -266,6 +266,7 @@
     </Container>
     <Container class="eu.hansolo.steelseries.gauges.Radial1Vertical" name="batteryGraph">
       <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="battery status"/>
         <Property name="frame3dEffectVisible" type="boolean" value="true"/>
         <Property name="threshold" type="double" value="110.0"/>
         <Property name="title" type="java.lang.String" value="Battery"/>
