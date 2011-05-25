@@ -1,7 +1,6 @@
 package com.codeminders.controltower.config;
 
 import com.codeminders.ardrone.ARDrone;
-import com.codeminders.ardrone.ARDrone.VideoChannel;
 import com.codeminders.controltower.config.AssignableControl.CONTROL_KEY;
 import java.io.IOException;
 import java.util.Collection;
@@ -9,6 +8,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
@@ -22,6 +24,7 @@ public class ControlMap {
 
     private Preferences prefs;
     private HashMap<CONTROL_KEY, List<AssignableControl>> map = new HashMap<CONTROL_KEY, List<AssignableControl>>();
+    ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
 
     public ControlMap() {
         prefs = Preferences.userNodeForPackage(this.getClass());
@@ -34,9 +37,24 @@ public class ControlMap {
             return;
         }
         for (Iterator<AssignableControl> it = commands.iterator(); it.hasNext();) {
-            AssignableControl assignableCommand = it.next();
-            assignableCommand.sendToDrone(drone);
+            final AssignableControl assignableCommand = it.next();
+            if (assignableCommand.getDelay() > 0) {
+                delayCommand(assignableCommand, drone);
+            } else {
+                assignableCommand.sendToDrone(drone);
+            }
         }
+    }
+
+    private void delayCommand(final AssignableControl command, final ARDrone drone) {
+        exec.schedule(new Callable<Object>() {
+
+            @Override
+            public Object call() throws Exception {
+                command.sendToDrone(drone);
+                return null;
+            }
+        }, command.getDelay(), TimeUnit.MILLISECONDS);
     }
 
     public List<AssignableControl> getControls(CONTROL_KEY key) {
@@ -48,7 +66,7 @@ public class ControlMap {
         storeMap();
     }
 
-    private synchronized void loadMap() {
+    private void loadMap() {
         boolean found = false;
         try {
             String[] keys = prefs.keys();
@@ -87,7 +105,7 @@ public class ControlMap {
         map.get(CONTROL_KEY.TRIANGLE).add(new AssignableControl(CONTROL_KEY.TRIANGLE, AssignableControl.COMMAND.VIDEO_CYCLE, 0));
     }
 
-    private synchronized void storeMap() {
+    private void storeMap() {
         clearMap();
         int i = 0;
         Collection<List<AssignableControl>> list = map.values();
