@@ -63,7 +63,7 @@ public class ControlMap {
                         map.put(command.getKey(), commands);
                     }
                     commands.add(command);
-                    Logger.getLogger(ControlMap.class.getName()).log(Level.INFO, "Load command:{0}", command.getPrefString());
+                    Logger.getLogger(ControlMap.class.getName()).log(Level.FINE, "Load command:{0}", command.getPrefString());
                     found = true;
                 }
             }
@@ -71,7 +71,7 @@ public class ControlMap {
             Logger.getLogger(ControlMap.class.getName()).log(Level.SEVERE, "{0}", ex);
         }
         if (!found) {
-            Logger.getLogger(ControlMap.class.getName()).log(Level.INFO, "Load default button map");
+            Logger.getLogger(ControlMap.class.getName()).log(Level.FINE, "Load default button map");
             createDefaultMapping();
         }
     }
