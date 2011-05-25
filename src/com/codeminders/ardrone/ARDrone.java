@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.codeminders.ardrone.NavData.FlyingState;
 import com.codeminders.ardrone.commands.*;
 
 public class ARDrone
@@ -384,8 +385,8 @@ public class ARDrone
         {
             synchronized(state_mutex)
             {
-                if((state == State.TAKING_OFF && nd.isFlying()) || 
-                   (state == State.LANDING && nd.motorsDown))
+                if((state == State.TAKING_OFF && nd.getFlyingState() == FlyingState.FLYING)
+                        || (state == State.LANDING && nd.getFlyingState() == FlyingState.LANDED))
                 {
                     cmd_queue.clear(); // Maybe we should just remove
                                        // LAND/TAKEOFF comand
