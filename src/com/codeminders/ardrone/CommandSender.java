@@ -45,7 +45,7 @@ public class CommandSender implements Runnable
                 if(c instanceof ATCommand)
                 {
                     ATCommand cmd = (ATCommand) c;
-                    if(!(c instanceof KeepAliveCommand) && !(c instanceof MoveCommand) && !(c instanceof HoverCommand) && c.getStickyCounter()==0)
+                    //if(!(c instanceof KeepAliveCommand) && !(c instanceof MoveCommand) && !(c instanceof HoverCommand) && c.getStickyCounter()==0)
                         log.debug("Q[" + cmd_queue.size() + "]Sending AT command " + c);
                     byte[] pdata = cmd.getPacket(sequence++); // TODO: pass
                                                               // sequence number
