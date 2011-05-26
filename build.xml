@@ -12,8 +12,7 @@
     <import file="nbproject/build-impl.xml"/>
     <target name="-post-jar">
         <copy file="lib/mac/libhidapi-jni.jnilib" todir="dist"/>
-<!--        <copy file="lib/linux/libhidapi-jni.so" todir="dist"/>-->
-        <copydir src="dist/" dest="/Applications/ControlTower.app/Contents/Resources/Java/"/>
+        <copy file="lib/linux/libhidapi-jni.so" todir="dist"/>
     </target>
     <!--
 
