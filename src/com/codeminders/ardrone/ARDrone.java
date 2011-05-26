@@ -401,7 +401,7 @@ public class ARDrone
                 } else if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
                 {
                     changeState(State.BOOTSTRAP);
-                } else if(state != State.DEMO && nd.getMode() == NavData.Mode.DEMO)
+                } else if(state == State.BOOTSTRAP && nd.getMode() == NavData.Mode.DEMO)
                 {
                     changeState(State.DEMO);
                 }
