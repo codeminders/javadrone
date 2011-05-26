@@ -5,8 +5,8 @@ import com.codeminders.ardrone.ARDrone.Animation;
 import com.codeminders.ardrone.ARDrone.LED;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class represents one control mapping for a button and at the same
@@ -107,52 +107,52 @@ public class AssignableControl {
     public void sendToDrone(ARDrone drone) throws IOException {
         switch (command) {
             case PLAY_ANIMATION:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending animation command");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending animation command");
                 drone.playAnimation(anim, duration);
                 break;
             case PLAY_LED:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending LED command");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending LED command");
                 drone.playLED(led, frequency, duration);
                 break;
             case CLEAR_EMERGENCY:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending clear emergency");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending clear emergency");
                 drone.clearEmergencySignal();
                 break;
             case TRIM:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending trim");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending trim");
                 drone.trim();
                 break;
             case TAKEOFF:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending takeoff");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending takeoff");
                 drone.takeOff();
                 break;
             case LAND:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending land");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending land");
                 drone.land();
                 break;
             case RESET:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending reset");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending reset");
                 drone.clearEmergencySignal();
                 drone.trim();
                 break;
             case VIDEO_CYCLE:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending video cycle");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending video cycle");
                 cycleVideoChannel(drone);
                 break;
             case FRONTAL_CAM:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending front cam");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending front cam");
                 drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_ONLY);
                 break;
             case BOTTOM_CAM:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending bottom cam");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending bottom cam");
                 drone.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
                 break;
             case BOTTOM_CAM_SMALL:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending bottom cam small");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending bottom cam small");
                 drone.selectVideoChannel(ARDrone.VideoChannel.VERTICAL_IN_HORIZONTAL);
                 break;
             case FRONTAL_CAM_SMALL:
-                Logger.getLogger(AssignableControl.class.getName()).log(Level.FINE, "Sending front cam small");
+                Logger.getLogger(AssignableControl.class.getName()).debug("Sending front cam small");
                 drone.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_IN_VERTICAL);
                 break;
         }

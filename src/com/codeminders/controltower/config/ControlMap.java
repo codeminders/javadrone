@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
+import org.apache.log4j.Logger;
 
 /**
  * This class stores the button mapping and manages
@@ -106,15 +106,15 @@ public class ControlMap {
                         map.put(command.getButton(), commands);
                     }
                     commands.add(0, command);
-                    Logger.getLogger(ControlMap.class.getName()).log(Level.FINE, "Load command:{0}", command.getPrefString());
+                    Logger.getLogger(ControlMap.class.getName()).debug("Load command:{0} "+command.getPrefString());
                     found = true;
                 }
             }
         } catch (BackingStoreException ex) {
-            Logger.getLogger(ControlMap.class.getName()).log(Level.SEVERE, "{0}", ex);
+            Logger.getLogger(ControlMap.class.getName()).error("{0}", ex);
         }
         if (!found) {
-            Logger.getLogger(ControlMap.class.getName()).log(Level.FINE, "Load default button map");
+            Logger.getLogger(ControlMap.class.getName()).debug("Load default button map");
             createDefaultMapping();
         }
     }
@@ -150,7 +150,7 @@ public class ControlMap {
         try {
             prefs.flush();
         } catch (BackingStoreException ex) {
-            Logger.getLogger(ControlMap.class.getName()).log(Level.SEVERE, "{0}", ex);
+            Logger.getLogger(ControlMap.class.getName()).error("{0}", ex);
         }
     }
 
@@ -168,7 +168,7 @@ public class ControlMap {
                 }
             }
         } catch (BackingStoreException ex) {
-            Logger.getLogger(ControlMap.class.getName()).log(Level.SEVERE, "{0}", ex);
+            Logger.getLogger(ControlMap.class.getName()).error("{0}", ex);
         }
     }
 }

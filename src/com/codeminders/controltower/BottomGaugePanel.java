@@ -17,9 +17,9 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -37,7 +37,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
         try {
             commImage = ImageIO.read(getClass().getResourceAsStream("/com/codeminders/controltower/images/gaugeback_bottom2.png"));
         } catch (IOException ex) {
-            Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, "{0}", ex);
+            Logger.getLogger(ControlTower.class.getName()).error("{0}", ex);
         }
     }
 
@@ -337,7 +337,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
             try {
                 drone.clearEmergencySignal();
             } catch (IOException ex) {
-                Logger.getLogger(BottomGaugePanel.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(BottomGaugePanel.class.getName()).error("", ex);
             }
         }
     }//GEN-LAST:event_resetDrone

@@ -27,8 +27,9 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.*;
 import javax.swing.ImageIcon;
+
+import org.apache.log4j.Logger;
 
 /**
  * The central class that represents the main window and also manages the 
@@ -75,7 +76,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         try {
             drone = new ARDrone();
         } catch (UnknownHostException ex) {
-            Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, "Error creating drone object!", ex);
+            Logger.getLogger(ControlTower.class.getName()).error("Error creating drone object!", ex);
             return;
         }
         droneConfigWindow.setDrone(drone);
@@ -94,13 +95,13 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             try {
                 current.close();
             } catch (IOException ex) {
-                Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ControlTower.class.getName()).error("", ex);
             }
         }
         try {
             dev.set(findController());
         } catch (IOException ex) {
-            Logger.getLogger(ControlTower.class.getName()).log(Level.SEVERE, "{0}", ex);
+            Logger.getLogger(ControlTower.class.getName()).error("{0}", ex);
         }
         if (dev.get() == null) {
             System.err.println("No suitable controller found! Using keyboard");
@@ -532,7 +533,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        setupLog();
         final ControlTower tower = new ControlTower();
         java.awt.EventQueue.invokeLater(new Runnable() {
 
@@ -545,23 +545,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         tower.startUpdateLoop();
     }
 
-    private static void setupLog() {
-        Logger topLogger = java.util.logging.Logger.getLogger("");
-        Handler consoleHandler = null;
-        for (Handler handler : topLogger.getHandlers()) {
-            if (handler instanceof ConsoleHandler) {
-                consoleHandler = handler;
-                break;
-            }
-        }
-
-        if (consoleHandler == null) {
-            consoleHandler = new ConsoleHandler();
-            topLogger.addHandler(consoleHandler);
-        }
-        topLogger.setLevel(Level.FINE);
-        consoleHandler.setLevel(java.util.logging.Level.FINE);
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel batteryStatus;
     private javax.swing.JButton configureButton;
