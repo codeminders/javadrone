@@ -139,6 +139,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                 @Override
                 public void ready() {
                     try {
+                        Logger.getLogger(getClass().getName()).debug("updateLoop::ready()");
                         System.err.println("Configure");
                         droneConfigWindow.updateDrone();
                         drone.selectVideoChannel(VideoChannel.HORIZONTAL_ONLY);
@@ -345,11 +346,13 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     @Override
     public void ready() {
+        Logger.getLogger(getClass().getName()).debug("ready()");
         updateDroneStatus(true);
     }
 
     @Override
     public void navDataReceived(NavData nd) {
+        Logger.getLogger(getClass().getName()).debug("navDataReceived()");
         updateBatteryStatus(nd.getBattery());
         this.flying.set(nd.isFlying());
     }
