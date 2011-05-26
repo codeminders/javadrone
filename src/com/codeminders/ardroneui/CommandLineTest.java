@@ -25,9 +25,9 @@ public class CommandLineTest
             drone.waitForReady(CONNECT_TIMEOUT);
             drone.trim();
             Thread.sleep(1000);
-            // drone.takeOff();
-            // Thread.sleep(5000);
-            // drone.land();
+            drone.takeOff();
+            Thread.sleep(1000);
+            drone.land();
             Thread.sleep(2000);
             drone.disconnect();
         } catch(Throwable e)

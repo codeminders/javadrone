@@ -538,8 +538,8 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             consoleHandler = new ConsoleHandler();
             topLogger.addHandler(consoleHandler);
         }
-        topLogger.setLevel(Level.ALL);
-        consoleHandler.setLevel(java.util.logging.Level.ALL);
+        topLogger.setLevel(Level.FINE);
+        consoleHandler.setLevel(java.util.logging.Level.FINE);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel batteryStatus;
