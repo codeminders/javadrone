@@ -22,12 +22,14 @@ public class CommandLineTest
         {
             drone = new ARDrone();
             drone.connect();
-            drone.waitForReady(CONNECT_TIMEOUT);
             drone.clearEmergencySignal();
+
+            drone.waitForReady(CONNECT_TIMEOUT);
             drone.trim();
             Thread.sleep(1000);
+            System.err.println("Taking off");
             drone.takeOff();
-            Thread.sleep(1000);
+            Thread.sleep(3000);
             drone.land();
             Thread.sleep(2000);
             drone.disconnect();
@@ -55,8 +57,8 @@ public class CommandLineTest
             consoleHandler = new ConsoleHandler();
             topLogger.addHandler(consoleHandler);
         }
-        topLogger.setLevel(Level.FINE);
-        consoleHandler.setLevel(java.util.logging.Level.FINE);
+        topLogger.setLevel(Level.ALL);
+        consoleHandler.setLevel(java.util.logging.Level.ALL);
     }
 
 }

@@ -385,16 +385,21 @@ public class ARDrone
         {
             synchronized(state_mutex)
             {
-                if((state == State.TAKING_OFF && nd.getFlyingState() == FlyingState.FLYING)
-                        || (state == State.LANDING && nd.getFlyingState() == FlyingState.LANDED))
+                if(state == State.TAKING_OFF && nd.getFlyingState() == FlyingState.FLYING)
                 {
-                    log.fine("state=" + state + " flying state " + nd.getFlyingState());
+                    log.fine("Take off success");
                     cmd_queue.clear(); // Maybe we should just remove
                                        // LAND/TAKEOFF comand
                                        // instead of nuking the whole queue?
-                }
-
-                if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
+                    changeState(State.DEMO);
+                } else if(state == State.LANDING && nd.getFlyingState() == FlyingState.LANDED)
+                {
+                    log.fine("Landing success");
+                    cmd_queue.clear(); // Maybe we should just remove
+                                       // LAND/TAKEOFF comand
+                                       // instead of nuking the whole queue?
+                    changeState(State.DEMO);
+                } else if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
                 {
                     changeState(State.BOOTSTRAP);
                 } else if(state != State.DEMO && nd.getMode() == NavData.Mode.DEMO)

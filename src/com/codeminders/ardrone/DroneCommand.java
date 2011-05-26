@@ -36,6 +36,11 @@ public abstract class DroneCommand implements Comparable
         return ++sticky_counter;
     }
 
+    public int getStickyCounter()
+    {
+        return sticky_counter;
+    }
+    
     /**
      * For sticky packets indicates delay between sending repeated packets;
      * 
