@@ -198,6 +198,7 @@ public class NavData
         }
 
         // TODO: calculate checksum
+        log.finer("Got Nav data. mode "+data.mode);
 
         return data;
     }
@@ -205,6 +206,7 @@ public class NavData
     private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
     {
         data.ctrl_state = CtrlState.fromInt(byteArrayToInt(buf, offset) >> 16);
+        log.finer("Ctrl State "+data.ctrl_state);
 
         offset += 4;
         data.battery = byteArrayToInt(buf, offset);
