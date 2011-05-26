@@ -60,7 +60,7 @@
         </Container>
         <Container class="eu.hansolo.steelseries.extras.Indicator" name="indicator4">
           <Properties>
-            <Property name="toolTipText" type="java.lang.String" value="comm problem"/>
+            <Property name="toolTipText" type="java.lang.String" value="gyrometers down"/>
             <Property name="frame3dEffectVisible" type="boolean" value="true"/>
             <Property name="symbolType" type="eu.hansolo.steelseries.tools.SymbolType" editor="org.netbeans.modules.form.editors.EnumEditor">
               <Value id="BREAK"/>

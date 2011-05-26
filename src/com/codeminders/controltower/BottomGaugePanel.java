@@ -81,7 +81,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
                 } else {
                     indicator3.setOn(false);
                 }
-                if (data.isCommunicationProblemOccurred()) {
+                if (data.isGyrometersDown()) {
                     indicator4.setOn(true);
                 } else {
                     indicator4.setOn(false);
@@ -144,7 +144,7 @@ public class BottomGaugePanel extends javax.swing.JPanel implements NavDataListe
 
         jPanel1.add(indicator1, new java.awt.GridBagConstraints());
 
-        indicator4.setToolTipText("comm problem");
+        indicator4.setToolTipText("gyrometers down");
         indicator4.setFrame3dEffectVisible(true);
         indicator4.setSymbolType(eu.hansolo.steelseries.tools.SymbolType.BREAK);
 
