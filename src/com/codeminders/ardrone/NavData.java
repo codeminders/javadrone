@@ -140,11 +140,12 @@ public class NavData
      */
     public static int byteArrayToShort(byte[] b, int offset)
     {
-        return (b[offset] & 0x000000FF) << 8 + b[offset + 1];
+        return ((b[offset + 1] & 0x000000FF) << 8) + (b[offset] & 0x000000FF);
     }
 
     public static NavData createFromData(byte[] buf) throws NavDataFormatException
     {
+        log.finest("Parsing navdata len=" + buf.length);
         NavData data = new NavData();
         data.mode = NavData.Mode.BOOTSTRAP; // Assume we are in bootstrap
 
@@ -173,15 +174,27 @@ public class NavData
             offset += 2;
             int option_len = byteArrayToShort(buf, offset);
             offset += 2;
+
+            if(option_len == 0)
+                throw new NavDataFormatException("Zero-len option with tag " + option_tag);
+
+            // log.finer("At offset " + (offset - 4) + " found option " +
+            // option_tag + " with len=" + option_len);
+
             if(option_tag == NavDataTag.NAVDATA_DEMO_TAG.getValue())
             {
                 parseDemoNavData(data, buf, offset);
                 data.mode = NavData.Mode.DEMO;
+            } else if(option_tag == NavDataTag.NAVDATA_CKS_TAG.getValue())
+            {
+                // this is last tag. We do not unpack it yet, but we gracefully
+                // exit if it has been encountered.
+                break;
             } else
             {
                 log.fine("Skipping unknown NavData option with tag=" + option_tag);
             }
-            offset = offset + option_len;
+            offset = offset + option_len - 4;
         }
 
         // TODO: calculate checksum
@@ -191,7 +204,7 @@ public class NavData
 
     private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
     {
-        data.ctrl_state = CtrlState.fromInt(byteArrayToInt(buf, offset));
+        data.ctrl_state = CtrlState.fromInt(byteArrayToInt(buf, offset) >> 16);
 
         offset += 4;
         data.battery = byteArrayToInt(buf, offset);
@@ -294,7 +307,7 @@ public class NavData
         sb.append("Y velocity: " + data.getLongitude() + "\n");
         sb.append("Z velocity: " + data.getVz() + "\n");
 
-        log.log(Level.FINEST, sb.toString());
+        log.log(Level.FINER, sb.toString());
     }
 
     protected Mode             mode;
