@@ -224,6 +224,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             System.err.println("Connecting to the drone");
             drone.connect();
             drone.waitForReady(CONNECT_TIMEOUT);
+            drone.clearEmergencySignal();
             System.err.println("Connected to the drone");
             try {
                 PS3ControllerState oldpad = null;

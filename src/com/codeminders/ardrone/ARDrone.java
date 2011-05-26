@@ -388,9 +388,10 @@ public class ARDrone
                 if((state == State.TAKING_OFF && nd.getFlyingState() == FlyingState.FLYING)
                         || (state == State.LANDING && nd.getFlyingState() == FlyingState.LANDED))
                 {
+                    log.fine("state=" + state + " flying state " + nd.getFlyingState());
                     cmd_queue.clear(); // Maybe we should just remove
                                        // LAND/TAKEOFF comand
-                                       // instead of nuking whole queue?
+                                       // instead of nuking the whole queue?
                 }
 
                 if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
