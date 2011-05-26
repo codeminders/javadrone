@@ -173,11 +173,11 @@ public class ARDrone
                 log.fine("State changed from " + state + " to " + newstate);
                 state = newstate;
 
-                state_mutex.notifyAll();
-
                 // We automatically switch to DEMO from bootstrap
                 if(state == State.BOOTSTRAP)
                     sendDemoNavigationData();
+
+                state_mutex.notifyAll();
             }
         }
 
