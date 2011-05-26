@@ -384,6 +384,12 @@ public class ARDrone
         {
             synchronized(state_mutex)
             {
+                if(state != State.CONNECTING && nd.isControlReceived())
+                {
+                    log.debug("Control received! ACK!");
+                    cmd_queue.add(new ControlCommand(5, 0));
+                }
+
                 if(state == State.TAKING_OFF && nd.getFlyingState() == FlyingState.FLYING)
                 {
                     log.debug("Take off success");
@@ -406,7 +412,7 @@ public class ARDrone
                     changeState(State.DEMO);
                 }
 
-                if(nd.isCommunicationProblemOccurred())
+                if(state!=State.CONNECTING && nd.isCommunicationProblemOccurred())
                 {
                     // 50ms communications watchdog has been triggered
                     cmd_queue.add(new KeepAliveCommand());
@@ -512,13 +518,11 @@ public class ARDrone
     public void setConfigOption(String name, String value) throws IOException
     {
         cmd_queue.add(new ConfigureCommand(name, value));
-        cmd_queue.add(new ControlCommand(5, 0));
     }
 
     public void setConfigOption(ConfigOption option, String value) throws IOException
     {
         cmd_queue.add(new ConfigureCommand(option.getValue(), value));
-        cmd_queue.add(new ControlCommand(5, 0));
     }
 
     public void takeOff() throws IOException
