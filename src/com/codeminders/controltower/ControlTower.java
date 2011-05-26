@@ -16,7 +16,7 @@ import com.codeminders.ardroneui.controllers.PS3Controller;
 import com.codeminders.ardroneui.controllers.PS3ControllerState;
 import com.codeminders.ardroneui.controllers.PS3ControllerStateChange;
 import com.codeminders.ardroneui.controllers.SonyPS3Controller;
-import com.codeminders.controltower.config.AssignableControl.CONTROL_KEY;
+import com.codeminders.controltower.config.AssignableControl.ControllerButton;
 import com.codeminders.controltower.config.ControlMap;
 import com.codeminders.hidapi.HIDDeviceInfo;
 import com.codeminders.hidapi.HIDDeviceNotFoundException;
@@ -31,7 +31,8 @@ import java.util.logging.*;
 import javax.swing.ImageIcon;
 
 /**
- *
+ * The central class that represents the main window and also manages the 
+ * drone update loop.
  * @author normenhansen
  */
 @SuppressWarnings("serial")
@@ -84,82 +85,9 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         drone.addNavDataListener(this);
     }
 
-    private void updateDroneStatus(final boolean available) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                if (!available) {
-                    droneStatus.setForeground(Color.RED);
-                    droneStatus.setIcon(droneOff);
-                } else {
-                    droneStatus.setForeground(Color.GREEN);
-                    droneStatus.setIcon(droneOn);
-                }
-            }
-        });
-
-    }
-
-    private void updateControllerStatus(final boolean available) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                if (!available) {
-                    controllerStatus.setForeground(Color.RED);
-                    controllerStatus.setIcon(controllerOff);
-                } else {
-                    controllerStatus.setForeground(Color.GREEN);
-                    controllerStatus.setIcon(controllerOn);
-                }
-            }
-        });
-
-    }
-
-    private void updateBatteryStatus(final int value) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                batteryStatus.setText(value + "%");
-                if (value < 15) {
-                    batteryStatus.setForeground(Color.RED);
-                } else if (value < 50) {
-                    batteryStatus.setForeground(Color.ORANGE);
-                } else {
-                    batteryStatus.setForeground(Color.GREEN);
-                }
-            }
-        });
-    }
-
-    private void resetStatus() {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                droneStatus.setForeground(Color.RED);
-                droneStatus.setIcon(droneOff);
-                batteryStatus.setForeground(Color.RED);
-                batteryStatus.setText("0%");
-            }
-        });
-
-    }
-
-    @Override
-    public void ready() {
-        updateDroneStatus(true);
-    }
-
-    @Override
-    public void navDataReceived(NavData nd) {
-        updateBatteryStatus(nd.getBattery());
-        this.flying.set(nd.isFlying());
-    }
-
+    /**
+     * Tries to find PS3 controller, else creates keyboard controller
+     */
     private void initController() {
         PS3Controller current = dev.get();
         if (current != null) {
@@ -234,37 +162,37 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                     oldpad = pad;
 
                     if (pad_change.isStartChanged() && pad_change.isStart()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.START);
+                        controlMap.sendCommand(drone, ControllerButton.START);
                     }
                     if (pad_change.isSelectChanged() && pad_change.isSelect()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.SELECT);
+                        controlMap.sendCommand(drone, ControllerButton.SELECT);
                     }
                     if (pad_change.isPSChanged() && pad_change.isPS()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.PS);
+                        controlMap.sendCommand(drone, ControllerButton.PS);
                     }
                     if (pad_change.isTriangleChanged() && pad_change.isTriangle()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.TRIANGLE);
+                        controlMap.sendCommand(drone, ControllerButton.TRIANGLE);
                     }
                     if (pad_change.isCrossChanged() && pad_change.isCross()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.CROSS);
+                        controlMap.sendCommand(drone, ControllerButton.CROSS);
                     }
                     if (pad_change.isSquareChanged() && pad_change.isSquare()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.SQUARE);
+                        controlMap.sendCommand(drone, ControllerButton.SQUARE);
                     }
                     if (pad_change.isCircleChanged() && pad_change.isCircle()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.CIRCLE);
+                        controlMap.sendCommand(drone, ControllerButton.CIRCLE);
                     }
                     if (pad_change.isL1Changed() && pad_change.isL1()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.L1);
+                        controlMap.sendCommand(drone, ControllerButton.L1);
                     }
                     if (pad_change.isR1Changed() && pad_change.isR1()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.R1);
+                        controlMap.sendCommand(drone, ControllerButton.R1);
                     }
                     if (pad_change.isL2Changed() && pad_change.isL2()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.L2);
+                        controlMap.sendCommand(drone, ControllerButton.L2);
                     }
                     if (pad_change.isR2Changed() && pad_change.isR2()) {
-                        controlMap.sendCommand(drone, CONTROL_KEY.R2);
+                        controlMap.sendCommand(drone, ControllerButton.R2);
                     }
                     if (flying.get()) {
                         // Detecting if we need to move the drone
@@ -333,6 +261,98 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         thread.start();
     }
 
+    /**
+     * Updates the drone status in the UI, queues command to AWT event dispatch thread
+     * @param available 
+     */
+    private void updateDroneStatus(final boolean available) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!available) {
+                    droneStatus.setForeground(Color.RED);
+                    droneStatus.setIcon(droneOff);
+                } else {
+                    droneStatus.setForeground(Color.GREEN);
+                    droneStatus.setIcon(droneOn);
+                }
+            }
+        });
+
+    }
+
+    /**
+     * Updates the controller status in the UI, queues command to AWT event dispatch thread
+     * @param available 
+     */
+    private void updateControllerStatus(final boolean available) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                if (!available) {
+                    controllerStatus.setForeground(Color.RED);
+                    controllerStatus.setIcon(controllerOff);
+                } else {
+                    controllerStatus.setForeground(Color.GREEN);
+                    controllerStatus.setIcon(controllerOn);
+                }
+            }
+        });
+
+    }
+
+    /**
+     * Updates the battery status in the UI, queues command to AWT event dispatch thread
+     * @param available 
+     */
+    private void updateBatteryStatus(final int value) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                batteryStatus.setText(value + "%");
+                if (value < 15) {
+                    batteryStatus.setForeground(Color.RED);
+                } else if (value < 50) {
+                    batteryStatus.setForeground(Color.ORANGE);
+                } else {
+                    batteryStatus.setForeground(Color.GREEN);
+                }
+            }
+        });
+    }
+
+    /**
+     * Resets the UI, queues command to AWT event dispatch thread
+     * @param available 
+     */
+    private void resetStatus() {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                droneStatus.setForeground(Color.RED);
+                droneStatus.setIcon(droneOff);
+                batteryStatus.setForeground(Color.RED);
+                batteryStatus.setText("0%");
+            }
+        });
+
+    }
+
+    @Override
+    public void ready() {
+        updateDroneStatus(true);
+    }
+
+    @Override
+    public void navDataReceived(NavData nd) {
+        updateBatteryStatus(nd.getBattery());
+        this.flying.set(nd.isFlying());
+    }
+
     public void setControlThreshold(float sens) {
         CONTROL_THRESHOLD = sens;
     }
@@ -351,7 +371,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         batteryStatus = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         controllerStatus = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        mappingButton = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         jPanel1 = new javax.swing.JPanel();
         jSeparator7 = new javax.swing.JToolBar.Separator();
@@ -379,7 +399,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         });
         jToolBar1.add(droneStatus);
 
-        batteryStatus.setFont(new java.awt.Font("Lucida Grande", 1, 10)); // NOI18N
+        batteryStatus.setFont(new java.awt.Font("Lucida Grande", 1, 10));
         batteryStatus.setForeground(java.awt.Color.red);
         batteryStatus.setText("0%");
         jToolBar1.add(batteryStatus);
@@ -395,17 +415,17 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         });
         jToolBar1.add(controllerStatus);
 
-        jButton1.setText("mapping");
-        jButton1.setToolTipText("map controller buttons");
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        mappingButton.setText("mapping");
+        mappingButton.setToolTipText("map controller buttons");
+        mappingButton.setFocusable(false);
+        mappingButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        mappingButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        mappingButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                mappingButtonActionPerformed(evt);
             }
         });
-        jToolBar1.add(jButton1);
+        jToolBar1.add(mappingButton);
         jToolBar1.add(jSeparator3);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -503,10 +523,10 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         }
     }//GEN-LAST:event_instrumentButtonActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void mappingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mappingButtonActionPerformed
         controlConfigWindow.setLocationRelativeTo(this);
         controlConfigWindow.setVisible(true);
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_mappingButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -548,7 +568,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private javax.swing.JLabel controllerStatus;
     private javax.swing.JLabel droneStatus;
     private javax.swing.JButton instrumentButton;
-    private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JToolBar.Separator jSeparator1;
@@ -557,6 +576,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private javax.swing.JToolBar.Separator jSeparator6;
     private javax.swing.JToolBar.Separator jSeparator7;
     private javax.swing.JToolBar jToolBar1;
+    private javax.swing.JButton mappingButton;
     private javax.swing.JPanel videoPanel;
     // End of variables declaration//GEN-END:variables
 }
