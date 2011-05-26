@@ -7,10 +7,10 @@ package com.codeminders.controltower;
 
 import com.codeminders.ardrone.ARDrone;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -41,7 +41,7 @@ public class DroneConfig extends javax.swing.JDialog {
         try {
             prefs.flush();
         } catch (BackingStoreException ex) {
-            Logger.getLogger(DroneConfig.class.getName()).log(Level.SEVERE, "Cannot save settings: {0}", ex);
+            Logger.getLogger(DroneConfig.class.getName()).error("Cannot save settings: {0}", ex);
         }
     }
 
@@ -73,7 +73,7 @@ public class DroneConfig extends javax.swing.JDialog {
             drone.setConfigOption("control:control_yaw", (((float) maxYaw.getValue()) / 100.0f) + "");
             tower.setControlThreshold(((float) controllerDeadzone.getValue()) / 100.0f);
         } catch (IOException ex) {
-            Logger.getLogger(DroneConfig.class.getName()).log(Level.SEVERE, "Exception Setting data: {0}", ex);
+            Logger.getLogger(DroneConfig.class.getName()).error("Exception Setting data: {0}", ex);
         }
     }
 

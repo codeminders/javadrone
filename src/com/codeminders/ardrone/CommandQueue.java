@@ -3,7 +3,8 @@ package com.codeminders.ardrone;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 public class CommandQueue
 {
@@ -25,7 +26,7 @@ public class CommandQueue
             DroneCommand res = data.pollLast();
             if(res != null)
             {
-                // log.finest("[" + data.size() + "] Returning " + res);
+                // log.debug("[" + data.size() + "] Returning " + res);
                 if(res.isSticky())
                 {
                     int sc = res.incrementStickyCounter();
@@ -36,7 +37,7 @@ public class CommandQueue
                 return res;
             } else
             {
-                // log.finest("Waiting for data");
+                // log.debug("Waiting for data");
                 wait();
             }
         }
@@ -62,13 +63,13 @@ public class CommandQueue
                 // Found insertion point.
                 if(!x.equals(cmd))
                 {
-                    // log.finest("[" + data.size() + "] Adding command " +
+                    // log.debug("[" + data.size() + "] Adding command " +
                     // cmd);
                     data.add(pos, cmd);
                     notify();
                 }
                 // else
-                // log.finest("Not adding duplicate element " + cmd);
+                // log.debug("Not adding duplicate element " + cmd);
                 cmd = null; // inserted
                 break;
             }
@@ -76,7 +77,7 @@ public class CommandQueue
 
         if(cmd != null)
         {
-            // log.finest("[" + data.size() + "] Adding command " + cmd);
+            // log.debug("[" + data.size() + "] Adding command " + cmd);
             data.addLast(cmd);
             notify();
         }

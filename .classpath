@@ -5,5 +5,6 @@
 	<classpathentry kind="lib" path="lib/hidapi.jar"/>
 	<classpathentry kind="lib" path="lib/SteelSeries/SteelSeries-3.9.2.jar"/>
 	<classpathentry kind="lib" path="lib/SteelSeries/trident-6.2.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

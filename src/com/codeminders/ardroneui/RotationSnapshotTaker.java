@@ -1,7 +1,7 @@
 
 package com.codeminders.ardroneui;
 
-import java.util.logging.*;
+import org.apache.log4j.Logger;
 
 import com.codeminders.ardrone.ARDrone;
 
@@ -17,8 +17,6 @@ public class RotationSnapshotTaker
      */
     public static void main(String[] args)
     {
-        setupLog();
-
         ARDrone drone;
         try
         {
@@ -26,8 +24,8 @@ public class RotationSnapshotTaker
             try
             {
                 drone.connect();
-                drone.waitForReady(CONNECT_TIMEOUT);
                 drone.clearEmergencySignal();
+                drone.waitForReady(CONNECT_TIMEOUT);
                 drone.trim();
                 log.info("Taking off");
                 drone.takeOff();
@@ -51,26 +49,6 @@ public class RotationSnapshotTaker
             e1.printStackTrace();
         }
         log.info("done");
-    }
-
-    private static void setupLog()
-    {
-        Logger topLogger = java.util.logging.Logger.getLogger("");
-        Handler consoleHandler = null;
-        for(Handler handler : topLogger.getHandlers())
-            if(handler instanceof ConsoleHandler)
-            {
-                consoleHandler = handler;
-                break;
-            }
-
-        if(consoleHandler == null)
-        {
-            consoleHandler = new ConsoleHandler();
-            topLogger.addHandler(consoleHandler);
-        }
-        topLogger.setLevel(Level.ALL);
-        consoleHandler.setLevel(java.util.logging.Level.ALL);
     }
 
 }

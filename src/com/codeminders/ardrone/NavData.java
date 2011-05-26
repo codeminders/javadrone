@@ -1,8 +1,7 @@
 
 package com.codeminders.ardrone;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
 
 public class NavData
 {
@@ -145,7 +144,7 @@ public class NavData
 
     public static NavData createFromData(byte[] buf) throws NavDataFormatException
     {
-        log.finest("Parsing navdata len=" + buf.length);
+        log.debug("Parsing navdata len=" + buf.length);
         NavData data = new NavData();
         data.mode = NavData.Mode.BOOTSTRAP; // Assume we are in bootstrap
 
@@ -178,7 +177,7 @@ public class NavData
             if(option_len == 0)
                 throw new NavDataFormatException("Zero-len option with tag " + option_tag);
 
-            // log.finer("At offset " + (offset - 4) + " found option " +
+            // log.debug("At offset " + (offset - 4) + " found option " +
             // option_tag + " with len=" + option_len);
 
             if(option_tag == NavDataTag.NAVDATA_DEMO_TAG.getValue())
@@ -192,13 +191,13 @@ public class NavData
                 break;
             } else
             {
-                log.finer("Skipping unknown NavData option with tag=" + option_tag);
+                log.warn("Skipping unknown NavData option with tag=" + option_tag);
             }
             offset = offset + option_len - 4;
         }
 
         // TODO: calculate checksum
-        log.finer("Got Nav data. mode "+data.mode);
+        log.debug("Got Nav data. mode "+data.mode);
 
         return data;
     }
@@ -206,7 +205,7 @@ public class NavData
     private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
     {
         data.ctrl_state = CtrlState.fromInt(byteArrayToInt(buf, offset) >> 16);
-        log.finer("Ctrl State "+data.ctrl_state);
+        log.debug("Ctrl State "+data.ctrl_state);
 
         offset += 4;
         data.battery = byteArrayToInt(buf, offset);
@@ -309,7 +308,7 @@ public class NavData
         sb.append("Y velocity: " + data.getLongitude() + "\n");
         sb.append("Z velocity: " + data.getVz() + "\n");
 
-        log.log(Level.FINER, sb.toString());
+        log.debug("State: " + sb.toString());
     }
 
     protected Mode             mode;

@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.net.*;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 import com.codeminders.ardrone.NavData.FlyingState;
 import com.codeminders.ardrone.commands.*;
@@ -170,7 +170,7 @@ public class ARDrone
         {
             if(state != newstate)
             {
-                log.fine("State changed from " + state + " to " + newstate);
+                log.debug("State changed from " + state + " to " + newstate);
                 state = newstate;
 
                 // We automatically switch to DEMO from bootstrap
@@ -203,8 +203,7 @@ public class ARDrone
             {
                 // Ignoring exceptions on disconnection
             }
-            log.fine("State changed from " + state + " to " + State.ERROR + " with exception " + ex);
-            log.log(Level.FINER, "Stack trace", ex);
+            log.debug("State changed from " + state + " to " + State.ERROR + " with exception ", ex);
             state = State.ERROR;
             state_mutex.notifyAll();
         }
@@ -387,14 +386,14 @@ public class ARDrone
             {
                 if(state == State.TAKING_OFF && nd.getFlyingState() == FlyingState.FLYING)
                 {
-                    log.fine("Take off success");
+                    log.debug("Take off success");
                     cmd_queue.clear(); // Maybe we should just remove
                                        // LAND/TAKEOFF comand
                                        // instead of nuking the whole queue?
                     changeState(State.DEMO);
                 } else if(state == State.LANDING && nd.getFlyingState() == FlyingState.LANDED)
                 {
-                    log.fine("Landing success");
+                    log.debug("Landing success");
                     cmd_queue.clear(); // Maybe we should just remove
                                        // LAND/TAKEOFF comand
                                        // instead of nuking the whole queue?
@@ -416,7 +415,7 @@ public class ARDrone
             }
         } catch(IOException e)
         {
-            log.log(Level.SEVERE, "Error changing the state", e);
+            log.error("Error changing the state", e);
         }
 
         if(state == State.DEMO)

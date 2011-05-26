@@ -1,9 +1,8 @@
 
 package com.codeminders.ardroneui;
 
-import java.util.logging.*;
-
 import com.codeminders.ardrone.ARDrone;
+
 
 public class CommandLineTest
 {
@@ -15,8 +14,6 @@ public class CommandLineTest
      */
     public static void main(String[] args)
     {
-        setupLog();
-
         ARDrone drone;
         try
         {
@@ -38,27 +35,4 @@ public class CommandLineTest
             e.printStackTrace();
         }
     }
-
-    private static void setupLog()
-    {
-        Logger topLogger = java.util.logging.Logger.getLogger("");
-        Handler consoleHandler = null;
-        for(Handler handler : topLogger.getHandlers())
-        {
-            if(handler instanceof ConsoleHandler)
-            {
-                consoleHandler = handler;
-                break;
-            }
-        }
-
-        if(consoleHandler == null)
-        {
-            consoleHandler = new ConsoleHandler();
-            topLogger.addHandler(consoleHandler);
-        }
-        topLogger.setLevel(Level.ALL);
-        consoleHandler.setLevel(java.util.logging.Level.ALL);
-    }
-
 }
