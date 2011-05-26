@@ -192,7 +192,7 @@ public class NavData
                 break;
             } else
             {
-                log.fine("Skipping unknown NavData option with tag=" + option_tag);
+                log.finer("Skipping unknown NavData option with tag=" + option_tag);
             }
             offset = offset + option_len - 4;
         }
