@@ -298,7 +298,7 @@ public class ARDrone
      */
     public void enableAutomaticVideoBitrate() throws IOException
     {
-        cmd_queue.add(new ConfigureCommand("video:bitrate_control_mode", "1"));
+        setConfigOption("video:bitrate_control_mode", "1");
     }
 
     public List<DroneVideoListener> getImageListeners()
