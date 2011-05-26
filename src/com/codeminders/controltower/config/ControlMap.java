@@ -1,7 +1,7 @@
 package com.codeminders.controltower.config;
 
 import com.codeminders.ardrone.ARDrone;
-import com.codeminders.controltower.config.AssignableControl.CONTROL_KEY;
+import com.codeminders.controltower.config.AssignableControl.ControllerButton;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ import java.util.prefs.Preferences;
 public class ControlMap {
 
     private Preferences prefs;
-    private HashMap<CONTROL_KEY, List<AssignableControl>> map = new HashMap<CONTROL_KEY, List<AssignableControl>>();
+    private HashMap<ControllerButton, List<AssignableControl>> map = new HashMap<ControllerButton, List<AssignableControl>>();
     ScheduledThreadPoolExecutor exec = new ScheduledThreadPoolExecutor(1);
 
     public ControlMap() {
@@ -35,11 +35,11 @@ public class ControlMap {
     /**
      * Called from the update loop in ControlTower when a button is pressed
      * @param drone
-     * @param key
+     * @param button
      * @throws IOException 
      */
-    public synchronized void sendCommand(ARDrone drone, CONTROL_KEY key) throws IOException {
-        List<AssignableControl> commands = map.get(key);
+    public synchronized void sendCommand(ARDrone drone, ControllerButton button) throws IOException {
+        List<AssignableControl> commands = map.get(button);
         if (commands == null) {
             return;
         }
@@ -70,21 +70,21 @@ public class ControlMap {
     }
 
     /**
-     * Gets the list of control commands that are assigned to a certain key
-     * @param key
+     * Gets the list of control commands that are assigned to a certain button
+     * @param button
      * @return 
      */
-    public List<AssignableControl> getControls(CONTROL_KEY key) {
-        return map.get(key);
+    public List<AssignableControl> getControls(ControllerButton button) {
+        return map.get(button);
     }
 
     /**
-     * Sets the list of control commands for a certain key
-     * @param key
+     * Sets the list of control commands for a certain button
+     * @param button
      * @param controls 
      */
-    public synchronized void setControls(CONTROL_KEY key, List<AssignableControl> controls) {
-        map.put(key, controls);
+    public synchronized void setControls(ControllerButton button, List<AssignableControl> controls) {
+        map.put(button, controls);
         storeMap();
     }
 
@@ -100,10 +100,10 @@ public class ControlMap {
                 if (string.startsWith("CONTROL_MAPPING")) {
                     String mapping = prefs.get(string, "");
                     AssignableControl command = new AssignableControl(mapping);
-                    List<AssignableControl> commands = map.get(command.getKey());
+                    List<AssignableControl> commands = map.get(command.getButton());
                     if (commands == null) {
                         commands = new LinkedList<AssignableControl>();
-                        map.put(command.getKey(), commands);
+                        map.put(command.getButton(), commands);
                     }
                     commands.add(0, command);
                     Logger.getLogger(ControlMap.class.getName()).log(Level.FINE, "Load command:{0}", command.getPrefString());
@@ -123,14 +123,14 @@ public class ControlMap {
      * Creates the default mapping in case no settings are stored yet
      */
     private void createDefaultMapping() {
-        map.put(CONTROL_KEY.PS, new LinkedList<AssignableControl>());
-        map.get(CONTROL_KEY.PS).add(new AssignableControl(CONTROL_KEY.PS, AssignableControl.COMMAND.RESET, 0));
-        map.put(CONTROL_KEY.START, new LinkedList<AssignableControl>());
-        map.get(CONTROL_KEY.START).add(new AssignableControl(CONTROL_KEY.START, AssignableControl.COMMAND.TAKEOFF, 0));
-        map.put(CONTROL_KEY.SELECT, new LinkedList<AssignableControl>());
-        map.get(CONTROL_KEY.SELECT).add(new AssignableControl(CONTROL_KEY.SELECT, AssignableControl.COMMAND.LAND, 0));
-        map.put(CONTROL_KEY.TRIANGLE, new LinkedList<AssignableControl>());
-        map.get(CONTROL_KEY.TRIANGLE).add(new AssignableControl(CONTROL_KEY.TRIANGLE, AssignableControl.COMMAND.VIDEO_CYCLE, 0));
+        map.put(ControllerButton.PS, new LinkedList<AssignableControl>());
+        map.get(ControllerButton.PS).add(new AssignableControl(ControllerButton.PS, AssignableControl.Command.RESET, 0));
+        map.put(ControllerButton.START, new LinkedList<AssignableControl>());
+        map.get(ControllerButton.START).add(new AssignableControl(ControllerButton.START, AssignableControl.Command.TAKEOFF, 0));
+        map.put(ControllerButton.SELECT, new LinkedList<AssignableControl>());
+        map.get(ControllerButton.SELECT).add(new AssignableControl(ControllerButton.SELECT, AssignableControl.Command.LAND, 0));
+        map.put(ControllerButton.TRIANGLE, new LinkedList<AssignableControl>());
+        map.get(ControllerButton.TRIANGLE).add(new AssignableControl(ControllerButton.TRIANGLE, AssignableControl.Command.VIDEO_CYCLE, 0));
     }
 
     /**

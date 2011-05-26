@@ -8,8 +8,8 @@ package com.codeminders.controltower;
 import com.codeminders.ardrone.ARDrone.Animation;
 import com.codeminders.ardrone.ARDrone.LED;
 import com.codeminders.controltower.config.AssignableControl;
-import com.codeminders.controltower.config.AssignableControl.COMMAND;
-import com.codeminders.controltower.config.AssignableControl.CONTROL_KEY;
+import com.codeminders.controltower.config.AssignableControl.Command;
+import com.codeminders.controltower.config.AssignableControl.ControllerButton;
 import com.codeminders.controltower.config.ControlMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,11 +39,11 @@ public class ControlConfig extends javax.swing.JDialog {
      * Initializes the list of available buttons
      */
     private void initButtonList() {
-        CONTROL_KEY[] keys = CONTROL_KEY.values();
-        String[] str = new String[keys.length];
-        for (int i = 0; i < keys.length; i++) {
-            CONTROL_KEY key = keys[i];
-            str[i] = key.name();
+        ControllerButton[] buttons = ControllerButton.values();
+        String[] str = new String[buttons.length];
+        for (int i = 0; i < buttons.length; i++) {
+            ControllerButton button = buttons[i];
+            str[i] = button.name();
         }
         buttonList.setListData(str);
     }
@@ -53,11 +53,11 @@ public class ControlConfig extends javax.swing.JDialog {
      */
     private void initCommandList() {
         commandList.removeAllItems();
-        COMMAND[] keys = COMMAND.values();
+        Command[] buttons = Command.values();
         commandList.addItem("None");
-        for (int i = 0; i < keys.length; i++) {
-            COMMAND key = keys[i];
-            commandList.addItem(key.name());
+        for (int i = 0; i < buttons.length; i++) {
+            Command button = buttons[i];
+            commandList.addItem(button.name());
         }
     }
 
@@ -66,10 +66,10 @@ public class ControlConfig extends javax.swing.JDialog {
      */
     private void setAnimMode() {
         valueList.removeAllItems();
-        Animation[] keys = Animation.values();
-        for (int i = 0; i < keys.length; i++) {
-            Animation key = keys[i];
-            valueList.addItem(key.name());
+        Animation[] buttons = Animation.values();
+        for (int i = 0; i < buttons.length; i++) {
+            Animation button = buttons[i];
+            valueList.addItem(button.name());
         }
         valueList.setEnabled(true);
         durationSpinner.setEnabled(true);
@@ -81,10 +81,10 @@ public class ControlConfig extends javax.swing.JDialog {
      */
     private void setLEDMode() {
         valueList.removeAllItems();
-        LED[] keys = LED.values();
-        for (int i = 0; i < keys.length; i++) {
-            LED key = keys[i];
-            valueList.addItem(key.name());
+        LED[] buttons = LED.values();
+        for (int i = 0; i < buttons.length; i++) {
+            LED button = buttons[i];
+            valueList.addItem(button.name());
         }
         valueList.setEnabled(true);
         durationSpinner.setEnabled(true);
@@ -113,10 +113,10 @@ public class ControlConfig extends javax.swing.JDialog {
         if (str == null) {
             return;
         }
-        COMMAND command = COMMAND.valueOf(str);
-        if (command == COMMAND.PLAY_ANIMATION) {
+        Command command = Command.valueOf(str);
+        if (command == Command.PLAY_ANIMATION) {
             setAnimMode();
-        } else if (command == COMMAND.PLAY_LED) {
+        } else if (command == Command.PLAY_LED) {
             setLEDMode();
         } else {
             setDefaultMode();
@@ -127,12 +127,12 @@ public class ControlConfig extends javax.swing.JDialog {
      * Updates the UI elements based on the selected button / command index
      */
     private void updateButtonSelection() {
-        String controlKey = (String) buttonList.getSelectedValue();
-        if (controlKey == null) {
+        String controlbutton = (String) buttonList.getSelectedValue();
+        if (controlbutton == null) {
             resetView();
             return;
         }
-        list = map.getControls(CONTROL_KEY.valueOf(controlKey));
+        list = map.getControls(ControllerButton.valueOf(controlbutton));
         jLabel4.setText((index + 1) + "");
         if (list == null) {
             list = new LinkedList<AssignableControl>();
@@ -147,10 +147,10 @@ public class ControlConfig extends javax.swing.JDialog {
         }
         AssignableControl control = list.get(index);
         commandList.setSelectedItem(control.getCommand().name());
-        if (control.getCommand() == COMMAND.PLAY_ANIMATION) {
+        if (control.getCommand() == Command.PLAY_ANIMATION) {
             setAnimMode();
             valueList.setSelectedItem(control.getAnim().name());
-        } else if (control.getCommand() == COMMAND.PLAY_LED) {
+        } else if (control.getCommand() == Command.PLAY_LED) {
             setLEDMode();
             valueList.setSelectedItem(control.getLed().name());
         } else {
@@ -172,8 +172,8 @@ public class ControlConfig extends javax.swing.JDialog {
         if (controlString == null) {
             return;
         }
-        CONTROL_KEY key = CONTROL_KEY.valueOf(controlString);
-        if (key == null) {
+        ControllerButton button = ControllerButton.valueOf(controlString);
+        if (button == null) {
             return;
         }
         if ("None".equals(commandString)) {
@@ -182,26 +182,26 @@ public class ControlConfig extends javax.swing.JDialog {
             }
             return;
         }
-        COMMAND command = COMMAND.valueOf((String) commandList.getSelectedItem());
+        Command command = Command.valueOf((String) commandList.getSelectedItem());
         if (command == null) {
             return;
         }
-        if (command == COMMAND.PLAY_ANIMATION) {
+        if (command == Command.PLAY_ANIMATION) {
             Animation anim = Animation.valueOf((String) valueList.getSelectedItem());
-            control = new AssignableControl(key, anim, (Integer) delaySpinner.getValue(), (Integer) durationSpinner.getValue());
+            control = new AssignableControl(button, anim, (Integer) delaySpinner.getValue(), (Integer) durationSpinner.getValue());
 
-        } else if (command == COMMAND.PLAY_LED) {
+        } else if (command == Command.PLAY_LED) {
             LED led = LED.valueOf((String) valueList.getSelectedItem());
             float freq = frequencySpinner.getValue() instanceof Float ? (Float) frequencySpinner.getValue() : (Integer) frequencySpinner.getValue();
-            control = new AssignableControl(key, led, (Integer) delaySpinner.getValue(), freq, (Integer) durationSpinner.getValue());
+            control = new AssignableControl(button, led, (Integer) delaySpinner.getValue(), freq, (Integer) durationSpinner.getValue());
         } else {
-            control = new AssignableControl(key, command, (Integer) delaySpinner.getValue());
+            control = new AssignableControl(button, command, (Integer) delaySpinner.getValue());
         }
         list.add(index, control);
         if (list.size() > index + 1) {
             list.remove(index + 1);
         }
-        map.setControls(key, list);
+        map.setControls(button, list);
     }
 
     /**
