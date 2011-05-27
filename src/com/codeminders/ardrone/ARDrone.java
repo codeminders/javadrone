@@ -144,6 +144,22 @@ public class ARDrone
             image_listeners.add(l);
         }
     }
+    
+    public void removeImageListener(DroneVideoListener l)
+    {
+        synchronized(image_listeners)
+        {
+            image_listeners.remove(l);
+        }
+    }
+
+    public void clearImageListeners()
+    {
+        synchronized(image_listeners)
+        {
+            image_listeners.clear();
+        }
+    }
 
     public void addStatusChangeListener(DroneStatusChangeListener l)
     {
@@ -153,11 +169,43 @@ public class ARDrone
         }
     }
 
+    public void removeStatusChangeListener(DroneStatusChangeListener l)
+    {
+        synchronized(status_listeners)
+        {
+            status_listeners.remove(l);
+        }
+    }
+
+    public void clearStatusChangeListeners()
+    {
+        synchronized(status_listeners)
+        {
+            status_listeners.clear();
+        }
+    }
+
     public void addNavDataListener(NavDataListener l)
     {
         synchronized(navdata_listeners)
         {
             navdata_listeners.add(l);
+        }
+    }
+
+    public void removeNavDataListener(NavDataListener l)
+    {
+        synchronized(navdata_listeners)
+        {
+            navdata_listeners.remove(l);
+        }
+    }
+
+    public void clearNavDataListeners()
+    {
+        synchronized(navdata_listeners)
+        {
+            navdata_listeners.clear();
         }
     }
 
@@ -299,21 +347,6 @@ public class ARDrone
     public void enableAutomaticVideoBitrate() throws IOException
     {
         setConfigOption("video:bitrate_control_mode", "1");
-    }
-
-    public List<DroneVideoListener> getImageListeners()
-    {
-        return image_listeners;
-    }
-
-    public List<DroneStatusChangeListener> getStatusChangeListeners()
-    {
-        return status_listeners;
-    }
-
-    public List<NavDataListener> getNavDataListeners()
-    {
-        return navdata_listeners;
     }
 
     public void hover() throws IOException
