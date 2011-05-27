@@ -31,7 +31,7 @@ public class CommandQueue
                 {
                     int sc = res.incrementStickyCounter();
                     data.addLast(res);
-                    if(sc == 1)
+                    if(sc > 1)
                         Thread.sleep(res.getStickyRate());
                 }
                 return res;
@@ -61,15 +61,17 @@ public class CommandQueue
             } else
             {
                 // Found insertion point.
-                if(!x.equals(cmd))
+                if(!x.replaces(cmd))
                 {
                     // log.debug("[" + data.size() + "] Adding command " +
                     // cmd);
                     data.add(pos, cmd);
                     notify();
+                } else
+                {
+                    // log.debug("Replacing duplicate element " + cmd);
+                    data.set(pos, cmd);
                 }
-                // else
-                // log.debug("Not adding duplicate element " + cmd);
                 cmd = null; // inserted
                 break;
             }
