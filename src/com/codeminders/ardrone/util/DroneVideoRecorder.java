@@ -1,10 +1,10 @@
-package com.codeminders.ardrone;
+package com.codeminders.ardrone.util;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.codeminders.ardrone.video.MJPEGGenerator;
+import com.codeminders.ardrone.DroneVideoListener;
 
 public class DroneVideoRecorder implements DroneVideoListener {
 

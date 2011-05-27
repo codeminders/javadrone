@@ -8,7 +8,7 @@
  * Open. You can then make changes to the template in the Source Editor.
  */
 
-package com.codeminders.ardrone.video;
+package com.codeminders.ardrone.util;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
