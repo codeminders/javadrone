@@ -4,9 +4,17 @@ import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.ARDrone.Animation;
 import com.codeminders.ardrone.ARDrone.LED;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
+import com.codeminders.ardrone.util.FileImageRecorder;
+import com.codeminders.ardrone.util.FileVideoRecorder;
+import com.codeminders.ardrone.util.RecordingSuccessCallback;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.Level;
 
 import org.apache.log4j.Logger;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 /**
  * This class represents one control mapping for a button and at the same
@@ -18,7 +26,7 @@ public class AssignableControl {
     public enum Command {
 
         TAKEOFF, LAND, TRIM, CLEAR_EMERGENCY, PLAY_ANIMATION, PLAY_LED, RESET,
-        VIDEO_CYCLE, FRONTAL_CAM, BOTTOM_CAM, BOTTOM_CAM_SMALL, FRONTAL_CAM_SMALL
+        VIDEO_CYCLE, FRONTAL_CAM, BOTTOM_CAM, BOTTOM_CAM_SMALL, FRONTAL_CAM_SMALL, TAKE_SNAPSHOT, RECORD_VIDEO
     }
 
     public enum ControllerButton {
@@ -35,7 +43,6 @@ public class AssignableControl {
 
         FRONT_BACK, LEFT_RIGHT, UP_DOWN, ROTATE
     }
-    
     private ControllerButton button;
     private Command command;
     private Animation anim;
@@ -49,6 +56,10 @@ public class AssignableControl {
     private static final VideoChannel[] VIDEO_CYCLE = {VideoChannel.HORIZONTAL_ONLY,
         VideoChannel.VERTICAL_ONLY, VideoChannel.VERTICAL_IN_HORIZONTAL, VideoChannel.HORIZONTAL_IN_VERTICAL};
     private int video_index = 0;
+    private File recFile;
+    private FileImageRecorder fir;
+    private FileVideoRecorder fvr;
+    private boolean recording;
 
     /**
      * Creates the control from a string that is stored in the java preferences of this app
@@ -72,6 +83,14 @@ public class AssignableControl {
                 frequency = Float.parseFloat(strings[4]);
                 duration = Integer.parseInt(strings[5]);
                 break;
+            case RECORD_VIDEO:
+            case TAKE_SNAPSHOT:
+                try {
+                    recFile = new File(strings[3].replace('?', File.separatorChar));
+                } catch (Exception e) {
+                }
+                break;
+
         }
         this.prefString = prefString;
     }
@@ -93,6 +112,13 @@ public class AssignableControl {
         prefString = button.name() + "/" + command.name() + "/" + delay + "/" + anim.name() + "/" + duration;
     }
 
+    public AssignableControl(ControllerButton button, Command command, int delay, File file) {
+        this.command = command;
+        this.delay = delay;
+        this.recFile = file;
+        prefString = button.name() + "/" + command.name() + "/" + delay + "/" + file.getPath().replace(File.separatorChar, '?');
+    }
+
     public AssignableControl(ControllerButton button, Command command, int delay) {
         this.command = command;
         this.delay = delay;
@@ -104,7 +130,7 @@ public class AssignableControl {
      * @param drone
      * @throws IOException 
      */
-    public void sendToDrone(ARDrone drone) throws IOException {
+    public void sendToDrone(final ARDrone drone) throws IOException {
         switch (command) {
             case PLAY_ANIMATION:
                 Logger.getLogger(AssignableControl.class.getName()).debug("Sending animation command");
@@ -155,6 +181,112 @@ public class AssignableControl {
                 Logger.getLogger(AssignableControl.class.getName()).debug("Sending front cam small");
                 drone.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_IN_VERTICAL);
                 break;
+            case TAKE_SNAPSHOT:
+                takeSnapshot(drone);
+                break;
+            case RECORD_VIDEO:
+                recordVideo(drone);
+                break;
+        }
+    }
+
+    private void takeSnapshot(final ARDrone drone) {
+        if (fir == null) {
+            fir = new FileImageRecorder(recFile, 0, "SNAPSHOT-", new RecordingSuccessCallback() {
+
+                InputStream in = this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/camera.aif");
+
+                @Override
+                public void recordingSuccess(String filename) {
+                    AudioStream stream = null;
+                    try {
+                        stream = new AudioStream(in);
+                        AudioPlayer.player.start(stream);
+                    } catch (IOException ex) {
+                        java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
+                    } finally {
+                        try {
+                            stream.close();
+                        } catch (Exception ex) {
+                            java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
+                        }
+                    }
+                }
+
+                @Override
+                public void recordingError(String filename, String err, Throwable ex) {
+                }
+            });
+            drone.addImageListener(fir);
+        }
+        fir.activate();
+    }
+
+    private void recordVideo(final ARDrone drone) {
+
+        if (fvr == null) {
+            fvr = new FileVideoRecorder();//recFile, 0, "SNAPSHOT-", new RecordingSuccessCallback() {
+//
+//                InputStream in = this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/camera.aif");
+//
+//                @Override
+//                public void recordingSuccess(String filename) {
+//                    AudioStream stream = null;
+//                    try {
+//                        stream = new AudioStream(in);
+//                        AudioPlayer.player.start(stream);
+//                    } catch (IOException ex) {
+//                        java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
+//                    } finally {
+//                        try {
+//                            stream.close();
+//                        } catch (Exception ex) {
+//                            java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
+//                        }
+//                    }
+//                }
+//
+//                @Override
+//                public void recordingError(String filename, String err, Throwable ex) {
+//                }
+//            });
+            drone.addImageListener(fvr);
+        }
+        if (!recording) {
+            InputStream in = this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_start.aif");
+            AudioStream stream = null;
+            try {
+                stream = new AudioStream(in);
+                AudioPlayer.player.start(stream);
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
+            } finally {
+                try {
+                    stream.close();
+                } catch (Exception ex) {
+                    java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
+                }
+            }
+            fvr.startRecording();
+            recording = true;
+        } else {
+            InputStream in = this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif");
+            AudioStream stream = null;
+            try {
+                stream = new AudioStream(in);
+                AudioPlayer.player.start(stream);
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
+            } finally {
+                try {
+                    stream.close();
+                } catch (Exception ex) {
+                    java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
+                }
+            }
+            fvr.stopRecording();
+            fvr.saveVideo(recFile.getPath() + File.separator + "video.avi");
+            recording = false;
         }
     }
 
@@ -169,7 +301,7 @@ public class AssignableControl {
         }
         drone.selectVideoChannel(VIDEO_CYCLE[video_index]);
     }
-    
+
     public ControllerButton getButton() {
         return button;
     }
@@ -204,6 +336,10 @@ public class AssignableControl {
 
     public int getDelay() {
         return delay;
+    }
+
+    public File getRecFile() {
+        return recFile;
     }
 
     /**
