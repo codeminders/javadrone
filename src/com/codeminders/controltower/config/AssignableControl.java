@@ -9,12 +9,9 @@ import com.codeminders.ardrone.util.FileVideoRecorder;
 import com.codeminders.ardrone.util.RecordingSuccessCallback;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.logging.Level;
 
 import org.apache.log4j.Logger;
 import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
 
 /**
  * This class represents one control mapping for a button and at the same
@@ -182,9 +179,11 @@ public class AssignableControl {
                 drone.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_IN_VERTICAL);
                 break;
             case TAKE_SNAPSHOT:
+                Logger.getLogger(AssignableControl.class.getName()).debug("Take snapshot");
                 takeSnapshot(drone);
                 break;
             case RECORD_VIDEO:
+                Logger.getLogger(AssignableControl.class.getName()).debug("Record video");
                 recordVideo(drone);
                 break;
         }
@@ -194,23 +193,9 @@ public class AssignableControl {
         if (fir == null) {
             fir = new FileImageRecorder(recFile, 0, "SNAPSHOT-", new RecordingSuccessCallback() {
 
-                InputStream in = this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/camera.aif");
-
                 @Override
                 public void recordingSuccess(String filename) {
-                    AudioStream stream = null;
-                    try {
-                        stream = new AudioStream(in);
-                        AudioPlayer.player.start(stream);
-                    } catch (IOException ex) {
-                        java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
-                    } finally {
-                        try {
-                            stream.close();
-                        } catch (Exception ex) {
-                            java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
-                        }
-                    }
+                    AudioPlayer.player.start(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/camera.aif"));
                 }
 
                 @Override
@@ -225,65 +210,15 @@ public class AssignableControl {
     private void recordVideo(final ARDrone drone) {
 
         if (fvr == null) {
-            fvr = new FileVideoRecorder();//recFile, 0, "SNAPSHOT-", new RecordingSuccessCallback() {
-//
-//                InputStream in = this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/camera.aif");
-//
-//                @Override
-//                public void recordingSuccess(String filename) {
-//                    AudioStream stream = null;
-//                    try {
-//                        stream = new AudioStream(in);
-//                        AudioPlayer.player.start(stream);
-//                    } catch (IOException ex) {
-//                        java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
-//                    } finally {
-//                        try {
-//                            stream.close();
-//                        } catch (Exception ex) {
-//                            java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
-//                        }
-//                    }
-//                }
-//
-//                @Override
-//                public void recordingError(String filename, String err, Throwable ex) {
-//                }
-//            });
+            fvr = new FileVideoRecorder();
             drone.addImageListener(fvr);
         }
         if (!recording) {
-            InputStream in = this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_start.aif");
-            AudioStream stream = null;
-            try {
-                stream = new AudioStream(in);
-                AudioPlayer.player.start(stream);
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
-            } finally {
-                try {
-                    stream.close();
-                } catch (Exception ex) {
-                    java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
-                }
-            }
+            AudioPlayer.player.start(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_start.aif"));
             fvr.startRecording();
             recording = true;
         } else {
-            InputStream in = this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif");
-            AudioStream stream = null;
-            try {
-                stream = new AudioStream(in);
-                AudioPlayer.player.start(stream);
-            } catch (IOException ex) {
-                java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
-            } finally {
-                try {
-                    stream.close();
-                } catch (Exception ex) {
-                    java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
-                }
-            }
+            AudioPlayer.player.start(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif"));
             fvr.stopRecording();
             fvr.saveVideo(recFile.getPath() + File.separator + "video.avi");
             recording = false;
