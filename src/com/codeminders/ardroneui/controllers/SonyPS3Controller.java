@@ -78,8 +78,8 @@ public class SonyPS3Controller extends PS3Controller
         bs.get(i++);
         boolean L2 = bs.get(i++);
         boolean R2 = bs.get(i++);
-        boolean L1 = bs.get(i++);
         boolean R1 = bs.get(i++);
+        boolean L1 = bs.get(i++);
         boolean triangle = bs.get(i++);
         boolean circle = bs.get(i++);
         boolean cross = bs.get(i++);
