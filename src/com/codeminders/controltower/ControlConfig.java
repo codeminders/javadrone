@@ -11,8 +11,10 @@ import com.codeminders.controltower.config.AssignableControl;
 import com.codeminders.controltower.config.AssignableControl.Command;
 import com.codeminders.controltower.config.AssignableControl.ControllerButton;
 import com.codeminders.controltower.config.ControlMap;
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import javax.swing.JFileChooser;
 
 /**
  *
@@ -186,22 +188,43 @@ public class ControlConfig extends javax.swing.JDialog {
         if (command == null) {
             return;
         }
-        if (command == Command.PLAY_ANIMATION) {
-            Animation anim = Animation.valueOf((String) valueList.getSelectedItem());
-            control = new AssignableControl(button, anim, (Integer) delaySpinner.getValue(), (Integer) durationSpinner.getValue());
-
-        } else if (command == Command.PLAY_LED) {
-            LED led = LED.valueOf((String) valueList.getSelectedItem());
-            float freq = frequencySpinner.getValue() instanceof Float ? (Float) frequencySpinner.getValue() : (Integer) frequencySpinner.getValue();
-            control = new AssignableControl(button, led, (Integer) delaySpinner.getValue(), freq, (Integer) durationSpinner.getValue());
-        } else {
-            control = new AssignableControl(button, command, (Integer) delaySpinner.getValue());
+        switch(command){
+            case PLAY_ANIMATION:
+                Animation anim = Animation.valueOf((String) valueList.getSelectedItem());
+                control = new AssignableControl(button, anim, (Integer) delaySpinner.getValue(), (Integer) durationSpinner.getValue());
+                break;
+            case PLAY_LED:
+                LED led = LED.valueOf((String) valueList.getSelectedItem());
+                float freq = frequencySpinner.getValue() instanceof Float ? (Float) frequencySpinner.getValue() : (Integer) frequencySpinner.getValue();
+                control = new AssignableControl(button, led, (Integer) delaySpinner.getValue(), freq, (Integer) durationSpinner.getValue());
+                break;
+            case TAKE_SNAPSHOT:
+            case RECORD_VIDEO:
+                control = new AssignableControl(button, command, (Integer) delaySpinner.getValue(), getFile());
+                break;
+            default:
+                control = new AssignableControl(button, command, (Integer) delaySpinner.getValue());
+                break;
         }
         list.add(index, control);
         if (list.size() > index + 1) {
             list.remove(index + 1);
         }
         map.setControls(button, list);
+    }
+
+    private File getFile() {
+        final JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Select folder to store data");
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnVal = fc.showOpenDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            return fc.getSelectedFile();
+            //This is where a real application would open the file.
+        } else {
+            return new File("." + File.separator);
+        }
     }
 
     /**
@@ -277,7 +300,7 @@ public class ControlConfig extends javax.swing.JDialog {
             }
         });
 
-        jLabel1.setText("Duration");
+        jLabel1.setText("Duration (ms)");
 
         jLabel2.setText("Frequency");
 
@@ -308,7 +331,7 @@ public class ControlConfig extends javax.swing.JDialog {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 35, Short.MAX_VALUE)
+            .addGap(0, 46, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -324,7 +347,7 @@ public class ControlConfig extends javax.swing.JDialog {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 35, Short.MAX_VALUE)
+            .addGap(0, 45, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -372,24 +395,26 @@ public class ControlConfig extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 145, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(valueList, javax.swing.GroupLayout.Alignment.LEADING, 0, 209, Short.MAX_VALUE)
-                    .addComponent(commandList, javax.swing.GroupLayout.Alignment.LEADING, 0, 209, Short.MAX_VALUE)
+                    .addComponent(valueList, javax.swing.GroupLayout.Alignment.LEADING, 0, 231, Short.MAX_VALUE)
+                    .addComponent(commandList, javax.swing.GroupLayout.Alignment.LEADING, 0, 231, Short.MAX_VALUE)
+                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
+                    .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jLabel6)
+                        .addGap(32, 32, 32)
+                        .addComponent(delaySpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel6))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(durationSpinner, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                            .addComponent(frequencySpinner, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                            .addComponent(delaySpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)))
-                    .addComponent(jSeparator2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
-                    .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE))
+                            .addComponent(jLabel2))
+                        .addGap(12, 12, 12)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(durationSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                            .addComponent(frequencySpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -406,16 +431,16 @@ public class ControlConfig extends javax.swing.JDialog {
                         .addComponent(valueList, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel6)
+                            .addComponent(delaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel1)
                             .addComponent(durationSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel2)
                             .addComponent(frequencySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(delaySpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
