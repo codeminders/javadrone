@@ -189,7 +189,7 @@ public class AssignableControl {
         }
     }
 
-    private void takeSnapshot(final ARDrone drone) {
+    private synchronized void takeSnapshot(final ARDrone drone) {
         if (fir == null) {
             fir = new FileImageRecorder(recFile, 0, "SNAPSHOT-", new RecordingSuccessCallback() {
 
@@ -207,10 +207,20 @@ public class AssignableControl {
         fir.activate();
     }
 
-    private void recordVideo(final ARDrone drone) {
+    private synchronized void recordVideo(final ARDrone drone) {
 
         if (fvr == null) {
-            fvr = null; //new FileVideoRecorder(); //TODO: need more params
+            fvr = new FileVideoRecorder(recFile, 0, "VIDEO-", new RecordingSuccessCallback() {
+
+                @Override
+                public void recordingSuccess(String filename) {
+                    AudioPlayer.player.start(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif"));
+                }
+
+                @Override
+                public void recordingError(String filename, String err, Throwable ex) {
+                }
+            }, 20);
             drone.addImageListener(fvr);
         }
         if (!recording) {
@@ -218,9 +228,7 @@ public class AssignableControl {
             fvr.startRecording();
             recording = true;
         } else {
-            AudioPlayer.player.start(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif"));
             fvr.finishRecording();
-            //fvr.saveVideo(recFile.getPath() + File.separator + "video.avi");
             recording = false;
         }
     }
