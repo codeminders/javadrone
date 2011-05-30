@@ -1,76 +1,165 @@
 
 package com.codeminders.ardrone.util;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import com.codeminders.ardrone.DroneVideoListener;
 
-public class FileVideoRecorder implements DroneVideoListener
+/**
+ * Video recorder. It records single video file. You can start/stop recording
+ * many times.
+ * 
+ * @author lord
+ * 
+ */
+public class FileVideoRecorder implements DroneVideoListener, Runnable
 {
+    private static final String      EXT          = ".avi";
 
-    private ArrayList<BufferedImage> images = new ArrayList<BufferedImage>();
+    private Queue<BufferedImage>     frames_queue = new LinkedList<BufferedImage>();
     private boolean                  recording;
+    private boolean                  done;
     private MJPEGGenerator           generator;
 
-    public void startRecording()
+    private File                     base_path;
+    private int                      starting_seq;
+    private String                   prefix;
+    private RecordingSuccessCallback callback;
+    double                           frame_rate;
+
+    private int                      frame_width;
+    private int                      frame_height;
+    File                             current_file;
+
+    public FileVideoRecorder(File base_path, int starting_seq, String prefix, RecordingSuccessCallback callback,
+            double frame_rate)
     {
-        if(!recording)
-        {
-            recording = true;
-        }
+        this.base_path = base_path;
+        this.starting_seq = starting_seq;
+        this.prefix = prefix;
+        this.callback = callback;
+        this.frame_rate = frame_rate;
+
+        this.recording = false;
+        this.done = false;
+        this.generator = null;
     }
 
-    public void stopRecording()
+    public synchronized void startRecording()
     {
-        if(recording)
-        {
-            recording = false;
-        }
+        recording = true;
+        notify();
     }
 
-    public void clear()
+    public synchronized void pauseRecording()
     {
-        stopRecording();
-        images.clear();
+        recording = false;
+        notify();
     }
 
-    public void saveVideo(String fileName)
+    public synchronized void finishRecording()
     {
-        stopRecording();
-        int numFrames = images.size();
-
-        if(numFrames == 0)
-        {
-            System.err.println("No frames recorded");
-            return;
-        }
-
-        double framerate = 60;
-        try
-        {
-            generator = new MJPEGGenerator(new File(fileName), images.get(0).getWidth(), images.get(0).getHeight(),
-                    framerate, numFrames);
-            for(BufferedImage image : images)
-            {
-                generator.addImage(image);
-            }
-            generator.finishAVI();
-            images.clear();
-        } catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+        recording = false;
+        done = true;
+        notify();
     }
 
     @Override
-    public void frameReceived(BufferedImage image)
+    public synchronized void frameReceived(BufferedImage image)
     {
         if(recording)
         {
-            images.add(image);
+            frames_queue.add(image);
+            notify();
         }
     }
 
+    private File openFile() throws IOException
+    {
+        // TODO: sequence number is ignored for now
+        return File.createTempFile(prefix, EXT, base_path);
+    }
+
+    @Override
+    public synchronized void run()
+    {
+        while(true)
+        {
+            try
+            {
+                wait();
+            } catch(InterruptedException e)
+            {
+                // Ignore
+            }
+
+            if(done)
+            {
+                if(generator != null)
+                {
+                    try
+                    {
+                        generator.finishAVI();
+                        callback.recordingSuccess(current_file.getAbsolutePath());
+                    } catch(Exception e)
+                    {
+                        callback.recordingError(current_file.getAbsolutePath(), "Error closing stream", e);
+                    }
+                } else
+                {
+                    callback.recordingError(null, "Recording have not started yet", null);
+                }
+                return;
+            }
+
+            BufferedImage frame = frames_queue.poll();
+            if(frame == null)
+                continue;
+
+            if(generator == null)
+            {
+                // Lazy init. Using first frame size as default
+                frame_width = frame.getWidth();
+                frame_height = frame.getHeight();
+                try
+                {
+                    current_file = openFile();
+                } catch(IOException e1)
+                {
+                    callback.recordingError(null, "Error opening file", e1);
+                    return;
+                }
+                try
+                {
+                    generator = new MJPEGGenerator(current_file, frame_width, frame_height, frame_rate, 0);
+                } catch(Exception e)
+                {
+                    callback.recordingError(current_file.getAbsolutePath(), "Error video stream", e);
+                    return;
+                }
+            }
+
+            try
+            {
+                if(frame.getWidth() != frame_width || frame.getHeight() != frame_height)
+                {
+                    // Needs to be resized
+                    Image i = frame.getScaledInstance(frame_width, frame_height, Image.SCALE_FAST);
+                    generator.addImage(i);
+                } else
+                {
+                    generator.addImage(frame);
+                }
+            } catch(Exception e)
+            {
+                callback.recordingError(current_file.getAbsolutePath(), "Error adding frame", e);
+                return;
+            }
+        }
+    }
 }
