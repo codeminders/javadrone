@@ -210,7 +210,7 @@ public class AssignableControl {
     private void recordVideo(final ARDrone drone) {
 
         if (fvr == null) {
-            fvr = new FileVideoRecorder();
+            fvr = null; //new FileVideoRecorder(); //TODO: need more params
             drone.addImageListener(fvr);
         }
         if (!recording) {
@@ -219,8 +219,8 @@ public class AssignableControl {
             recording = true;
         } else {
             AudioPlayer.player.start(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif"));
-            fvr.stopRecording();
-            fvr.saveVideo(recFile.getPath() + File.separator + "video.avi");
+            fvr.finishRecording();
+            //fvr.saveVideo(recFile.getPath() + File.separator + "video.avi");
             recording = false;
         }
     }
