@@ -47,7 +47,7 @@ public class FileImageRecorder extends FileRecorder implements DroneVideoListene
      * names like IMAGE-0010.png
      * 
      * @param base_path - directory where image files will be stored
-     * @param seq - starting sequence number
+     * @param starting_seq - starting sequence number
      * @param prefix - filename prefix
      * @param callback - callback object which will be notified on each
      *            success/failure. Could be null.
