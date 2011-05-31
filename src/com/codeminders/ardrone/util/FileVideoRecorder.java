@@ -48,6 +48,9 @@ public class FileVideoRecorder implements DroneVideoListener, Runnable
         this.recording = false;
         this.done = false;
         this.generator = null;
+        
+        Thread thr = new Thread(this);
+        thr.start();
     }
 
     public synchronized void startRecording()
