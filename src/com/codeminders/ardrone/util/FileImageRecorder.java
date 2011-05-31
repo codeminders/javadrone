@@ -14,7 +14,6 @@ import com.codeminders.ardrone.DroneVideoListener;
 public class FileImageRecorder extends FileRecorder implements DroneVideoListener
 {
     private static final int    MAX_SAVING_THREADS = 4;
-
     private static final String EXT                = ".png";
 
     private boolean             activated;
@@ -48,7 +47,7 @@ public class FileImageRecorder extends FileRecorder implements DroneVideoListene
      * names like IMAGE-0010.png
      * 
      * @param base_path - directory where image files will be stored
-     * @param starting_seq - starting sequence number
+     * @param seq - starting sequence number
      * @param prefix - filename prefix
      * @param callback - callback object which will be notified on each
      *            success/failure. Could be null.
