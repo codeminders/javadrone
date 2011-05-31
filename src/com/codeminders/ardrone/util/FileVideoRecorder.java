@@ -17,38 +17,32 @@ import com.codeminders.ardrone.DroneVideoListener;
  * @author lord
  * 
  */
-public class FileVideoRecorder implements DroneVideoListener, Runnable
+public class FileVideoRecorder extends FileRecorder implements DroneVideoListener, Runnable
 {
-    private static final String      EXT          = ".avi";
+    private static final String  EXT          = ".avi";
 
-    private Queue<BufferedImage>     frames_queue = new LinkedList<BufferedImage>();
-    private boolean                  recording;
-    private boolean                  done;
-    private MJPEGGenerator           generator;
+    private Queue<BufferedImage> frames_queue = new LinkedList<BufferedImage>();
+    private boolean              recording;
+    private boolean              done;
+    private MJPEGGenerator       generator;
 
-    private File                     base_path;
-    private int                      starting_seq;
-    private String                   prefix;
-    private RecordingSuccessCallback callback;
-    double                           frame_rate;
+    double                       frame_rate;
 
-    private int                      frame_width;
-    private int                      frame_height;
-    File                             current_file;
+    private int                  frame_width;
+    private int                  frame_height;
+    File                         current_file;
 
     public FileVideoRecorder(File base_path, int starting_seq, String prefix, RecordingSuccessCallback callback,
             double frame_rate)
     {
-        this.base_path = base_path;
-        this.starting_seq = starting_seq;
-        this.prefix = prefix;
-        this.callback = callback;
+        super(base_path, starting_seq, prefix, callback);
+
         this.frame_rate = frame_rate;
 
         this.recording = false;
         this.done = false;
         this.generator = null;
-        
+
         Thread thr = new Thread(this);
         thr.start();
     }
@@ -80,12 +74,6 @@ public class FileVideoRecorder implements DroneVideoListener, Runnable
             frames_queue.add(image);
             notify();
         }
-    }
-
-    private File openFile() throws IOException
-    {
-        // TODO: sequence number is ignored for now
-        return File.createTempFile(prefix, EXT, base_path);
     }
 
     @Override
@@ -165,4 +153,10 @@ public class FileVideoRecorder implements DroneVideoListener, Runnable
             }
         }
     }
+
+    public String getExtension()
+    {
+        return EXT;
+    }
+
 }

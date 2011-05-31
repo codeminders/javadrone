@@ -11,18 +11,19 @@ import javax.imageio.ImageIO;
 
 import com.codeminders.ardrone.DroneVideoListener;
 
-public class FileImageRecorder implements DroneVideoListener
+public class FileImageRecorder extends FileRecorder implements DroneVideoListener
 {
-    private static final int         MAX_SAVING_THREADS = 4;
+    private static final int    MAX_SAVING_THREADS = 4;
 
-    private static final String      EXT                = ".png";
+    private static final String EXT                = ".png";
 
-    private File                     base_path;
-    private int                      starting_seq;
-    private String                   prefix;
-    private boolean                  activated;
-    private RecordingSuccessCallback callback;
-    private ExecutorService          executor;
+    private boolean             activated;
+    private ExecutorService     executor;
+
+    public String getExtension()
+    {
+        return EXT;
+    }
 
     private class ImageSaver implements Runnable
     {
@@ -54,13 +55,9 @@ public class FileImageRecorder implements DroneVideoListener
      */
     public FileImageRecorder(File base_path, int starting_seq, String prefix, RecordingSuccessCallback callback)
     {
-        this.base_path = base_path;
-        this.starting_seq = starting_seq;
-        this.prefix = prefix;
-        this.callback = callback;
+        super(base_path, starting_seq, prefix, callback);
 
         this.activated = false;
-
         executor = Executors.newFixedThreadPool(MAX_SAVING_THREADS);
     }
 
@@ -86,12 +83,6 @@ public class FileImageRecorder implements DroneVideoListener
         }
 
         callback.recordingSuccess(f.getPath());
-    }
-
-    private File openFile() throws IOException
-    {
-        // TODO: sequence number is ignored for now
-        return File.createTempFile(prefix, EXT, base_path);
     }
 
     /**
