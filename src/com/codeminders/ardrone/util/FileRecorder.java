@@ -31,7 +31,7 @@ public abstract class FileRecorder
         while(seq < 9999)
         {
             String fname = generateFileName();
-            File f = new File(fname);
+            File f = new File(base_path, fname);
             if(f.createNewFile())
                 return f;
             seq++;
@@ -42,7 +42,7 @@ public abstract class FileRecorder
 
     private String generateFileName()
     {
-        return prefix + "-" + format.format(new Integer(seq)) + getExtension();
+        return prefix + format.format(new Integer(seq)) + getExtension();
     }
 
 }

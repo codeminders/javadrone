@@ -16,6 +16,9 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="log4j" level="project" />
+    <orderEntry type="library" name="SteelSeries" level="project" />
+    <orderEntry type="library" name="resources" level="project" />
   </component>
 </module>
 
