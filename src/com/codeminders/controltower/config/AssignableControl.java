@@ -58,7 +58,6 @@ public class AssignableControl {
     private File recFile;
     private FileImageRecorder fir;
     private FileVideoRecorder fvr;
-    private boolean recording;
 
     /**
      * Creates the control from a string that is stored in the java preferences of this app
@@ -232,18 +231,15 @@ public class AssignableControl {
                 }
             }, 20);
             drone.addImageListener(fvr);
-        }
-        if (!recording) {
+            fvr.startRecording();
             try {
                 AudioPlayer.player.start(new AudioStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_start.aif")));
             } catch (IOException ex) {
                 java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
             }
-            fvr.startRecording();
-            recording = true;
         } else {
             fvr.finishRecording();
-            recording = false;
+            fvr = null;
         }
     }
 
