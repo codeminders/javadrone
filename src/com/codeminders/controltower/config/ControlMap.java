@@ -125,12 +125,22 @@ public class ControlMap {
     private void createDefaultMapping() {
         map.put(ControllerButton.PS, new LinkedList<AssignableControl>());
         map.get(ControllerButton.PS).add(new AssignableControl(ControllerButton.PS, AssignableControl.Command.RESET, 0));
+
         map.put(ControllerButton.START, new LinkedList<AssignableControl>());
         map.get(ControllerButton.START).add(new AssignableControl(ControllerButton.START, AssignableControl.Command.TAKEOFF, 0));
+
         map.put(ControllerButton.SELECT, new LinkedList<AssignableControl>());
         map.get(ControllerButton.SELECT).add(new AssignableControl(ControllerButton.SELECT, AssignableControl.Command.LAND, 0));
+        
         map.put(ControllerButton.TRIANGLE, new LinkedList<AssignableControl>());
         map.get(ControllerButton.TRIANGLE).add(new AssignableControl(ControllerButton.TRIANGLE, AssignableControl.Command.VIDEO_CYCLE, 0));
+        
+        map.put(ControllerButton.SQUARE, new LinkedList<AssignableControl>());
+        map.get(ControllerButton.SQUARE).add(new AssignableControl(ControllerButton.SQUARE, AssignableControl.Command.TAKE_SNAPSHOT, 0));
+
+        map.put(ControllerButton.CIRCLE, new LinkedList<AssignableControl>());
+        map.get(ControllerButton.CIRCLE).add(new AssignableControl(ControllerButton.CIRCLE, AssignableControl.Command.RECORD_VIDEO, 0));
+
     }
 
     /**
