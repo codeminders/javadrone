@@ -3,7 +3,6 @@ package com.codeminders.ardrone.examples;
 
 import com.codeminders.ardrone.ARDrone;
 
-
 public class TakeOffAndLand
 {
 
@@ -17,20 +16,32 @@ public class TakeOffAndLand
         ARDrone drone;
         try
         {
+            // Create ARDrone object,
+            // connect to drone and initialize it.
             drone = new ARDrone();
             drone.connect();
             drone.clearEmergencySignal();
 
+            // Wait until drone is ready
             drone.waitForReady(CONNECT_TIMEOUT);
+
+            // do TRIM operation
             drone.trim();
-            Thread.sleep(1000);
+
+            // Take off
             System.err.println("Taking off");
             drone.takeOff();
+
+            // Fly a little :)
             Thread.sleep(3000);
+
+            // Land
             System.err.println("Landing");
             drone.land();
-            Thread.sleep(2000);
+            
+            // Disconnect from the done
             drone.disconnect();
+
         } catch(Throwable e)
         {
             e.printStackTrace();
