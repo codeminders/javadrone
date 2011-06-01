@@ -1,5 +1,5 @@
 
-package com.codeminders.ardroneui.controllers;
+package com.codeminders.ardrone.controllers;
 
 import java.io.IOException;
 import java.util.BitSet;

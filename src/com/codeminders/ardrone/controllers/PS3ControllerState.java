@@ -1,5 +1,5 @@
 
-package com.codeminders.ardroneui.controllers;
+package com.codeminders.ardrone.controllers;
 
 /**
  * Data structure describing state of generic PS-3 compatible game controller.

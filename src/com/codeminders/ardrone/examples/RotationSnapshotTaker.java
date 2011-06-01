@@ -1,5 +1,5 @@
 
-package com.codeminders.ardroneui;
+package com.codeminders.ardrone.examples;
 
 import org.apache.log4j.Logger;
 

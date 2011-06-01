@@ -1,9 +1,9 @@
 
-package com.codeminders.ardroneui;
+package com.codeminders.ardrone.tools;
 
 import java.io.IOException;
 
-import com.codeminders.ardroneui.controllers.*;
+import com.codeminders.ardrone.controllers.*;
 import com.codeminders.hidapi.HIDDeviceInfo;
 import com.codeminders.hidapi.HIDManager;
 

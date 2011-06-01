@@ -1,5 +1,5 @@
 
-package com.codeminders.ardroneui.controllers;
+package com.codeminders.ardrone.controllers;
 
 public class PS3ControllerStateChange extends PS3ControllerState
 {
