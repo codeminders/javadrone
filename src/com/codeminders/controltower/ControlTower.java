@@ -7,15 +7,10 @@ package com.codeminders.controltower;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
+import com.codeminders.ardrone.controllers.*;
 import com.codeminders.ardrone.DroneStatusChangeListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
-import com.codeminders.ardroneui.controllers.AfterGlowController;
-import com.codeminders.ardroneui.controllers.KeyboardController;
-import com.codeminders.ardroneui.controllers.PS3Controller;
-import com.codeminders.ardroneui.controllers.PS3ControllerState;
-import com.codeminders.ardroneui.controllers.PS3ControllerStateChange;
-import com.codeminders.ardroneui.controllers.SonyPS3Controller;
 import com.codeminders.controltower.config.AssignableControl.ControllerButton;
 import com.codeminders.controltower.config.ControlMap;
 import com.codeminders.hidapi.HIDDeviceInfo;

@@ -1,10 +1,10 @@
 
-package com.codeminders.ardroneui;
+package com.codeminders.ardrone.examples;
 
 import com.codeminders.ardrone.ARDrone;
 
 
-public class CommandLineTest
+public class TakeOffAndLand
 {
 
     private static final long CONNECT_TIMEOUT = 1000;
@@ -27,6 +27,7 @@ public class CommandLineTest
             System.err.println("Taking off");
             drone.takeOff();
             Thread.sleep(3000);
+            System.err.println("Landing");
             drone.land();
             Thread.sleep(2000);
             drone.disconnect();
