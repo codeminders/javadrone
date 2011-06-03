@@ -9,6 +9,25 @@
 <!-- in the project's Project Properties dialog box.-->
 <project name="JavaDrone" default="default" basedir=".">
     <description>Builds, tests, and runs the project JavaDrone.</description>
+    
+    <property file="version.properties"/>
+    <property name="dist.dir" value="dist"/>
+    <property name="api.jar" value="${dist.dir}/JavaDrone-${product.version}.jar"/>
+    <property name="app.jar" value="${dist.dir}/ControlTower-${product.version}.jar"/>
+    
+    <target name="dist" depends="compile">
+        <jar compress="${jar.compress}" index="${jar.index}" jarfile="${api.jar}">
+            <fileset dir="${build.classes.dir}" includes="com/codeminders/ardrone/**" excludes="com/codeminders/ardrone/examples/**"/>
+        </jar>
+        <jar compress="${jar.compress}" index="${jar.index}" jarfile="${app.jar}">
+            <fileset dir="${build.classes.dir}" excludes="com/codeminders/ardrone/**"/>
+            <manifest>
+                <attribute name="Main-Class" value="com.codeminders.controltower.ControlTower"/>
+                <attribute name="Class-Path" value="JavaDrone-${product.version}.jar hidapi.jar log4j-1.2.16.jar SteelSeries-3.9.2.jar trident-6.2.jar"/>
+            </manifest>
+        </jar>
+    </target>
+    
     <import file="nbproject/build-impl.xml"/>
     <target name="-post-jar">
         <copy file="lib/mac/libhidapi-jni.jnilib" todir="dist"/>
