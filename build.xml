@@ -24,7 +24,7 @@
             <fileset dir="${build.classes.dir}" excludes="com/codeminders/ardrone/**"/>
             <manifest>
                 <attribute name="Main-Class" value="com.codeminders.controltower.ControlTower"/>
-                <attribute name="Class-Path" value="JavaDrone-${product.version}.jar hidapi.jar log4j-1.2.16.jar SteelSeries-3.9.2.jar trident-6.2.jar"/>
+                <attribute name="Class-Path" value="JavaDrone-${product.version}.jar lib/hidapi.jar lib/log4j-1.2.16.jar lib/SteelSeries/SteelSeries-3.9.2.jar lib/SteelSeries/trident-6.2.jar"/>
             </manifest>
         </jar>
         <zip destfile="${dist.zip}">
