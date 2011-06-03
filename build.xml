@@ -14,6 +14,7 @@
     <property name="dist.dir" value="dist"/>
     <property name="api.jar" value="${dist.dir}/JavaDrone-${product.version}.jar"/>
     <property name="app.jar" value="${dist.dir}/ControlTower-${product.version}.jar"/>
+    <property name="dist.zip" value="${dist.dir}/JavaDrone-${product.version}.zip"/>
     
     <target name="dist" depends="compile">
         <jar compress="${jar.compress}" index="${jar.index}" jarfile="${api.jar}">
@@ -26,6 +27,15 @@
                 <attribute name="Class-Path" value="JavaDrone-${product.version}.jar hidapi.jar log4j-1.2.16.jar SteelSeries-3.9.2.jar trident-6.2.jar"/>
             </manifest>
         </jar>
+        <zip destfile="${dist.zip}">
+            <fileset file="${api.jar}"/>
+            <fileset file="${app.jar}"/>
+            <fileset dir="." includes="src/**"/>
+            <fileset dir="." includes="lib/**" excludes="lib/CopyLibs/**"/>
+            <fileset file="build.xml"/>
+            <fileset file="version.properties"/>
+            <fileset dir="." includes="nbproject/**"/>
+        </zip>        
     </target>
     
     <import file="nbproject/build-impl.xml"/>
