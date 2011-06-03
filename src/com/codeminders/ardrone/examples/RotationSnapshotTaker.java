@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.codeminders.ardrone.*;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
+import com.codeminders.ardrone.NavData.FlyingState;
 
 public class RotationSnapshotTaker implements DroneVideoListener, NavDataListener
 {
@@ -19,6 +20,8 @@ public class RotationSnapshotTaker implements DroneVideoListener, NavDataListene
 
     private ARDrone           drone;
     private long              mstart;
+    boolean                   taking          = false;
+    float                     initial_angle   = Float.NaN;
 
     public RotationSnapshotTaker() throws UnknownHostException
     {
@@ -52,7 +55,7 @@ public class RotationSnapshotTaker implements DroneVideoListener, NavDataListene
             drone.connect();
             drone.clearEmergencySignal();
             drone.waitForReady(CONNECT_TIMEOUT);
-            
+
             drone.trim();
             drone.selectVideoChannel(VideoChannel.HORIZONTAL_ONLY);
 
@@ -65,7 +68,9 @@ public class RotationSnapshotTaker implements DroneVideoListener, NavDataListene
             drone.addImageListener(this);
             drone.addNavDataListener(this);
 
+            taking = true;
             Thread.sleep(5000);
+            taking = false;
 
             log.info("Landing");
             drone.land();
@@ -85,20 +90,23 @@ public class RotationSnapshotTaker implements DroneVideoListener, NavDataListene
     @Override
     public void navDataReceived(NavData nd)
     {
+        // Wait for full take off
+        if(nd.getFlyingState() != FlyingState.FLYING)
+            return;
+
+        // Initial angle
+        if(Float.isNaN(initial_angle))
+            initial_angle = nd.getYaw();
+
         try
         {
-            if((mstart + 3000) > System.currentTimeMillis())
-            {
-                drone.move(0f, 0f, 0f, 0.5f);
-            } else
-            {
-                drone.land();
-            }
+            drone.move(0f, 0f, 0f, 0.1f);
         } catch(IOException e)
         {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        System.err.println("Yaw = " + nd.getYaw());
     }
 
 }
