@@ -42,8 +42,6 @@ public abstract class DroneCommand
 
     /**
      * For sticky packets indicates delay between sending repeated packets;
-     * 
-     * @return
      */
     public long getStickyRate()
     {
