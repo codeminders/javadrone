@@ -72,7 +72,6 @@ public class ControlMap {
     /**
      * Gets the list of control commands that are assigned to a certain button
      * @param button
-     * @return 
      */
     public List<AssignableControl> getControls(ControllerButton button) {
         return map.get(button);
