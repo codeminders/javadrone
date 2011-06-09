@@ -97,6 +97,19 @@
             <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="controllerStatusMouseReleased"/>
           </Events>
         </Component>
+        <Component class="javax.swing.JCheckBox" name="flipSticksCheckbox">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Lucida Grande" size="10" style="0"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="flip sticks"/>
+            <Property name="focusable" type="boolean" value="false"/>
+            <Property name="verticalTextPosition" type="int" value="3"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="flipSticksCheckboxActionPerformed"/>
+          </Events>
+        </Component>
         <Component class="javax.swing.JButton" name="mappingButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="mapping"/>
@@ -116,7 +129,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="463" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="384" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
