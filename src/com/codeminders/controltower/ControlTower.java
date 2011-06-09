@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.prefs.Preferences;
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
@@ -43,6 +44,8 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private final ImageIcon controllerOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicBoolean flying = new AtomicBoolean(false);
+    private final AtomicBoolean flipSticks = new AtomicBoolean(false);
+    private final Preferences prefs = Preferences.userNodeForPackage(this.getClass());
     private ARDrone drone;
     private final AtomicReference<PS3Controller> dev = new AtomicReference<PS3Controller>();
     private final VideoPanel video = new VideoPanel();
@@ -65,6 +68,8 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jPanel2.add(gauges);
         initController();
         initDrone();
+        flipSticks.set(prefs.getBoolean("FLIP_STICKS", false));
+        flipSticksCheckbox.setSelected(flipSticks.get());
     }
 
     private void initDrone() {
@@ -222,7 +227,12 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                         }
 
                         if (left_right_tilt != 0 || front_back_tilt != 0 || vertical_speed != 0 || angular_speed != 0) {
-                            drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);
+                            if (flipSticks.get()) {
+                                drone.move(vertical_speed, angular_speed, left_right_tilt, front_back_tilt);
+                            } else {
+                                drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);
+
+                            }
                         } else {
                             drone.hover();
                         }
@@ -370,6 +380,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         batteryStatus = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JToolBar.Separator();
         controllerStatus = new javax.swing.JLabel();
+        flipSticksCheckbox = new javax.swing.JCheckBox();
         mappingButton = new javax.swing.JButton();
         jSeparator3 = new javax.swing.JToolBar.Separator();
         jPanel1 = new javax.swing.JPanel();
@@ -414,6 +425,17 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         });
         jToolBar1.add(controllerStatus);
 
+        flipSticksCheckbox.setFont(new java.awt.Font("Lucida Grande", 0, 10)); // NOI18N
+        flipSticksCheckbox.setText("flip sticks");
+        flipSticksCheckbox.setFocusable(false);
+        flipSticksCheckbox.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        flipSticksCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                flipSticksCheckboxActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(flipSticksCheckbox);
+
         mappingButton.setText("mapping");
         mappingButton.setToolTipText("map controller buttons");
         mappingButton.setFocusable(false);
@@ -431,7 +453,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 463, Short.MAX_VALUE)
+            .addGap(0, 384, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -527,6 +549,11 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         controlConfigWindow.setVisible(true);
     }//GEN-LAST:event_mappingButtonActionPerformed
 
+    private void flipSticksCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flipSticksCheckboxActionPerformed
+        flipSticks.set(flipSticksCheckbox.isSelected());
+        prefs.putBoolean("FLIP_STICKS", true);
+    }//GEN-LAST:event_flipSticksCheckboxActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -542,12 +569,12 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         });
         tower.startUpdateLoop();
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel batteryStatus;
     private javax.swing.JButton configureButton;
     private javax.swing.JLabel controllerStatus;
     private javax.swing.JLabel droneStatus;
+    private javax.swing.JCheckBox flipSticksCheckbox;
     private javax.swing.JButton instrumentButton;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
