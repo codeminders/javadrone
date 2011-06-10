@@ -228,7 +228,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
                         if (left_right_tilt != 0 || front_back_tilt != 0 || vertical_speed != 0 || angular_speed != 0) {
                             if (flipSticks.get()) {
-                                drone.move( angular_speed, vertical_speed, front_back_tilt, left_right_tilt);
+                                drone.move( angular_speed, -1*vertical_speed, -1*front_back_tilt, left_right_tilt);
                             } else {
                                 drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);
 
