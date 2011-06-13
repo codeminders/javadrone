@@ -408,6 +408,11 @@ public class ARDrone
     // Callback used by receiver
     public void navDataReceived(NavData nd)
     {
+        if(nd.isBatteryTooLow() || nd.isNotEnoughPower())
+        {
+            log.error("Battery pb "+nd.toString());
+        }
+        
         synchronized(emergency_mutex)
         {
             emergencyMode = nd.isEmergency();
