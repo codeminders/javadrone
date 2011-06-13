@@ -1,7 +1,14 @@
 
 package com.codeminders.ardrone;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
+
+import com.codeminders.ardrone.VisionTag.VisionTagType;
 
 public class NavData
 {
@@ -189,6 +196,11 @@ public class NavData
                 // this is last tag. We do not unpack it yet, but we gracefully
                 // exit if it has been encountered.
                 break;
+            } else if(option_tag == NavDataTag.NAVDATA_VISION_DETECT_TAG.getValue())
+            {
+                List<VisionTag> vtags = parseVisionTags(data, buf, offset);
+                if(vtags != null)
+                    data.setVisionTags(vtags);
             } else
             {
                 log.warn("Skipping unknown NavData option with tag=" + option_tag);
@@ -197,15 +209,45 @@ public class NavData
         }
 
         // TODO: calculate checksum
-        log.debug("Got Nav data. mode "+data.mode);
+        log.debug("Got Nav data. mode " + data.mode);
 
         return data;
+    }
+
+    private static List<VisionTag> parseVisionTags(NavData data, byte[] buf, int offset) throws NavDataFormatException
+    {
+        int nb_detected = byteArrayToInt(buf, offset);
+        offset += 4;
+
+        log.debug("" + nb_detected + " vision tags detected");
+
+        if(nb_detected == 0)
+            return null;
+
+        assert (nb_detected > 0);
+        List<VisionTag> res = new ArrayList<VisionTag>(nb_detected);
+        for(int i = 0; i < nb_detected; i++)
+        {
+            int type = byteArrayToInt(buf, offset + 4 * i);
+            int xc = byteArrayToInt(buf, offset + 4 * i + 1 * nb_detected * 4);
+            int yc = byteArrayToInt(buf, offset + 4 * i + 2 * nb_detected * 4);
+            int width = byteArrayToInt(buf, offset + 4 * i + 3 * nb_detected * 4);
+            int height = byteArrayToInt(buf, offset + 4 * i + 4 * nb_detected * 4);
+            int dist = byteArrayToInt(buf, offset + 4 * i + 5 * nb_detected * 4);
+
+            VisionTag vt = new VisionTag(VisionTagType.fromInt(type), new Point(xc, yc), new Dimension(width, height),
+                    dist);
+            log.debug("Vision#" + i + " " + vt.toString());
+            res.add(vt);
+        }
+
+        return res;
     }
 
     private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
     {
         data.ctrl_state = CtrlState.fromInt(byteArrayToInt(buf, offset) >> 16);
-        log.debug("Ctrl State "+data.ctrl_state);
+        log.debug("Ctrl State " + data.ctrl_state);
 
         offset += 4;
         data.battery = byteArrayToInt(buf, offset);
@@ -307,6 +349,7 @@ public class NavData
         sb.append("X velocity: " + data.getVx() + "\n");
         sb.append("Y velocity: " + data.getLongitude() + "\n");
         sb.append("Z velocity: " + data.getVz() + "\n");
+        sb.append("Vision Tags: " + data.getVisionTags() + "\n");
 
         log.debug("State: " + sb.toString());
     }
@@ -360,6 +403,9 @@ public class NavData
     protected float            vx;
     protected float            vy;
     protected float            vz;
+
+    // Vision tags data
+    protected List<VisionTag>  vision_tags;
 
     public float getAltitude()
     {
@@ -574,6 +620,16 @@ public class NavData
     public FlyingState getFlyingState()
     {
         return FlyingState.fromControlState(ctrl_state);
+    }
+
+    public List<VisionTag> getVisionTags()
+    {
+        return vision_tags;
+    }
+
+    public void setVisionTags(List<VisionTag> vision_tags)
+    {
+        this.vision_tags = vision_tags;
     }
 
 }
