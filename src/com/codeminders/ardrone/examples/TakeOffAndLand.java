@@ -6,7 +6,7 @@ import com.codeminders.ardrone.ARDrone;
 public class TakeOffAndLand
 {
 
-    private static final long CONNECT_TIMEOUT = 1000;
+    private static final long CONNECT_TIMEOUT = 3000;
 
     /**
      * @param args
@@ -33,11 +33,14 @@ public class TakeOffAndLand
             drone.takeOff();
 
             // Fly a little :)
-            Thread.sleep(3000);
+            Thread.sleep(5000);
 
             // Land
             System.err.println("Landing");
             drone.land();
+
+            // Give it some time to land
+            Thread.sleep(2000);
             
             // Disconnect from the done
             drone.disconnect();
