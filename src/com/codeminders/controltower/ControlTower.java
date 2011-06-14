@@ -551,7 +551,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     private void flipSticksCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flipSticksCheckboxActionPerformed
         flipSticks.set(flipSticksCheckbox.isSelected());
-        prefs.putBoolean("FLIP_STICKS", true);
+        prefs.putBoolean("FLIP_STICKS", flipSticks.get());
     }//GEN-LAST:event_flipSticksCheckboxActionPerformed
 
     /**
