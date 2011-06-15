@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-import com.codeminders.ardrone.BufferedImageVideoListener;
 
 public abstract class ImageVideoRecorderBase extends BufferedImageVideoListener
 {
