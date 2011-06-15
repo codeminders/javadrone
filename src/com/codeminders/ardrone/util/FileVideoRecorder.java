@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.codeminders.ardrone.DroneVideoListener;
-
 /**
  * Video recorder. It records single video file. You can start/stop recording
  * many times.
@@ -17,7 +15,7 @@ import com.codeminders.ardrone.DroneVideoListener;
  * @author lord
  * 
  */
-public class FileVideoRecorder extends FileRecorder implements DroneVideoListener, Runnable
+public class FileVideoRecorder extends ImageVideoRecorderBase implements Runnable
 {
     private static final String  EXT          = ".avi";
 
@@ -67,7 +65,7 @@ public class FileVideoRecorder extends FileRecorder implements DroneVideoListene
     }
 
     @Override
-    public synchronized void frameReceived(BufferedImage image)
+    public synchronized void imageReceived(BufferedImage image)
     {
         if(recording)
         {

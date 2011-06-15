@@ -9,9 +9,7 @@ import java.util.concurrent.Executors;
 
 import javax.imageio.ImageIO;
 
-import com.codeminders.ardrone.DroneVideoListener;
-
-public class FileImageRecorder extends FileRecorder implements DroneVideoListener
+public class FileImageRecorder extends ImageVideoRecorderBase
 {
     private static final int    MAX_SAVING_THREADS = 4;
     private static final String EXT                = ".png";
@@ -102,7 +100,7 @@ public class FileImageRecorder extends FileRecorder implements DroneVideoListene
     }
 
     @Override
-    public synchronized void frameReceived(BufferedImage image)
+    public synchronized void imageReceived(BufferedImage image)
     {
         if(!activated)
             return;
