@@ -1,8 +1,6 @@
 
 package com.codeminders.ardrone;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
