@@ -1,7 +1,9 @@
 
-package com.codeminders.ardrone;
+package com.codeminders.ardrone.util;
 
 import java.awt.image.BufferedImage;
+
+import com.codeminders.ardrone.DroneVideoListener;
 
 /**
  * This is convenience base class for DroneVideoListener implementors, which
