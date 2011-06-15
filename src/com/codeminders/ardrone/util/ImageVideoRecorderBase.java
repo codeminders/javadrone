@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-public abstract class FileRecorder
+import com.codeminders.ardrone.BufferedImageVideoListener;
+
+public abstract class ImageVideoRecorderBase extends BufferedImageVideoListener
 {
     private DecimalFormat              format;
 
@@ -14,7 +16,7 @@ public abstract class FileRecorder
     protected String                   prefix;
     protected RecordingSuccessCallback callback;
 
-    public FileRecorder(File base_path, int starting_seq, String prefix, RecordingSuccessCallback callback)
+    public ImageVideoRecorderBase(File base_path, int starting_seq, String prefix, RecordingSuccessCallback callback)
     {
         this.base_path = base_path;
         this.seq = starting_seq;

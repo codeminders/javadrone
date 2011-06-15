@@ -1,7 +1,6 @@
 
 package com.codeminders.ardrone;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.*;
 import java.util.LinkedList;
@@ -144,7 +143,7 @@ public class ARDrone
             image_listeners.add(l);
         }
     }
-    
+
     public void removeImageListener(DroneVideoListener l)
     {
         synchronized(image_listeners)
@@ -410,9 +409,9 @@ public class ARDrone
     {
         if(nd.isBatteryTooLow() || nd.isNotEnoughPower())
         {
-            log.error("Battery pb "+nd.toString());
+            log.error("Battery pb " + nd.toString());
         }
-        
+
         synchronized(emergency_mutex)
         {
             emergencyMode = nd.isEmergency();
@@ -450,7 +449,7 @@ public class ARDrone
                     changeState(State.DEMO);
                 }
 
-                if(state!=State.CONNECTING && nd.isCommunicationProblemOccurred())
+                if(state != State.CONNECTING && nd.isCommunicationProblemOccurred())
                 {
                     // 50ms communications watchdog has been triggered
                     cmd_queue.add(new KeepAliveCommand());
@@ -576,12 +575,12 @@ public class ARDrone
     }
 
     // Callback used by VideoReciver
-    public void videoFrameReceived(BufferedImage image)
+    public void videoFrameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize)
     {
         synchronized(image_listeners)
         {
             for(DroneVideoListener l : image_listeners)
-                l.frameReceived(image);
+                l.frameReceived(startX, startY, w, h, rgbArray, offset, scansize);
         }
     }
 
