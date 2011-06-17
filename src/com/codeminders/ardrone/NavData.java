@@ -256,7 +256,7 @@ public class NavData
         offset += 4;
         data.yaw = byteArrayToFloat(buf, offset) / 1000;
         offset += 4;
-        data.altitude = ((float) byteArrayToInt(buf, offset) / 1000);
+        data.altitude = ((float) byteArrayToInt(buf, offset)) / 100;
         offset += 4;
         data.vx = byteArrayToFloat(buf, offset);
         offset += 4;
@@ -405,6 +405,10 @@ public class NavData
     // Vision tags data
     protected List<VisionTag>  vision_tags;
 
+    /**
+     * 
+     * @return value in meters
+     */
     public float getAltitude()
     {
         return altitude;
@@ -435,11 +439,19 @@ public class NavData
         return mode;
     }
 
+    /**
+     * 
+     * @return value in degrees
+     */
     public float getPitch()
     {
         return pitch;
     }
 
+    /**
+     * 
+     * @return value in degrees
+     */
     public float getRoll()
     {
         return roll;
@@ -460,6 +472,10 @@ public class NavData
         return vz;
     }
 
+    /**
+     * 
+     * @return value in degrees
+     */
     public float getYaw()
     {
         return yaw;
