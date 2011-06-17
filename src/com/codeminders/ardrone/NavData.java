@@ -256,7 +256,7 @@ public class NavData
         offset += 4;
         data.yaw = byteArrayToFloat(buf, offset) / 1000;
         offset += 4;
-        data.altitude = ((float) byteArrayToInt(buf, offset)) / 100;
+        data.altitude = ((float) byteArrayToInt(buf, offset)) / 1000;
         offset += 4;
         data.vx = byteArrayToFloat(buf, offset);
         offset += 4;
