@@ -63,10 +63,10 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private final ControlMap controlMap = new ControlMap();
 
     private static final String[] HID_LIB_NAMES = {
-        "lib/mac/libhidapi-jni-32.jnilib",
-        "lib/mac/libhidapi-jni-64.jnilib",
+        "lib/linux/libhidapi-jni-64.so",
         "lib/linux/libhidapi-jni-32.so",
-        "lib/linux/libhidapi-jni-32.so"
+        "lib/mac/libhidapi-jni-64.jnilib",
+        "lib/mac/libhidapi-jni-32.jnilib"
     };
 
     private static boolean isHIDLibLoaded = false;
@@ -171,10 +171,11 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     {
         if(!isHIDLibLoaded)
             return null;
-        
+
         HIDDeviceInfo[] devs = HIDManager.listDevices();
         for(int i = 0; i < devs.length; i++)
         {
+            System.out.println("" + devs[i]);
             if(AfterGlowController.isA(devs[i]))
             {
                 return new AfterGlowController(devs[i]);
@@ -432,7 +433,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     /**
      * Updates the battery status in the UI, queues command to AWT event dispatch thread
      *
-     * @param available
+     * @param value
      */
     private void updateBatteryStatus(final int value)
     {
@@ -462,7 +463,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     /**
      * Resets the UI, queues command to AWT event dispatch thread
      *
-     * @param available
      */
     private void resetStatus()
     {
