@@ -41,4 +41,23 @@ public abstract class PS3Controller
 
     public abstract PS3ControllerState read() throws IOException;
 
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append("PS3Controller [");
+        try
+        {
+            builder.append("manufacturer=");
+            builder.append(dev.getManufacturerString());
+            builder.append(", product=");
+            builder.append(dev.getProductString());
+        } catch(IOException e)
+        {
+            builder.append("<invalid>");
+        }
+        builder.append("]");
+        return builder.toString();
+    }
+
 }
