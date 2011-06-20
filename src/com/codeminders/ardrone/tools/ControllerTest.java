@@ -13,7 +13,7 @@ public class ControllerTest
 
     static
     {
-        System.loadLibrary("hidapi-jni");
+        System.loadLibrary("hidapi-jni-64");
     }
 
     /**
@@ -28,6 +28,9 @@ public class ControllerTest
             {
                 System.err.println("Controller not found");
                 System.exit(1);
+            } else
+            {
+                System.err.println("Controller found "+c);
             }
             try
             {
