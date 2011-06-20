@@ -16,8 +16,10 @@ import com.codeminders.controltower.config.ControlMap;
 import com.codeminders.hidapi.HIDDeviceInfo;
 import com.codeminders.hidapi.HIDDeviceNotFoundException;
 import com.codeminders.hidapi.HIDManager;
+
 import java.awt.Color;
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,20 +30,26 @@ import javax.swing.ImageIcon;
 import org.apache.log4j.Logger;
 
 /**
- * The central class that represents the main window and also manages the 
+ * The central class that represents the main window and also manages the
  * drone update loop.
+ *
  * @author normenhansen
  */
 @SuppressWarnings("serial")
-public class ControlTower extends javax.swing.JFrame implements DroneStatusChangeListener, NavDataListener {
+public class ControlTower extends javax.swing.JFrame implements DroneStatusChangeListener, NavDataListener
+{
 
     private static final long READ_UPDATE_DELAY_MS = 5L;
     private static final long CONNECT_TIMEOUT = 8000L;
     private static float CONTROL_THRESHOLD = 0.5f;
-    private final ImageIcon droneOn = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_on.gif"));
-    private final ImageIcon droneOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_off.gif"));
-    private final ImageIcon controllerOn = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_on.png"));
-    private final ImageIcon controllerOff = new ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
+    private final ImageIcon droneOn = new ImageIcon(
+        getClass().getResource("/com/codeminders/controltower/images/drone_on.gif"));
+    private final ImageIcon droneOff = new ImageIcon(
+        getClass().getResource("/com/codeminders/controltower/images/drone_off.gif"));
+    private final ImageIcon controllerOn = new ImageIcon(
+        getClass().getResource("/com/codeminders/controltower/images/controller_on.png"));
+    private final ImageIcon controllerOff = new ImageIcon(
+        getClass().getResource("/com/codeminders/controltower/images/controller_off.png"));
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicBoolean flying = new AtomicBoolean(false);
     private final AtomicBoolean flipSticks = new AtomicBoolean(false);
@@ -54,12 +62,25 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private final BottomGaugePanel gauges = new BottomGaugePanel();
     private final ControlMap controlMap = new ControlMap();
 
-    static {
-        System.loadLibrary("hidapi-jni");
+    private static final String[] HID_LIB_NAMES = {
+        "lib/mac/libhidapi-jni-32.jnilib",
+        "lib/mac/libhidapi-jni-64.jnilib",
+        "lib/linux/libhidapi-jni-32.so",
+        "lib/linux/libhidapi-jni-32.so"
+    };
+
+    private static boolean isHIDLibLoaded = false;
+
+    static
+    {
+        loadNativeHIDLibrary();
     }
 
-    /** Creates new form ControlTower */
-    public ControlTower() {
+    /**
+     * Creates new form ControlTower
+     */
+    public ControlTower()
+    {
         setAlwaysOnTop(true);
         initComponents();
         droneConfigWindow = new DroneConfig(this, true);
@@ -72,10 +93,14 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         flipSticksCheckbox.setSelected(flipSticks.get());
     }
 
-    private void initDrone() {
-        try {
+    private void initDrone()
+    {
+        try
+        {
             drone = new ARDrone();
-        } catch (UnknownHostException ex) {
+        }
+        catch(UnknownHostException ex)
+        {
             Logger.getLogger(ControlTower.class.getName()).error("Error creating drone object!", ex);
             return;
         }
@@ -86,66 +111,110 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         drone.addNavDataListener(this);
     }
 
+    private static void loadNativeHIDLibrary()
+    {
+        String dir = System.getProperty("user.dir") + File.separator;
+        for(String name : HID_LIB_NAMES)
+        {
+            try
+            {
+                Runtime.getRuntime().load(dir + name);
+                isHIDLibLoaded = true;
+            }
+            catch(UnsatisfiedLinkError e)
+            {
+                // ignore
+            }
+        }
+        Logger.getLogger(ControlTower.class.getName()).debug("HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found");
+    }
+
     /**
      * Tries to find PS3 controller, else creates keyboard controller
      */
-    private void initController() {
+    private void initController()
+    {
         PS3Controller current = dev.get();
-        if (current != null) {
-            try {
+        if(current != null)
+        {
+            try
+            {
                 current.close();
-            } catch (IOException ex) {
+            }
+            catch(IOException ex)
+            {
                 Logger.getLogger(ControlTower.class.getName()).error("", ex);
             }
         }
-        try {
+        try
+        {
             dev.set(findController());
-        } catch (IOException ex) {
+        }
+        catch(IOException ex)
+        {
             Logger.getLogger(ControlTower.class.getName()).error("{0}", ex);
         }
-        if (dev.get() == null) {
+        if(dev.get() == null)
+        {
             System.err.println("No suitable controller found! Using keyboard");
             dev.set(new KeyboardController(this));
             updateControllerStatus(false);
-        } else {
+        }
+        else
+        {
             System.err.println("Gamepad controller found");
             updateControllerStatus(true);
         }
     }
 
-    private static PS3Controller findController() throws IOException {
+    private static PS3Controller findController() throws IOException
+    {
+        if(!isHIDLibLoaded)
+            return null;
+        
         HIDDeviceInfo[] devs = HIDManager.listDevices();
-        for (int i = 0; i < devs.length; i++) {
-            if (AfterGlowController.isA(devs[i])) {
+        for(int i = 0; i < devs.length; i++)
+        {
+            if(AfterGlowController.isA(devs[i]))
+            {
                 return new AfterGlowController(devs[i]);
             }
-            if (SonyPS3Controller.isA(devs[i])) {
+            if(SonyPS3Controller.isA(devs[i]))
+            {
                 return new SonyPS3Controller(devs[i]);
             }
         }
         return null;
     }
 
-    private void updateLoop() {
-        if (running.get()) {
+    private void updateLoop()
+    {
+        if(running.get())
+        {
             return;
         }
         running.set(true);
         resetStatus();
-        try {
+        try
+        {
 
-            drone.addStatusChangeListener(new DroneStatusChangeListener() {
+            drone.addStatusChangeListener(new DroneStatusChangeListener()
+            {
 
                 @Override
-                public void ready() {
-                    try {
+                public void ready()
+                {
+                    try
+                    {
                         Logger.getLogger(getClass().getName()).debug("updateLoop::ready()");
                         System.err.println("Configure");
                         droneConfigWindow.updateDrone();
                         drone.selectVideoChannel(VideoChannel.HORIZONTAL_ONLY);
                         drone.setCombinedYawMode(true);
                         drone.trim();
-                    } catch (IOException e) {
+                    }
+                    catch(IOException e)
+                    {
                         drone.changeToErrorState(e);
                     }
                 }
@@ -156,47 +225,61 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             drone.waitForReady(CONNECT_TIMEOUT);
             drone.clearEmergencySignal();
             System.err.println("Connected to the drone");
-            try {
+            try
+            {
                 PS3ControllerState oldpad = null;
-                while (running.get()) {
+                while(running.get())
+                {
                     PS3ControllerState pad = dev.get().read();
                     PS3ControllerStateChange pad_change = new PS3ControllerStateChange(oldpad, pad);
                     oldpad = pad;
 
-                    if (pad_change.isStartChanged() && pad_change.isStart()) {
+                    if(pad_change.isStartChanged() && pad_change.isStart())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.START);
                     }
-                    if (pad_change.isSelectChanged() && pad_change.isSelect()) {
+                    if(pad_change.isSelectChanged() && pad_change.isSelect())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.SELECT);
                     }
-                    if (pad_change.isPSChanged() && pad_change.isPS()) {
+                    if(pad_change.isPSChanged() && pad_change.isPS())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.PS);
                     }
-                    if (pad_change.isTriangleChanged() && pad_change.isTriangle()) {
+                    if(pad_change.isTriangleChanged() && pad_change.isTriangle())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.TRIANGLE);
                     }
-                    if (pad_change.isCrossChanged() && pad_change.isCross()) {
+                    if(pad_change.isCrossChanged() && pad_change.isCross())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.CROSS);
                     }
-                    if (pad_change.isSquareChanged() && pad_change.isSquare()) {
+                    if(pad_change.isSquareChanged() && pad_change.isSquare())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.SQUARE);
                     }
-                    if (pad_change.isCircleChanged() && pad_change.isCircle()) {
+                    if(pad_change.isCircleChanged() && pad_change.isCircle())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.CIRCLE);
                     }
-                    if (pad_change.isL1Changed() && pad_change.isL1()) {
+                    if(pad_change.isL1Changed() && pad_change.isL1())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.L1);
                     }
-                    if (pad_change.isR1Changed() && pad_change.isR1()) {
+                    if(pad_change.isR1Changed() && pad_change.isR1())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.R1);
                     }
-                    if (pad_change.isL2Changed() && pad_change.isL2()) {
+                    if(pad_change.isL2Changed() && pad_change.isL2())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.L2);
                     }
-                    if (pad_change.isR2Changed() && pad_change.isR2()) {
+                    if(pad_change.isR2Changed() && pad_change.isR2())
+                    {
                         controlMap.sendCommand(drone, ControllerButton.R2);
                     }
-                    if (flying.get()) {
+                    if(flying.get())
+                    {
                         // Detecting if we need to move the drone
 
                         int leftX = pad.getLeftJoystickX();
@@ -210,57 +293,79 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                         float vertical_speed = 0f;
                         float angular_speed = 0f;
 
-                        if (Math.abs(((float) leftX) / 128f) > CONTROL_THRESHOLD) {
+                        if(Math.abs(((float) leftX) / 128f) > CONTROL_THRESHOLD)
+                        {
                             left_right_tilt = ((float) leftX) / 128f;
                         }
 
-                        if (Math.abs(((float) leftY) / 128f) > CONTROL_THRESHOLD) {
+                        if(Math.abs(((float) leftY) / 128f) > CONTROL_THRESHOLD)
+                        {
                             front_back_tilt = ((float) leftY) / 128f;
                         }
 
-                        if (Math.abs(((float) rightX) / 128f) > CONTROL_THRESHOLD) {
+                        if(Math.abs(((float) rightX) / 128f) > CONTROL_THRESHOLD)
+                        {
                             angular_speed = ((float) rightX) / 128f;
                         }
 
-                        if (Math.abs(-1 * ((float) rightY) / 128f) > CONTROL_THRESHOLD) {
+                        if(Math.abs(-1 * ((float) rightY) / 128f) > CONTROL_THRESHOLD)
+                        {
                             vertical_speed = -1 * ((float) rightY) / 128f;
                         }
 
-                        if (left_right_tilt != 0 || front_back_tilt != 0 || vertical_speed != 0 || angular_speed != 0) {
-                            if (flipSticks.get()) {
-                                drone.move( angular_speed, -1*vertical_speed, -1*front_back_tilt, left_right_tilt);
-                            } else {
+                        if(left_right_tilt != 0 || front_back_tilt != 0 || vertical_speed != 0 || angular_speed != 0)
+                        {
+                            if(flipSticks.get())
+                            {
+                                drone.move(angular_speed, -1 * vertical_speed, -1 * front_back_tilt, left_right_tilt);
+                            }
+                            else
+                            {
                                 drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);
 
                             }
-                        } else {
+                        }
+                        else
+                        {
                             drone.hover();
                         }
                     }
 
-                    try {
+                    try
+                    {
                         Thread.sleep(READ_UPDATE_DELAY_MS);
-                    } catch (InterruptedException e) {
+                    }
+                    catch(InterruptedException e)
+                    {
                         // Ignore
                     }
                 }
-            } finally {
+            }
+            finally
+            {
                 drone.disconnect();
             }
-        } catch (HIDDeviceNotFoundException hex) {
+        }
+        catch(HIDDeviceNotFoundException hex)
+        {
             hex.printStackTrace();
-        } catch (Throwable e) {
+        }
+        catch(Throwable e)
+        {
             e.printStackTrace();
         }
         resetStatus();
         running.set(false);
     }
 
-    private void startUpdateLoop() {
-        Thread thread = new Thread(new Runnable() {
+    private void startUpdateLoop()
+    {
+        Thread thread = new Thread(new Runnable()
+        {
 
             @Override
-            public void run() {
+            public void run()
+            {
                 updateLoop();
             }
         });
@@ -270,17 +375,24 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     /**
      * Updates the drone status in the UI, queues command to AWT event dispatch thread
-     * @param available 
+     *
+     * @param available
      */
-    private void updateDroneStatus(final boolean available) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    private void updateDroneStatus(final boolean available)
+    {
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
 
             @Override
-            public void run() {
-                if (!available) {
+            public void run()
+            {
+                if(!available)
+                {
                     droneStatus.setForeground(Color.RED);
                     droneStatus.setIcon(droneOff);
-                } else {
+                }
+                else
+                {
                     droneStatus.setForeground(Color.GREEN);
                     droneStatus.setIcon(droneOn);
                 }
@@ -291,17 +403,24 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     /**
      * Updates the controller status in the UI, queues command to AWT event dispatch thread
-     * @param available 
+     *
+     * @param available
      */
-    private void updateControllerStatus(final boolean available) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    private void updateControllerStatus(final boolean available)
+    {
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
 
             @Override
-            public void run() {
-                if (!available) {
+            public void run()
+            {
+                if(!available)
+                {
                     controllerStatus.setForeground(Color.RED);
                     controllerStatus.setIcon(controllerOff);
-                } else {
+                }
+                else
+                {
                     controllerStatus.setForeground(Color.GREEN);
                     controllerStatus.setIcon(controllerOn);
                 }
@@ -312,19 +431,28 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     /**
      * Updates the battery status in the UI, queues command to AWT event dispatch thread
-     * @param available 
+     *
+     * @param available
      */
-    private void updateBatteryStatus(final int value) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    private void updateBatteryStatus(final int value)
+    {
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
 
             @Override
-            public void run() {
+            public void run()
+            {
                 batteryStatus.setText(value + "%");
-                if (value < 15) {
+                if(value < 15)
+                {
                     batteryStatus.setForeground(Color.RED);
-                } else if (value < 50) {
+                }
+                else if(value < 50)
+                {
                     batteryStatus.setForeground(Color.ORANGE);
-                } else {
+                }
+                else
+                {
                     batteryStatus.setForeground(Color.GREEN);
                 }
             }
@@ -333,13 +461,17 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     /**
      * Resets the UI, queues command to AWT event dispatch thread
-     * @param available 
+     *
+     * @param available
      */
-    private void resetStatus() {
-        java.awt.EventQueue.invokeLater(new Runnable() {
+    private void resetStatus()
+    {
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
 
             @Override
-            public void run() {
+            public void run()
+            {
                 droneStatus.setForeground(Color.RED);
                 droneStatus.setIcon(droneOff);
                 batteryStatus.setForeground(Color.RED);
@@ -350,29 +482,34 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     }
 
     @Override
-    public void ready() {
+    public void ready()
+    {
         Logger.getLogger(getClass().getName()).debug("ready()");
         updateDroneStatus(true);
     }
 
     @Override
-    public void navDataReceived(NavData nd) {
+    public void navDataReceived(NavData nd)
+    {
         Logger.getLogger(getClass().getName()).debug("navDataReceived()");
         updateBatteryStatus(nd.getBattery());
         this.flying.set(nd.isFlying());
     }
 
-    public void setControlThreshold(float sens) {
+    public void setControlThreshold(float sens)
+    {
         CONTROL_THRESHOLD = sens;
     }
 
-    /** This method is called from within the constructor to
+    /**
+     * This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
 
         jToolBar1 = new javax.swing.JToolBar();
         jSeparator5 = new javax.swing.JToolBar.Separator();
@@ -400,10 +537,13 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jToolBar1.add(jSeparator5);
 
         droneStatus.setForeground(java.awt.Color.red);
-        droneStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/drone_off.gif"))); // NOI18N
+        droneStatus.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/com/codeminders/controltower/images/drone_off.gif"))); // NOI18N
         droneStatus.setToolTipText("drone status (lit = connected)");
-        droneStatus.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+        droneStatus.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseReleased(java.awt.event.MouseEvent evt)
+            {
                 droneStatusMouseReleased(evt);
             }
         });
@@ -416,10 +556,13 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jToolBar1.add(jSeparator1);
 
         controllerStatus.setForeground(java.awt.Color.red);
-        controllerStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/controller_off.png"))); // NOI18N
+        controllerStatus.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/com/codeminders/controltower/images/controller_off.png"))); // NOI18N
         controllerStatus.setToolTipText("controller status (green = available)");
-        controllerStatus.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+        controllerStatus.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseReleased(java.awt.event.MouseEvent evt)
+            {
                 controllerStatusMouseReleased(evt);
             }
         });
@@ -429,8 +572,10 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         flipSticksCheckbox.setText("flip sticks");
         flipSticksCheckbox.setFocusable(false);
         flipSticksCheckbox.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        flipSticksCheckbox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        flipSticksCheckbox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 flipSticksCheckboxActionPerformed(evt);
             }
         });
@@ -441,8 +586,10 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         mappingButton.setFocusable(false);
         mappingButton.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         mappingButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        mappingButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        mappingButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 mappingButtonActionPerformed(evt);
             }
         });
@@ -453,36 +600,42 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 384, Short.MAX_VALUE)
+                .addGap(0, 384, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 21, Short.MAX_VALUE)
+                .addGap(0, 21, Short.MAX_VALUE)
         );
 
         jToolBar1.add(jPanel1);
         jToolBar1.add(jSeparator7);
 
-        instrumentButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/instruments.gif"))); // NOI18N
+        instrumentButton.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/com/codeminders/controltower/images/instruments.gif"))); // NOI18N
         instrumentButton.setText("instruments");
         instrumentButton.setToolTipText("toggle instruments");
         instrumentButton.setFocusable(false);
         instrumentButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        instrumentButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        instrumentButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 instrumentButtonActionPerformed(evt);
             }
         });
         jToolBar1.add(instrumentButton);
 
-        configureButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/codeminders/controltower/images/objects_039.gif"))); // NOI18N
+        configureButton.setIcon(new javax.swing.ImageIcon(
+            getClass().getResource("/com/codeminders/controltower/images/objects_039.gif"))); // NOI18N
         configureButton.setText("tuning");
         configureButton.setToolTipText("show drone tuning settings");
         configureButton.setFocusable(false);
         configureButton.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
         configureButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        configureButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        configureButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 configureButtonActionPerformed(evt);
             }
         });
@@ -499,44 +652,53 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
-            .addComponent(videoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+                .addComponent(jToolBar1, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+                .addComponent(videoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(videoPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 209,
+                              javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jToolBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 25,
+                              javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void configureButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configureButtonActionPerformed
+    private void configureButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_configureButtonActionPerformed
         droneConfigWindow.setLocationRelativeTo(this);
         droneConfigWindow.setVisible(true);
     }//GEN-LAST:event_configureButtonActionPerformed
 
-    private void droneStatusMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_droneStatusMouseReleased
+    private void droneStatusMouseReleased(java.awt.event.MouseEvent evt)
+    {//GEN-FIRST:event_droneStatusMouseReleased
         startUpdateLoop();
     }//GEN-LAST:event_droneStatusMouseReleased
 
-    private void controllerStatusMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_controllerStatusMouseReleased
+    private void controllerStatusMouseReleased(java.awt.event.MouseEvent evt)
+    {//GEN-FIRST:event_controllerStatusMouseReleased
         initController();
     }//GEN-LAST:event_controllerStatusMouseReleased
 
-    private void instrumentButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_instrumentButtonActionPerformed
+    private void instrumentButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_instrumentButtonActionPerformed
         Dimension dim = jPanel2.getSize();
-        if (dim.getHeight() > 0) {
+        if(dim.getHeight() > 0)
+        {
             dim.setSize(dim.getWidth(), 0);
             jPanel2.setPreferredSize(dim);
             jPanel2.setSize(dim);
             jPanel2.setVisible(false);
-        } else {
+        }
+        else
+        {
             dim.setSize(dim.getWidth(), 210);
             jPanel2.setPreferredSize(dim);
             jPanel2.setSize(dim);
@@ -544,12 +706,14 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         }
     }//GEN-LAST:event_instrumentButtonActionPerformed
 
-    private void mappingButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mappingButtonActionPerformed
+    private void mappingButtonActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_mappingButtonActionPerformed
         controlConfigWindow.setLocationRelativeTo(this);
         controlConfigWindow.setVisible(true);
     }//GEN-LAST:event_mappingButtonActionPerformed
 
-    private void flipSticksCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_flipSticksCheckboxActionPerformed
+    private void flipSticksCheckboxActionPerformed(java.awt.event.ActionEvent evt)
+    {//GEN-FIRST:event_flipSticksCheckboxActionPerformed
         flipSticks.set(flipSticksCheckbox.isSelected());
         prefs.putBoolean("FLIP_STICKS", flipSticks.get());
     }//GEN-LAST:event_flipSticksCheckboxActionPerformed
@@ -557,12 +721,15 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String args[])
+    {
         final ControlTower tower = new ControlTower();
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        java.awt.EventQueue.invokeLater(new Runnable()
+        {
 
             @Override
-            public void run() {
+            public void run()
+            {
                 tower.setLocationRelativeTo(null);
                 tower.setVisible(true);
             }
