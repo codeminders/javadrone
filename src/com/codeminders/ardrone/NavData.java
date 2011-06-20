@@ -217,7 +217,8 @@ public class NavData
         int nb_detected = byteArrayToInt(buf, offset);
         offset += 4;
 
-        log.debug("" + nb_detected + " vision tags detected");
+        if(nb_detected!=0)
+            log.debug("" + nb_detected + " vision tags detected");
 
         if(nb_detected == 0)
             return null;
