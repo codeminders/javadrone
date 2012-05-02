@@ -29,6 +29,7 @@ public class VideoReader implements Runnable
 
         channel = DatagramChannel.open();
         channel.configureBlocking(false);
+        channel.socket().setReuseAddress(true);
         channel.socket().bind(new InetSocketAddress(video_port));
         channel.connect(new InetSocketAddress(drone_addr, video_port));
 
