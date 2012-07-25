@@ -565,8 +565,10 @@ public class ARDrone
     public void takeOff() throws IOException
     {
         // TODO: review for possible race condition
-        cmd_queue.add(new TakeOffCommand());
-        changeState(State.TAKING_OFF);
+    	if (!isEmergencyMode()) {
+	        cmd_queue.add(new TakeOffCommand());
+	        changeState(State.TAKING_OFF);
+    	}
     }
 
     public void trim() throws IOException

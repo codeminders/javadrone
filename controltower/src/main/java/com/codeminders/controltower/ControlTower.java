@@ -20,7 +20,10 @@ import com.codeminders.hidapi.HIDManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -113,21 +116,69 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     private static void loadNativeHIDLibrary()
     {
-        String dir = System.getProperty("user.dir") + File.separator;
+        loadNativeLibraryFromFileSystem();
+        if (! isHIDLibLoaded) {
+        	loadNativeLibraryFromJar();
+        }
+    }
+
+	private static void loadNativeLibraryFromFileSystem() {
+		String dir = System.getProperty("user.dir") + File.separator;
         for(String name : HID_LIB_NAMES)
         {
             try
             {
                 Runtime.getRuntime().load(dir + name);
                 isHIDLibLoaded = true;
+                break;
             }
             catch(UnsatisfiedLinkError e)
             {
                 // ignore
             }
         }
-        Logger.getLogger(ControlTower.class.getName()).debug("HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found");
-    }
+        Logger.getLogger(ControlTower.class.getName()).debug("HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found in " + dir);
+	}
+    
+    private static void loadNativeLibraryFromJar() {
+    	  for(String path : HID_LIB_NAMES)
+          {
+		        try {
+		                // have to use a stream
+		                InputStream in = ControlTower.class.getResourceAsStream(path);
+		                if (in != null) {
+		                	System.out.println(path);
+			                // always write to different location
+			                String tempName = path.substring(path.lastIndexOf('/') + 1);
+			                File fileOut = File.createTempFile(tempName.substring(0, tempName.lastIndexOf('.')), tempName.substring(tempName.lastIndexOf('.') + 1, tempName.length()));
+			                fileOut.deleteOnExit();
+			                
+			                OutputStream out = new FileOutputStream(fileOut);
+			                byte[] buf = new byte[1024];
+			                int len;
+			                while ((len = in.read(buf)) > 0){            
+			                	out.write(buf, 0, len);
+			                }
+			                
+			                out.close();
+			                Runtime.getRuntime().load(fileOut.toString());
+			                isHIDLibLoaded = true;
+		                } else {
+		                	in.close();
+		                }
+		                
+		        } catch (Exception e) {
+		        	  // ignore
+		        }
+		        
+		        if (isHIDLibLoaded) {
+		        	break;
+		        }
+        }
+    	  
+    	Logger.getLogger(ControlTower.class.getName()).debug("HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found inside Jar file");
+     }
+
 
     /**
      * Tries to find PS3 controller, else creates keyboard controller

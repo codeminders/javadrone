@@ -40,7 +40,9 @@ public class NavDataReader implements Runnable
         {
             // Ignore
         }
-
+        
+        channel.socket().close();
+        
         try
         {
             channel.disconnect();
