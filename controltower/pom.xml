@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.codeminders</groupId>
-	        <artifactId>javadron</artifactId>
+	        <artifactId>javadrone</artifactId>
 		<version>${currentVersion}</version>
 	</parent>
     
@@ -81,7 +81,7 @@
 	<dependencies>
 	    <dependency>
 		    <groupId>com.codeminders</groupId>
-		    <artifactId>javadron-api</artifactId>
+		    <artifactId>javadrone-api</artifactId>
 		    <version>${currentVersion}</version>
 	    </dependency>
 	    <dependency>

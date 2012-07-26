@@ -3,13 +3,13 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.codeminders</groupId>
-	<artifactId>javadron</artifactId>
+	<artifactId>javadrone</artifactId>
 	<version>${currentVersion}</version>
 	<name>javadron</name>
 	<packaging>pom</packaging>
 	<description>Java API and demo programs to control Parrot's AR.Drone</description>
 	<modules>
-		<module>javadron</module>
+		<module>javadrone-api</module>
 		<module>controltower</module>
 	</modules>
 	<properties>
