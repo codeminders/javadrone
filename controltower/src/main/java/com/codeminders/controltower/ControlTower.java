@@ -144,6 +144,8 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 		                
 		        } catch (Exception e) {
 		        	  // ignore
+		        } catch (UnsatisfiedLinkError e) {
+		        	  // ignore
 		        }
 		        
 		        if (isHIDLibLoaded) {
