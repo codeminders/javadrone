@@ -17,6 +17,9 @@
 	      <resource>
 		    <directory>src/resources</directory>
 	      </resource>
+	      <resource>
+		    <directory>lib</directory>
+	      </resource>
 	</resources>	  
 	<plugins>
 		  <plugin>
@@ -78,7 +81,7 @@
 	<dependencies>
 	    <dependency>
 		    <groupId>com.codeminders</groupId>
-		    <artifactId>ardrone-api</artifactId>
+		    <artifactId>javadron-api</artifactId>
 		    <version>${currentVersion}</version>
 	    </dependency>
 	    <dependency>

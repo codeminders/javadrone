@@ -7,12 +7,12 @@
 		<version>${currentVersion}</version>
 	</parent>
     
-	<artifactId>ardrone-api</artifactId>
-	<name>ardrone-api</name>
+	<artifactId>javadron-api</artifactId>
+	<name>javadron-api</name>
 	<description>Java API (without using native code) to control AR.Drone</description>
 
 	<build>
-		<finalName>ardrone-api</finalName>
+		<finalName>javadron</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
