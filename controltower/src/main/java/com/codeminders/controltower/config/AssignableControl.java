@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import javax.sound.sampled.AudioSystem;
+
 import org.apache.log4j.Logger;
-import sun.audio.AudioPlayer;
-import sun.audio.AudioStream;
 
 /**
  * This class represents one control mapping for a button and at the same
@@ -197,8 +197,8 @@ public class AssignableControl {
                 @Override
                 public void recordingSuccess(String filename) {
                     try {
-                        AudioPlayer.player.start(new AudioStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/camera.aif")));
-                    } catch (IOException ex) {
+                        AudioPlayer.play(AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/camera.aif")));
+                    } catch (Exception ex) {
                         java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
                     }
                 }
@@ -220,8 +220,8 @@ public class AssignableControl {
                 @Override
                 public void recordingSuccess(String filename) {
                     try {
-                        AudioPlayer.player.start(new AudioStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif")));
-                    } catch (IOException ex) {
+                    	AudioPlayer.play(AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif")));
+                    } catch (Exception ex) {
                         java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
                     }
                 }
@@ -233,8 +233,8 @@ public class AssignableControl {
             drone.addImageListener(fvr);
             fvr.startRecording();
             try {
-                AudioPlayer.player.start(new AudioStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_start.aif")));
-            } catch (IOException ex) {
+            	AudioPlayer.play(AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_start.aif")));
+            } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
             }
         } else {
