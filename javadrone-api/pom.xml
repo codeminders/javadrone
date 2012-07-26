@@ -3,16 +3,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.codeminders</groupId>
-	        <artifactId>javadron</artifactId>
+	        <artifactId>javadrone</artifactId>
 		<version>${currentVersion}</version>
 	</parent>
     
-	<artifactId>javadron-api</artifactId>
-	<name>javadron-api</name>
+	<artifactId>javadrone-api</artifactId>
+	<name>javadrone-api</name>
 	<description>Java API (without using native code) to control AR.Drone</description>
 
 	<build>
-		<finalName>javadron</finalName>
+		<finalName>javadrone-api</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
