@@ -64,12 +64,12 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private final ControlConfig controlConfigWindow;
     private final BottomGaugePanel gauges = new BottomGaugePanel();
     private final ControlMap controlMap = new ControlMap();
-
+    
     private static final String[] HID_LIB_NAMES = {
-        "lib/linux/libhidapi-jni-64.so",
-        "lib/linux/libhidapi-jni-32.so",
-        "lib/mac/libhidapi-jni-64.jnilib",
-        "lib/mac/libhidapi-jni-32.jnilib"
+        "/native/linux/libhidapi-jni-64.so",
+        "/native/linux/libhidapi-jni-32.so",
+        "/native/mac/libhidapi-jni-64.jnilib",
+        "/native/mac/libhidapi-jni-32.jnilib"
     };
 
     private static boolean isHIDLibLoaded = false;
@@ -116,31 +116,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     private static void loadNativeHIDLibrary()
     {
-        loadNativeLibraryFromFileSystem();
-        if (! isHIDLibLoaded) {
-        	loadNativeLibraryFromJar();
-        }
-    }
-
-	private static void loadNativeLibraryFromFileSystem() {
-		String dir = System.getProperty("user.dir") + File.separator;
-        for(String name : HID_LIB_NAMES)
-        {
-            try
-            {
-                Runtime.getRuntime().load(dir + name);
-                isHIDLibLoaded = true;
-                break;
-            }
-            catch(UnsatisfiedLinkError e)
-            {
-                // ignore
-            }
-        }
-        Logger.getLogger(ControlTower.class.getName()).debug("HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found in " + dir);
-	}
-    
-    private static void loadNativeLibraryFromJar() {
     	  for(String path : HID_LIB_NAMES)
           {
 		        try {
@@ -176,10 +151,9 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 		        }
         }
     	  
-    	Logger.getLogger(ControlTower.class.getName()).debug("HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found inside Jar file");
-     }
-
-
+    	Logger.getLogger(ControlTower.class.getName()).debug("HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found using ClassPath");
+    }
+    
     /**
      * Tries to find PS3 controller, else creates keyboard controller
      */

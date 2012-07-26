@@ -12,11 +12,4 @@
 			<scope>runtime</scope>
 		</dependencySet>
 	</dependencySets>
-	<fileSets>
-		<fileSet>
-			<directory>../lib/native</directory>
-			<outputDirectory>/lib</outputDirectory>
-			<fileMode>755</fileMode>
-		</fileSet>
-	</fileSets>
 </assembly>
