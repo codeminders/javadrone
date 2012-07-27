@@ -5,7 +5,7 @@
 	<groupId>com.codeminders</groupId>
 	<artifactId>javadrone</artifactId>
 	<version>${currentVersion}</version>
-	<name>javadron</name>
+	<name>javadrone</name>
 	<packaging>pom</packaging>
 	<description>Java API and demo programs to control Parrot's AR.Drone</description>
 	<modules>
