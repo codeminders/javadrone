@@ -16,13 +16,7 @@ public class AudioPlayer
 
     public static synchronized void playResource(Class resclass, String resname) throws Exception
     {
-        try
-        {
-            play(AudioSystem.getAudioInputStream(new BufferedInputStream(resclass.getResourceAsStream(resname))));
-        } catch(Exception ex)
-        {
-            ex.printStackTrace();
-        }
+        play(AudioSystem.getAudioInputStream(new BufferedInputStream(resclass.getResourceAsStream(resname))));
     }
 
     public static synchronized void play(AudioInputStream audioInputStream) throws Exception
