@@ -7,11 +7,9 @@ import com.codeminders.ardrone.ARDrone.VideoChannel;
 import com.codeminders.ardrone.util.FileImageRecorder;
 import com.codeminders.ardrone.util.FileVideoRecorder;
 import com.codeminders.ardrone.util.RecordingSuccessCallback;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
 
-import javax.sound.sampled.AudioSystem;
+import java.io.*;
+import java.util.logging.Level;
 
 import org.apache.log4j.Logger;
 
@@ -197,7 +195,7 @@ public class AssignableControl {
                 @Override
                 public void recordingSuccess(String filename) {
                     try {
-                        AudioPlayer.play(AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/camera.aif")));
+                        AudioPlayer.playResource(this.getClass(), "/com/codeminders/controltower/sounds/camera.aif");
                     } catch (Exception ex) {
                         java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
                     }
@@ -220,7 +218,7 @@ public class AssignableControl {
                 @Override
                 public void recordingSuccess(String filename) {
                     try {
-                    	AudioPlayer.play(AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_stop.aif")));
+                    	AudioPlayer.playResource(this.getClass(), "/com/codeminders/controltower/sounds/rec_stop.aif");
                     } catch (Exception ex) {
                         java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
                     }
@@ -233,7 +231,7 @@ public class AssignableControl {
             drone.addImageListener(fvr);
             fvr.startRecording();
             try {
-            	AudioPlayer.play(AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("/com/codeminders/controltower/sounds/rec_start.aif")));
+            	AudioPlayer.playResource(this.getClass(), "/com/codeminders/controltower/sounds/rec_start.aif");
             } catch (Exception ex) {
                 java.util.logging.Logger.getLogger(AssignableControl.class.getName()).log(Level.SEVERE, "{0}", ex);
             }
