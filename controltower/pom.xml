@@ -58,7 +58,7 @@
 				<descriptors>
 					<descriptor>src/main/assembly/src.xml</descriptor>
 				</descriptors>
-				<finalName>${artifactId}-full</finalName>
+				<finalName>${artifactId}-full-${currentVersion}</finalName>
 				<appendAssemblyId>false</appendAssemblyId>
 			</configuration>
 			<executions>
