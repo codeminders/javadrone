@@ -12,7 +12,7 @@
 	<description>Java API (without using native code) to control AR.Drone</description>
 
 	<build>
-		<finalName>javadrone-api</finalName>
+		<finalName>javadrone-api-${currentVersion}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -22,6 +22,33 @@
 					<source>1.6</source>
 					<target>1.6</target>
 				</configuration>
+			</plugin>
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-javadoc-plugin</artifactId>
+			  <version>2.8.1</version>
+			   <executions>
+			    <execution>
+			      <id>attach-javadocs</id>
+			      <goals>
+				<goal>jar</goal>
+			      </goals>
+			    </execution>
+			  </executions>
+			</plugin>
+			<plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-source-plugin</artifactId>
+			  <version>2.1.2</version>
+			  <executions>
+			    <execution>
+			      <id>attach-sources</id>
+			      <phase>verify</phase>
+			      <goals>
+				<goal>jar</goal>
+			      </goals>
+			    </execution>
+			  </executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
