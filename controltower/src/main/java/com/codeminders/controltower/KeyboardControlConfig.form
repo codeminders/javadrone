@@ -53,7 +53,7 @@
             <Property name="editable" type="boolean" value="false"/>
             <Property name="columns" type="int" value="20"/>
             <Property name="rows" type="int" value="5"/>
-            <Property name="text" type="java.lang.String" value="Enter - takeoff&#xa;Space - land&#xa;&#xa;W -  tilt left&#xa;A -   tilt forward&#xa;S -   tilt backward&#xa;D -  tilt right&#xa;&#xa;Arrow Up - increase altitude&#xa;Arrow Down - decrease altitude&#xa;Arrow Left - yaw Left&#xa;Arrow Right- yaw Right&#xa;&#xa;R - clear Emergency signal&#xa;C - change camera view&#xa;E - start/stop video&#xa;F - take a snapshot"/>
+            <Property name="text" type="java.lang.String" value="Enter - takeoff&#xa;Space - landing&#xa;&#xa;W -  tilt left&#xa;A -   tilt forward&#xa;S -   tilt backward&#xa;D -  tilt right&#xa;&#xa;Arrow Up - increase altitude&#xa;Arrow Down - decrease altitude&#xa;Arrow Left - yaw Left&#xa;Arrow Right- yaw Right&#xa;&#xa;R - clear emergency signal&#xa;C - change camera view&#xa;E - start/stop video&#xa;F - take a snapshot"/>
           </Properties>
           <AccessibilityProperties>
             <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="keyMappings"/>

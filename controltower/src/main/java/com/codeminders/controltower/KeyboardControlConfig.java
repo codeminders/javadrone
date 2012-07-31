@@ -37,7 +37,7 @@ public class KeyboardControlConfig extends javax.swing.JDialog {
         jTextArea1.setEditable(false);
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
-        jTextArea1.setText("Enter - takeoff\nSpace - land\n\nW -  tilt left\nA -   tilt forward\nS -   tilt backward\nD -  tilt right\n\nArrow Up - increase altitude\nArrow Down - decrease altitude\nArrow Left - yaw Left\nArrow Right- yaw Right\n\nR - clear Emergency signal\nC - change camera view\nE - start/stop video\nF - take a snapshot");
+        jTextArea1.setText("Enter - takeoff\nSpace - landing\n\nW -  tilt left\nA -   tilt forward\nS -   tilt backward\nD -  tilt right\n\nArrow Up - increase altitude\nArrow Down - decrease altitude\nArrow Left - yaw Left\nArrow Right- yaw Right\n\nR - clear emergency signal\nC - change camera view\nE - start/stop video\nF - take a snapshot");
         jScrollPane1.setViewportView(jTextArea1);
         jTextArea1.getAccessibleContext().setAccessibleName("keyMappings");
         jTextArea1.getAccessibleContext().setAccessibleParent(this);
