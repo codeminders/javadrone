@@ -1,0 +1,10 @@
+syntax:glob
+*~
+controltower/.settings/*
+controltower/target/*
+controltower/.classpath
+controltower/.project
+javadrone-api/.settings/*
+javadrone-api/target/*
+javadrone-api/.classpath
+javadrone-api/.project
