@@ -1,4 +1,4 @@
-<?xml version="1.1" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <Properties>
@@ -83,7 +83,7 @@
         </Component>
         <Component class="javax.swing.JToolBar$Separator" name="jSeparator1">
         </Component>
-        <Component class="javax.swing.JLabel" name="controllerStatus">
+        <Component class="javax.swing.JLabel" name="joystickControllerStatus">
           <Properties>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="0" green="0" id="red" palette="1" red="ff" type="palette"/>
@@ -94,7 +94,21 @@
             <Property name="toolTipText" type="java.lang.String" value="controller status (green = available)"/>
           </Properties>
           <Events>
-            <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="controllerStatusMouseReleased"/>
+            <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="joystickControllerStatusMouseReleased"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JLabel" name="keyboardControllerStatus">
+          <Properties>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="0" green="0" id="red" palette="1" red="ff" type="palette"/>
+            </Property>
+            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+              <Image iconType="3" name="/com/codeminders/controltower/images/keyboard_off.png"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" value="keyboard status (green = available)"/>
+          </Properties>
+          <Events>
+            <EventHandler event="mouseReleased" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="keyboardControllerStatusMouseReleased"/>
           </Events>
         </Component>
         <Component class="javax.swing.JCheckBox" name="flipSticksCheckbox">
