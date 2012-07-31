@@ -122,26 +122,26 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 		                // have to use a stream
 		                InputStream in = ControlTower.class.getResourceAsStream(path);
 		                if (in != null) {
-		                	System.out.println(path);
-			                // always write to different location
-			                String tempName = path.substring(path.lastIndexOf('/') + 1);
-			                File fileOut = File.createTempFile(tempName.substring(0, tempName.lastIndexOf('.')), tempName.substring(tempName.lastIndexOf('.') + 1, tempName.length()));
-			                fileOut.deleteOnExit();
-			                
-			                OutputStream out = new FileOutputStream(fileOut);
-			                byte[] buf = new byte[1024];
-			                int len;
-			                while ((len = in.read(buf)) > 0){            
-			                	out.write(buf, 0, len);
-			                }
-			                
-			                out.close();
-			                Runtime.getRuntime().load(fileOut.toString());
-			                isHIDLibLoaded = true;
-		                } else {
-		                	in.close();
-		                }
-		                
+		                	try {
+				                // always write to different location
+				                String tempName = path.substring(path.lastIndexOf('/') + 1);
+				                File fileOut = File.createTempFile(tempName.substring(0, tempName.lastIndexOf('.')), tempName.substring(tempName.lastIndexOf('.'), tempName.length()));
+				                fileOut.deleteOnExit();
+				                
+				                OutputStream out = new FileOutputStream(fileOut);
+				                byte[] buf = new byte[1024];
+				                int len;
+				                while ((len = in.read(buf)) > 0){            
+				                	out.write(buf, 0, len);
+				                }
+				                
+				                out.close();
+				                Runtime.getRuntime().load(fileOut.toString());
+				                isHIDLibLoaded = true;
+		                	} finally {
+		                		in.close();
+		                	}
+		                }	                
 		        } catch (Exception e) {
 		        	  // ignore
 		        } catch (UnsatisfiedLinkError e) {
