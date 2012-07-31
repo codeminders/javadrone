@@ -62,6 +62,12 @@ public class KeyboardController extends PS3Controller implements KeyListener
         case KeyEvent.VK_C:
             state.triangle = value;
             break;
+        case KeyEvent.VK_F:
+            state.square = value;
+            break;
+        case KeyEvent.VK_E:
+            state.circle = value;
+            break;
         case KeyEvent.VK_W:
             state.leftJoystickY = value ? -127 : 0;
             break;
