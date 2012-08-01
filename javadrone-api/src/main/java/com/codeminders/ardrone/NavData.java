@@ -228,11 +228,11 @@ public class NavData
         for(int i = 0; i < nb_detected; i++)
         {
             int type = byteArrayToInt(buf, offset + 4 * i);
-            int xc = byteArrayToInt(buf, offset + 4 * i + 1 * nb_detected * 4);
-            int yc = byteArrayToInt(buf, offset + 4 * i + 2 * nb_detected * 4);
-            int width = byteArrayToInt(buf, offset + 4 * i + 3 * nb_detected * 4);
-            int height = byteArrayToInt(buf, offset + 4 * i + 4 * nb_detected * 4);
-            int dist = byteArrayToInt(buf, offset + 4 * i + 5 * nb_detected * 4);
+            int xc = byteArrayToInt(buf, offset + 4 * i + 1 * 4 * 4);
+            int yc = byteArrayToInt(buf, offset + 4 * i + 2 * 4 * 4);
+            int width = byteArrayToInt(buf, offset + 4 * i + 3 * 4 * 4);
+            int height = byteArrayToInt(buf, offset + 4 * i + 4 * 4 * 4);
+            int dist = byteArrayToInt(buf, offset + 4 * i + 5 * 4 * 4);
 
             VisionTag vt = new VisionTag(VisionTagType.fromInt(type), new Point(xc, yc), new Dimension(width, height),
                     dist);
