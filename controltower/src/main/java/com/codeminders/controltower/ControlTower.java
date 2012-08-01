@@ -5,33 +5,24 @@
  */
 package com.codeminders.controltower;
 
-import com.codeminders.ardrone.ARDrone;
-import com.codeminders.ardrone.ARDrone.VideoChannel;
-import com.codeminders.ardrone.controllers.*;
-import com.codeminders.ardrone.DroneStatusChangeListener;
-import com.codeminders.ardrone.NavData;
-import com.codeminders.ardrone.NavDataListener;
-import com.codeminders.controltower.config.AssignableControl.ControllerButton;
-import com.codeminders.controltower.config.ControlMap;
-import com.codeminders.hidapi.HIDDeviceInfo;
-import com.codeminders.hidapi.HIDDeviceNotFoundException;
-import com.codeminders.hidapi.HIDManager;
-
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
+
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
+
+import com.codeminders.ardrone.*;
+import com.codeminders.ardrone.ARDrone.VideoChannel;
+import com.codeminders.ardrone.controllers.*;
+import com.codeminders.controltower.config.AssignableControl.ControllerButton;
+import com.codeminders.controltower.config.ControlMap;
+import com.codeminders.hidapi.*;
 
 /**
  * The central class that represents the main window and also manages the
@@ -711,11 +702,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     {//GEN-FIRST:event_droneStatusMouseReleased
         startUpdateLoop();
     }//GEN-LAST:event_droneStatusMouseReleased
-
-    private void controllerStatusMouseReleased(java.awt.event.MouseEvent evt)
-    {//GEN-FIRST:event_controllerStatusMouseReleased
-        initController();
-    }//GEN-LAST:event_controllerStatusMouseReleased
 
     private void instrumentButtonActionPerformed(java.awt.event.ActionEvent evt)
     {//GEN-FIRST:event_instrumentButtonActionPerformed

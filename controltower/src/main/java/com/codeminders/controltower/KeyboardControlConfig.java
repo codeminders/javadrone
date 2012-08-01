@@ -12,8 +12,6 @@ package com.codeminders.controltower;
 @SuppressWarnings("serial")
 public class KeyboardControlConfig extends javax.swing.JDialog {
 
-    private int index = 0;
-
     /** Creates new form ControlConfig */
     public KeyboardControlConfig(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
