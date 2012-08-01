@@ -196,19 +196,25 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     {
         if(!isHIDLibLoaded)
             return null;
-
+        
         HIDDeviceInfo[] devs = HIDManager.listDevices();
         for(int i = 0; i < devs.length; i++)
         {
-            System.out.println("" + devs[i]);
-            if(AfterGlowController.isA(devs[i]))
-            {
-                return new AfterGlowController(devs[i]);
+        	try {
+	            System.out.println("" + devs[i]);
+	            if(AfterGlowController.isA(devs[i]))
+	            {
+	                return new AfterGlowController(devs[i]);
+	            }
+	            if(SonyPS3Controller.isA(devs[i]))
+	            {
+	                return new SonyPS3Controller(devs[i]);
+	            	
+	            }
+            } catch (HIDDeviceNotFoundException ex) {
+            	// TODO FIX MAC issue HIDManager.listDevices(); does not change its values on controller insert to usb or remove
             }
-            if(SonyPS3Controller.isA(devs[i]))
-            {
-                return new SonyPS3Controller(devs[i]);
-            }
+            	
         }
         return null;
     }

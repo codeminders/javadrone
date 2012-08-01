@@ -14,7 +14,7 @@ public class AudioPlayer
 
     private static final int EXTERNAL_BUFFER_SIZE = 128000;
 
-    public static synchronized void playResource(Class resclass, String resname) throws Exception
+	public static synchronized void playResource(Class resclass, String resname) throws Exception
     {
         play(AudioSystem.getAudioInputStream(new BufferedInputStream(resclass.getResourceAsStream(resname))));
     }
