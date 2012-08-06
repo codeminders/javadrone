@@ -63,6 +63,8 @@ public class ControllerTest
         HIDDeviceInfo[] devs = HIDManager.listDevices();
         for(int i = 0; i < devs.length; i++)
         {
+        	if (MotioninJoyVirtualController.isA(devs[i]))
+        	    return new MotioninJoyVirtualController(devs[i]);
             if(AfterGlowController.isA(devs[i]))
                 return new AfterGlowController(devs[i]);
             if(SonyPS3Controller.isA(devs[i]))
