@@ -2,12 +2,9 @@
 package com.codeminders.ardrone.controllers;
 
 import java.io.IOException;
-
-import com.codeminders.hidapi.*;
-
 import java.util.BitSet;
 
-import org.apache.log4j.Logger;
+import com.codeminders.hidapi.*;
 
 public class SonyPS3Controller extends PS3Controller
 {
