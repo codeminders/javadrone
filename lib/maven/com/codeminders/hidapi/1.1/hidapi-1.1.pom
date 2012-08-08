@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.codeminders</groupId>
+  <artifactId>hidapi</artifactId>
+  <version>1.1</version>
+  <url>http://code.google.com/p/javahidapi/</url>
+  <description>JNI wrapper around C/C++ HIDAPI library providing simple java API to work with devices such as USB gamepads, joysticks, keyboards</description>
+  <licenses>
+    <license>
+       <name>BSD License</name>
+       <url>http://www.opensource.org/licenses/bsd-license.php</url>
+       <distribution>repo</distribution>  
+    </license>
+   </licenses>
+   <scm>
+      <scm>
+        <connection>scm:hg:http://code.google.com/p/javahidapi/</connection>
+      </scm>
+   </scm>
+</project>
