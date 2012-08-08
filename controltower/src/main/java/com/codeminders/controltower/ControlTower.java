@@ -5,33 +5,35 @@
  */
 package com.codeminders.controltower;
 
-import com.codeminders.ardrone.ARDrone;
-import com.codeminders.ardrone.ARDrone.VideoChannel;
-import com.codeminders.ardrone.controllers.*;
-import com.codeminders.ardrone.DroneStatusChangeListener;
-import com.codeminders.ardrone.NavData;
-import com.codeminders.ardrone.NavDataListener;
-import com.codeminders.controltower.config.AssignableControl.ControllerButton;
-import com.codeminders.controltower.config.ControlMap;
-import com.codeminders.hidapi.HIDDeviceInfo;
-import com.codeminders.hidapi.HIDDeviceNotFoundException;
-import com.codeminders.hidapi.HIDManager;
-
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.prefs.Preferences;
+
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
+
+import com.codeminders.ardrone.ARDrone;
+import com.codeminders.ardrone.ARDrone.VideoChannel;
+import com.codeminders.ardrone.DroneStatusChangeListener;
+import com.codeminders.ardrone.NavData;
+import com.codeminders.ardrone.NavDataListener;
+import com.codeminders.ardrone.controllers.AfterGlowController;
+import com.codeminders.ardrone.controllers.KeyboardController;
+import com.codeminders.ardrone.controllers.PS3Controller;
+import com.codeminders.ardrone.controllers.PS3ControllerState;
+import com.codeminders.ardrone.controllers.PS3ControllerStateChange;
+import com.codeminders.ardrone.controllers.SonyPS3Controller;
+import com.codeminders.controltower.config.AssignableControl.ControllerButton;
+import com.codeminders.controltower.config.ControlMap;
+import com.codeminders.hidapi.ClassPathLibraryLoader;
+import com.codeminders.hidapi.HIDDeviceInfo;
+import com.codeminders.hidapi.HIDDeviceNotFoundException;
+import com.codeminders.hidapi.HIDManager;
 
 /**
  * The central class that represents the main window and also manages the
@@ -70,19 +72,12 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private final KeyboardControlConfig keyboardControlConfigWindow;
     private final BottomGaugePanel gauges = new BottomGaugePanel();
     private final ControlMap controlMap = new ControlMap();
-    
-    private static final String[] HID_LIB_NAMES = {
-        "/native/linux/libhidapi-jni-64.so",
-        "/native/linux/libhidapi-jni-32.so",
-        "/native/mac/libhidapi-jni-64.jnilib",
-        "/native/mac/libhidapi-jni-32.jnilib"
-    };
 
     private static boolean isHIDLibLoaded = false;
 
     static
     {
-        loadNativeHIDLibrary();
+        isHIDLibLoaded = ClassPathLibraryLoader.loadNativeHIDLibrary();
     }
 
     /**
@@ -121,47 +116,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         drone.addNavDataListener(this);
     }
 
-    private static void loadNativeHIDLibrary()
-    {
-    	  for(String path : HID_LIB_NAMES)
-          {
-		        try {
-		                // have to use a stream
-		                InputStream in = ControlTower.class.getResourceAsStream(path);
-		                if (in != null) {
-		                	try {
-				                // always write to different location
-				                String tempName = path.substring(path.lastIndexOf('/') + 1);
-				                File fileOut = File.createTempFile(tempName.substring(0, tempName.lastIndexOf('.')), tempName.substring(tempName.lastIndexOf('.'), tempName.length()));
-				                fileOut.deleteOnExit();
-				                
-				                OutputStream out = new FileOutputStream(fileOut);
-				                byte[] buf = new byte[1024];
-				                int len;
-				                while ((len = in.read(buf)) > 0){            
-				                	out.write(buf, 0, len);
-				                }
-				                
-				                out.close();
-				                Runtime.getRuntime().load(fileOut.toString());
-				                isHIDLibLoaded = true;
-		                	} finally {
-		                		in.close();
-		                	}
-		                }	                
-		        } catch (Exception e) {
-		        	  // ignore
-		        } catch (UnsatisfiedLinkError e) {
-		        	  // ignore
-		        }
-		        
-		        if (isHIDLibLoaded) {
-		        	break;
-		        }
-        }
-    	  
-    	Logger.getLogger(ControlTower.class.getName()).debug("HIDLibrary" + (isHIDLibLoaded ? " " : " not ") + "found using ClassPath");
-    }
     
     /**
      * Tries to find PS3 controller, else creates keyboard controller
@@ -206,17 +160,19 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         if(!isHIDLibLoaded)
             return null;
 
-        HIDDeviceInfo[] devs = HIDManager.listDevices();
-        for(int i = 0; i < devs.length; i++)
-        {
-            System.out.println("" + devs[i]);
-            if(AfterGlowController.isA(devs[i]))
+        HIDDeviceInfo[] devs = HIDManager.getInstance().listDevices();
+        if (null != devs) {
+            for(int i = 0; i < devs.length; i++)
             {
-                return new AfterGlowController(devs[i]);
-            }
-            if(SonyPS3Controller.isA(devs[i]))
-            {
-                return new SonyPS3Controller(devs[i]);
+                System.out.println("" + devs[i]);
+                if(AfterGlowController.isA(devs[i]))
+                {
+                    return new AfterGlowController(devs[i]);
+                }
+                if(SonyPS3Controller.isA(devs[i]))
+                {
+                    return new SonyPS3Controller(devs[i]);
+                }
             }
         }
         return null;

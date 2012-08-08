@@ -12,7 +12,7 @@ public class HIDAPITest
 
     static
     {
-        System.loadLibrary("hidapi-jni");
+        ClassPathLibraryLoader.loadNativeHIDLibrary();
     }
 
     private static final int  BUFSIZE              = 2048;
@@ -39,7 +39,7 @@ public class HIDAPITest
         HIDDevice dev;
         try
         {
-            dev = HIDManager.openById(VENDOR_ID, PRODUCT_ID, null);
+            dev = HIDManager.getInstance().openById(VENDOR_ID, PRODUCT_ID, null);
             System.err.print("Manufacturer: " + dev.getManufacturerString() + "\n");
             System.err.print("Product: " + dev.getProductString() + "\n");
             System.err.print("Serial Number: " + dev.getSerialNumberString() + "\n");
@@ -133,12 +133,14 @@ public class HIDAPITest
 
         try
         {
-            HIDDeviceInfo[] devs = HIDManager.listDevices();
+            HIDDeviceInfo[] devs = HIDManager.getInstance().listDevices();
             System.err.println("Devices:\n\n");
-            for(int i = 0; i < devs.length; i++)
-            {
-                System.err.println("" + i + ".\t" + devs[i]);
-                System.err.println("---------------------------------------------\n");
+            if (null != devs) {
+                for(int i = 0; i < devs.length; i++)
+                {
+                    System.err.println("" + i + ".\t" + devs[i]);
+                    System.err.println("---------------------------------------------\n");
+                }
             }
         } catch(IOException e)
         {

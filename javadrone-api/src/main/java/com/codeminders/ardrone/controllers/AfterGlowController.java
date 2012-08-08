@@ -29,7 +29,7 @@ public class AfterGlowController extends PS3Controller
 
     public AfterGlowController() throws HIDDeviceNotFoundException, IOException
     {
-        dev = HIDManager.openById(VENDOR_ID, PRODUCT_ID, null);
+        dev = HIDManager.getInstance().openById(VENDOR_ID, PRODUCT_ID, null);
         dev.enableBlocking();
     }
 

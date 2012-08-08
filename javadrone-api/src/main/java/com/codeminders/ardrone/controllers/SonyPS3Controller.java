@@ -28,7 +28,7 @@ public class SonyPS3Controller extends PS3Controller
 
     public SonyPS3Controller() throws HIDDeviceNotFoundException, IOException
     {
-        dev = HIDManager.openById(VENDOR_ID, PRODUCT_ID, null);
+        dev = HIDManager.getInstance().openById(VENDOR_ID, PRODUCT_ID, null);
         if (null != dev) {
         	dev.enableBlocking(); 
         } else {
@@ -39,11 +39,12 @@ public class SonyPS3Controller extends PS3Controller
     public SonyPS3Controller(HIDDeviceInfo hidDeviceInfo) throws IOException
     {
         dev = hidDeviceInfo.open();
-        if (null != dev) {
+         if (null != dev) {
         	dev.enableBlocking();
 	    } else {
 	    	throw new HIDDeviceNotFoundException("Device not found");
 	    }
+//        dev.close();
     }
 
     private int joystickCoordConv(byte b)
