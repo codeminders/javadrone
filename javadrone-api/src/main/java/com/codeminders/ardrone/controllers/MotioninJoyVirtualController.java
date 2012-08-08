@@ -21,7 +21,7 @@ public class MotioninJoyVirtualController  extends PS3Controller {
     boolean  first_passed = false;
     
     public MotioninJoyVirtualController() throws HIDDeviceNotFoundException, IOException {
-        dev = HIDManager.openById(VENDOR_ID, PRODUCT_ID, null);
+        dev = HIDManager.getInstance().openById(VENDOR_ID, PRODUCT_ID, null);
         if (null != dev) {
         	dev.enableBlocking(); 
         } else {
