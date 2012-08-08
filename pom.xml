@@ -13,6 +13,6 @@
 		<module>controltower</module>
 	</modules>
 	<properties>
-	    <currentVersion>1.2</currentVersion>
+	    <currentVersion>1.3</currentVersion>
 	</properties>
 </project>
