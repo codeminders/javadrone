@@ -6,7 +6,8 @@ import java.net.*;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.codeminders.ardrone.NavData.FlyingState;
 import com.codeminders.ardrone.commands.*;
@@ -217,7 +218,7 @@ public class ARDrone
         {
             if(state != newstate)
             {
-                log.debug("State changed from " + state + " to " + newstate);
+                log.fine("State changed from " + state + " to " + newstate);
                 state = newstate;
 
                 // We automatically switch to DEMO from bootstrap
@@ -250,7 +251,7 @@ public class ARDrone
             {
                 // Ignoring exceptions on disconnection
             }
-            log.debug("State changed from " + state + " to " + State.ERROR + " with exception ", ex);
+            log.log(Level.FINE ,"State changed from " + state + " to " + State.ERROR + " with exception ", ex);
             state = State.ERROR;
             state_mutex.notifyAll();
         }
@@ -275,7 +276,6 @@ public class ARDrone
         try
         {
             cmd_socket = new DatagramSocket();
-            // control_socket = new Socket(drone_addr, CONTROL_PORT);
 
             cmd_sender = new CommandSender(cmd_queue, this, drone_addr, cmd_socket);
             cmd_sending_thread = new Thread(cmd_sender);
@@ -409,7 +409,7 @@ public class ARDrone
     {
         if(nd.isBatteryTooLow() || nd.isNotEnoughPower())
         {
-            log.error("Battery pb " + nd.toString());
+            log.severe("Battery pb " + nd.toString());
         }
 
         synchronized(emergency_mutex)
@@ -423,20 +423,20 @@ public class ARDrone
             {
                 if(state != State.CONNECTING && nd.isControlReceived())
                 {
-                    log.debug("Control received! ACK!");
+                    log.fine("Control received! ACK!");
                     cmd_queue.add(new ControlCommand(5, 0));
                 }
 
                 if(state == State.TAKING_OFF && nd.getFlyingState() == FlyingState.FLYING)
                 {
-                    log.debug("Take off success");
+                    log.fine("Take off success");
                     cmd_queue.clear(); // Maybe we should just remove
                                        // LAND/TAKEOFF comand
                                        // instead of nuking the whole queue?
                     changeState(State.DEMO);
                 } else if(state == State.LANDING && nd.getFlyingState() == FlyingState.LANDED)
                 {
-                    log.debug("Landing success");
+                    log.fine("Landing success");
                     cmd_queue.clear(); // Maybe we should just remove
                                        // LAND/TAKEOFF comand
                                        // instead of nuking the whole queue?
@@ -458,7 +458,7 @@ public class ARDrone
             }
         } catch(IOException e)
         {
-            log.error("Error changing the state", e);
+            log.log(Level.SEVERE, "Error changing the state", e);
         }
 
         if(state == State.DEMO)

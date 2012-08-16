@@ -4,7 +4,7 @@ package com.codeminders.ardrone;
 import java.io.IOException;
 import java.net.*;
 
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 import com.codeminders.ardrone.commands.*;
 
@@ -46,7 +46,7 @@ public class CommandSender implements Runnable
                 {
                     ATCommand cmd = (ATCommand) c;
                     //if(!(c instanceof KeepAliveCommand) && !(c instanceof MoveCommand) && !(c instanceof HoverCommand) && c.getStickyCounter()==0)
-                        log.debug("Q[" + cmd_queue.size() + "]Sending AT command " + c);
+                    log.fine("Q[" + cmd_queue.size() + "]Sending AT command " + c);
                     byte[] pdata = cmd.getPacket(sequence++); // TODO: pass
                                                               // sequence number
                     DatagramPacket p = new DatagramPacket(pdata, pdata.length, drone_addr, CMD_PORT);
