@@ -3,8 +3,9 @@ package com.codeminders.ardrone;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 public class CommandQueue
 {
@@ -23,7 +24,12 @@ public class CommandQueue
     {
         while(true)
         {
-            DroneCommand res = data.pollLast();
+            DroneCommand res = null;
+            try {
+                res = data.removeLast();
+            } catch (NoSuchElementException ex) {
+                res = null;
+            }
             if(res != null)
             {
                 // log.debug("[" + data.size() + "] Returning " + res);

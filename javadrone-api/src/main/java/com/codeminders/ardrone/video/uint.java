@@ -1,4 +1,3 @@
-
 package com.codeminders.ardrone.video;
 
 import java.io.ByteArrayInputStream;

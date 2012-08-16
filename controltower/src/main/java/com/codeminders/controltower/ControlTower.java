@@ -8,14 +8,17 @@ package com.codeminders.controltower;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.IOException;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.LogManager;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
@@ -78,6 +81,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     static
     {
         isHIDLibLoaded = ClassPathLibraryLoader.loadNativeHIDLibrary();
+        SLF4JBridgeHandler.install();
     }
 
     /**
@@ -85,6 +89,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
      */
     public ControlTower()
     {
+        Logger.getLogger(ControlTower.class.getName()).error("asdsadasd");
         setAlwaysOnTop(true);
         initComponents();
         droneConfigWindow = new DroneConfig(this, true);
@@ -485,7 +490,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     @Override
     public void navDataReceived(NavData nd)
     {
-        Logger.getLogger(getClass().getName()).debug("navDataReceived()");
+        //Logger.getLogger(getClass().getName()).debug("navDataReceived()");
         updateBatteryStatus(nd.getBattery());
         this.flying.set(nd.isFlying());
     }

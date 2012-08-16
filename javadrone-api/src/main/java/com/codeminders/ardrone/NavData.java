@@ -4,7 +4,7 @@ package com.codeminders.ardrone;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 import com.codeminders.ardrone.VisionTag.VisionTagType;
 
@@ -149,7 +149,7 @@ public class NavData
 
     public static NavData createFromData(byte[] buf) throws NavDataFormatException
     {
-        log.debug("Parsing navdata len=" + buf.length);
+        log.fine("Parsing navdata len=" + buf.length);
         NavData data = new NavData();
         data.mode = NavData.Mode.BOOTSTRAP; // Assume we are in bootstrap
 
@@ -182,7 +182,7 @@ public class NavData
             if(option_len == 0)
                 throw new NavDataFormatException("Zero-len option with tag " + option_tag);
 
-            // log.debug("At offset " + (offset - 4) + " found option " +
+            // log.fine("At offset " + (offset - 4) + " found option " +
             // option_tag + " with len=" + option_len);
 
             if(option_tag == NavDataTag.NAVDATA_DEMO_TAG.getValue())
@@ -201,13 +201,13 @@ public class NavData
                     data.setVisionTags(vtags);
             } else
             {
-                log.warn("Skipping unknown NavData option with tag=" + option_tag);
+                log.warning("Skipping unknown NavData option with tag=" + option_tag);
             }
             offset = offset + option_len - 4;
         }
 
         // TODO: calculate checksum
-        log.debug("Got Nav data. mode " + data.mode);
+        log.fine("Got Nav data. mode " + data.mode);
 
         return data;
     }
@@ -218,7 +218,7 @@ public class NavData
         offset += 4;
 
         if(nb_detected!=0)
-            log.debug("" + nb_detected + " vision tags detected");
+            log.fine("" + nb_detected + " vision tags detected");
 
         if(nb_detected == 0)
             return null;
@@ -236,7 +236,7 @@ public class NavData
 
             VisionTag vt = new VisionTag(VisionTagType.fromInt(type), new Point(xc, yc), new Dimension(width, height),
                     dist);
-            log.debug("Vision#" + i + " " + vt.toString());
+            log.fine("Vision#" + i + " " + vt.toString());
             res.add(vt);
         }
 
@@ -246,7 +246,7 @@ public class NavData
     private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
     {
         data.ctrl_state = CtrlState.fromInt(byteArrayToInt(buf, offset) >> 16);
-        log.debug("Ctrl State " + data.ctrl_state);
+        log.fine("Ctrl State " + data.ctrl_state);
 
         offset += 4;
         data.battery = byteArrayToInt(buf, offset);
@@ -350,7 +350,7 @@ public class NavData
         sb.append("Z velocity: " + data.getVz() + "\n");
         sb.append("Vision Tags: " + data.getVisionTags() + "\n");
 
-        log.debug("State: " + sb.toString());
+        log.fine("State: " + sb.toString());
     }
 
     protected Mode             mode;
