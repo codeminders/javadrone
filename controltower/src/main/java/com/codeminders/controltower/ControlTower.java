@@ -89,7 +89,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
      */
     public ControlTower()
     {
-        Logger.getLogger(ControlTower.class.getName()).error("asdsadasd");
         setAlwaysOnTop(true);
         initComponents();
         droneConfigWindow = new DroneConfig(this, true);
