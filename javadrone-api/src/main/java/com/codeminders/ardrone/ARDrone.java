@@ -102,7 +102,7 @@ public class ARDrone
     private static final int                VIDEO_PORT        = 5555;
     // private static final int CONTROL_PORT = 5559;
 
-    private static byte[]                   DEFAULT_DRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
+    final static byte[]                     DEFAULT_DRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
     private InetAddress                     drone_addr;
     private DatagramSocket                  cmd_socket;
@@ -127,14 +127,20 @@ public class ARDrone
     private List<DroneVideoListener>        image_listeners   = new LinkedList<DroneVideoListener>();
     private List<NavDataListener>           navdata_listeners = new LinkedList<NavDataListener>();
 
+    private static int                      navDataReconnectTimeout = 1000; // 1 second
+
+    private static int                      videoReconnectTimeout   = 1000; // 1 second
+
     public ARDrone() throws UnknownHostException
     {
-        this(InetAddress.getByAddress(DEFAULT_DRONE_IP));
+        this(InetAddress.getByAddress(DEFAULT_DRONE_IP), navDataReconnectTimeout, videoReconnectTimeout);
     }
 
-    public ARDrone(InetAddress drone_addr)
+    public ARDrone(InetAddress drone_addr, int navDataReconnectTimeout, int videoReconnectTimeout)
     {
         this.drone_addr = drone_addr;
+        this.navDataReconnectTimeout = navDataReconnectTimeout;
+        this.videoReconnectTimeout = videoReconnectTimeout;
     }
 
     public void addImageListener(DroneVideoListener l)
@@ -279,14 +285,17 @@ public class ARDrone
 
             cmd_sender = new CommandSender(cmd_queue, this, drone_addr, cmd_socket);
             cmd_sending_thread = new Thread(cmd_sender);
+            cmd_sending_thread.setName("Command Sender");
             cmd_sending_thread.start();
 
-            nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT);
+            nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT, navDataReconnectTimeout);
             nav_data_reader_thread = new Thread(nav_data_reader);
+            nav_data_reader_thread.setName("NavData Reader");
             nav_data_reader_thread.start();
 
-            video_reader = new VideoReader(this, drone_addr, VIDEO_PORT);
+            video_reader = new VideoReader(this, drone_addr, VIDEO_PORT, videoReconnectTimeout);
             video_reader_thread = new Thread(video_reader);
+            video_reader_thread.setName("Video Reader");
             video_reader_thread.start();
 
             changeState(State.CONNECTING);
@@ -320,10 +329,10 @@ public class ARDrone
             cmd_queue.add(new QuitCommand());
 
         if(nav_data_reader != null)
-            nav_data_reader.stop();
+            nav_data_reader.finish();
 
         if(video_reader != null)
-            video_reader.stop();
+            video_reader.finish();
 
         if(cmd_socket != null)
             cmd_socket.close();
@@ -603,7 +612,13 @@ public class ARDrone
         {
             while(true)
             {
-                if((System.currentTimeMillis() - since) >= how_long)
+                if(state == State.DEMO)
+                {
+                    return; // OK! We are now connected
+                } else if(state == State.ERROR || state == State.DISCONNECTED)
+                {
+                    throw new IOException("Connection Error");
+                } else if((System.currentTimeMillis() - since) >= how_long)
                 {
                     try
                     {
@@ -613,13 +628,8 @@ public class ARDrone
                     }
                     // Timeout, too late
                     throw new IOException("Timeout connecting to ARDrone");
-                } else if(state == State.DEMO)
-                {
-                    return; // OK! We are now connected
-                } else if(state == State.ERROR || state == State.DISCONNECTED)
-                {
-                    throw new IOException("Connection Error");
-                }
+                } 
+                
 
                 long p = Math.min(how_long - (System.currentTimeMillis() - since), how_long);
                 if(p > 0)
