@@ -10,12 +10,15 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public abstract class DataReader implements Runnable {
 	
-    private static final int RECONNECT_TIMEOUT = 1000;
-    private static final int MAX_TMEOUT = 5;
-
+    private int reconnect_timeout;
+    private static final int MAX_TMEOUT = 500;
+    private Logger log = Logger.getLogger(this.getClass().getName());
+    
     protected DatagramChannel  channel;
     ARDrone                    drone;
     protected Selector         selector;
@@ -27,12 +30,20 @@ public abstract class DataReader implements Runnable {
 	private int                buffer_size;
 	
 	
-    public DataReader(ARDrone drone, InetAddress drone_addr, int data_port, int buffer_size) throws ClosedChannelException, IOException {
+	static final byte[] TRIGGER_BYTES = { 0x01, 0x00, 0x00, 0x00 };
+	
+	ByteBuffer trigger_buffer = ByteBuffer.allocate(TRIGGER_BYTES.length);
+    
+    public DataReader(ARDrone drone, InetAddress drone_addr, int data_port, int buffer_size, int reconnect_timeout) throws ClosedChannelException, IOException {
         super();
         this.drone = drone;
         this.drone_addr = drone_addr;
         this.data_port = data_port;
         this.buffer_size = buffer_size;
+        this.reconnect_timeout = reconnect_timeout;
+        
+        trigger_buffer.put(TRIGGER_BYTES);
+        trigger_buffer.flip();
         
         connect();
     }
@@ -77,6 +88,7 @@ public abstract class DataReader implements Runnable {
         {
             ByteBuffer inbuf = ByteBuffer.allocate(buffer_size);
             done = false;
+            timeOfLastMessage = System.currentTimeMillis();
             while(!done)
             {
                 selector.select(MAX_TMEOUT);
@@ -89,12 +101,13 @@ public abstract class DataReader implements Runnable {
                 Iterator iterator = readyKeys.iterator();
                 
                 if (!iterator.hasNext()) {
-                    if (timeOfLastMessage > 0 && System.currentTimeMillis() - timeOfLastMessage > RECONNECT_TIMEOUT ) {
+                    if (timeOfLastMessage > 0 && System.currentTimeMillis() - timeOfLastMessage > reconnect_timeout ) {
+                        log.fine("Data Timeout in " + reconnect_timeout + "ms. reached. Attemting to reconnect" );
                         disconnect();
                         try {
                             connect();
-                        } catch (Exception e) {
-                            // ignore
+                        } catch (Exception e) {                           
+                            log.log(Level.FINE, "Failed to re-connect", e);
                         }
                         timeOfLastMessage = System.currentTimeMillis();
                     }
@@ -104,22 +117,38 @@ public abstract class DataReader implements Runnable {
                     timeOfLastMessage = System.currentTimeMillis();
                     SelectionKey key = (SelectionKey) iterator.next();
                     iterator.remove();
-                    handleReceivedMessageKey(key, inbuf);
+                    
+                    if(key.isWritable())
+                    {
+                        channel.write(trigger_buffer);
+                        channel.register(selector, SelectionKey.OP_READ);
+                    } 
+                    else if(key.isReadable())
+                    {
+                        inbuf.clear(); 
+                        int len = channel.read(inbuf);
+                        inbuf.flip();
+                        handleData(inbuf, len);
+                    }
                 }
             }
         } catch(Exception e)
         {
-            drone.changeToErrorState(e);
+            if (!done) {
+                drone.changeToErrorState(e);
+            }
         }
 
     }
 
-    abstract void handleReceivedMessageKey(SelectionKey key, ByteBuffer inbuf) throws Exception;
+    abstract void handleData(ByteBuffer buf, int len) throws Exception;
 
-    public void stop()
+    public void finish()
     {
         done = true;
-        selector.wakeup();
+        if (null != selector) {
+            selector.wakeup();
+        }
     }
 	
 }

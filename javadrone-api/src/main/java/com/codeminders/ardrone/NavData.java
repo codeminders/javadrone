@@ -1,6 +1,8 @@
 
 package com.codeminders.ardrone;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,82 +103,45 @@ public class NavData
 
     private static final Logger log = Logger.getLogger(NavData.class.getName());
 
-    public static float byteArrayToFloat(byte[] b, int offset)
+   
+    public static NavData createFromData(ByteBuffer buf, int len) throws NavDataFormatException
     {
-        return Float.intBitsToFloat(byteArrayToInt(b, offset));
-    }
-
-    /**
-     * Convert the byte array to an int.
-     * 
-     * @param b The byte array
-     * @return The integer
-     */
-    public static int byteArrayToInt(byte[] b)
-    {
-        return byteArrayToInt(b, 0);
-    }
-
-    /**
-     * Convert the byte array to an int starting from the given offset.
-     * 
-     * @param b The byte array
-     * @param offset The array offset
-     * @return The integer
-     */
-    public static int byteArrayToInt(byte[] b, int offset)
-    {
-        int value = 0;
-        for(int i = 3; i >= 0; i--)
-        {
-            int shift = i * 8;
-            value += (b[i + offset] & 0x000000FF) << shift;
+        log.fine("Parsing navdata len=" + len);
+        
+        if (ByteOrder.LITTLE_ENDIAN != buf.order()) {
+            buf.order(ByteOrder.LITTLE_ENDIAN);
         }
-        return value;
-    }
-
-    /**
-     * Convert the byte array to an int starting from the given offset.
-     * 
-     * @param b The byte array
-     * @param offset The array offset
-     * @return The short
-     */
-    public static int byteArrayToShort(byte[] b, int offset)
-    {
-        return ((b[offset + 1] & 0x000000FF) << 8) + (b[offset] & 0x000000FF);
-    }
-
-    public static NavData createFromData(byte[] buf) throws NavDataFormatException
-    {
-        log.fine("Parsing navdata len=" + buf.length);
+        
         NavData data = new NavData();
         data.mode = NavData.Mode.BOOTSTRAP; // Assume we are in bootstrap
 
-        int offset = 0;
+        //int offset = 0;
 
-        int header = byteArrayToInt(buf, offset);
+        int header = buf.getInt(0);
+        
         if(header != 0x55667788)
             throw new NavDataFormatException("Error parsing NavData");
-        offset += 4;
+       // offset += 4;
 
-        int state = byteArrayToInt(buf, offset);
-        offset += 4;
+        int state = buf.getInt(4);
+        //offset += 4;
 
         parseState(data, state);
 
-        data.sequence = byteArrayToInt(buf, offset);
-        offset += 4;
+        data.sequence = buf.getInt(8);
+        //offset += 4;
 
-        // int vision_flag = byteArrayToInt(buf, offset);
-        offset += 4;
+        // int vision_flag = buf.getInt(offset);
+        //offset += 4;
+        
+        int offset = 16;
 
         // Read options
-        while(offset < buf.length)
+        while(offset < len)
         {
-            int option_tag = byteArrayToShort(buf, offset);
+            int option_tag = buf.getShort(offset);
             offset += 2;
-            int option_len = byteArrayToShort(buf, offset);
+            int option_len = buf.getShort(offset);
             offset += 2;
 
             if(option_len == 0)
@@ -212,9 +177,9 @@ public class NavData
         return data;
     }
 
-    private static List<VisionTag> parseVisionTags(NavData data, byte[] buf, int offset) throws NavDataFormatException
+    private static List<VisionTag> parseVisionTags(NavData data, ByteBuffer buf, int offset) throws NavDataFormatException
     {
-        int nb_detected = byteArrayToInt(buf, offset);
+        int nb_detected = buf.getInt(offset);
         offset += 4;
 
         if(nb_detected!=0)
@@ -227,12 +192,12 @@ public class NavData
         List<VisionTag> res = new ArrayList<VisionTag>(nb_detected);
         for(int i = 0; i < nb_detected; i++)
         {
-            int type = byteArrayToInt(buf, offset + 4 * i);
-            int xc = byteArrayToInt(buf, offset + 4 * i + 1 * 4 * 4);
-            int yc = byteArrayToInt(buf, offset + 4 * i + 2 * 4 * 4);
-            int width = byteArrayToInt(buf, offset + 4 * i + 3 * 4 * 4);
-            int height = byteArrayToInt(buf, offset + 4 * i + 4 * 4 * 4);
-            int dist = byteArrayToInt(buf, offset + 4 * i + 5 * 4 * 4);
+            int type = buf.getInt(offset + 4 * i);
+            int xc = buf.getInt(offset + 4 * i + 1 * 4 * 4);
+            int yc = buf.getInt(offset + 4 * i + 2 * 4 * 4);
+            int width = buf.getInt(offset + 4 * i + 3 * 4 * 4);
+            int height = buf.getInt(offset + 4 * i + 4 * 4 * 4);
+            int dist = buf.getInt(offset + 4 * i + 5 * 4 * 4);
 
             VisionTag vt = new VisionTag(VisionTagType.fromInt(type), new Point(xc, yc), new Dimension(width, height),
                     dist);
@@ -243,27 +208,27 @@ public class NavData
         return res;
     }
 
-    private static void parseDemoNavData(NavData data, byte[] buf, int offset) throws NavDataFormatException
+    private static void parseDemoNavData(NavData data, ByteBuffer buf, int offset) throws NavDataFormatException
     {
-        data.ctrl_state = CtrlState.fromInt(byteArrayToInt(buf, offset) >> 16);
+        data.ctrl_state = CtrlState.fromInt(buf.getInt(offset) >> 16);
         log.fine("Ctrl State " + data.ctrl_state);
 
         offset += 4;
-        data.battery = byteArrayToInt(buf, offset);
+        data.battery = buf.getInt(offset);
         offset += 4;
-        data.pitch = byteArrayToFloat(buf, offset) / 1000;
+        data.pitch = buf.getFloat(offset) / 1000;
         offset += 4;
-        data.roll = byteArrayToFloat(buf, offset) / 1000;
+        data.roll = buf.getFloat(offset) / 1000;
         offset += 4;
-        data.yaw = byteArrayToFloat(buf, offset) / 1000;
+        data.yaw = buf.getFloat(offset) / 1000;
         offset += 4;
-        data.altitude = ((float) byteArrayToInt(buf, offset)) / 1000;
+        data.altitude = ((float) buf.getInt(offset)) / 1000;
         offset += 4;
-        data.vx = byteArrayToFloat(buf, offset);
+        data.vx = buf.getFloat(offset);
         offset += 4;
-        data.vy = byteArrayToFloat(buf, offset);
+        data.vy = buf.getFloat(offset);
         offset += 4;
-        data.vz = byteArrayToFloat(buf, offset);
+        data.vz = buf.getFloat(offset);
         offset += 4;
     }
 
@@ -283,6 +248,7 @@ public class NavData
         data.navDataDemoOnly = (state & (1 << 10)) != 0;
         data.navDataBootstrap = (state & (1 << 11)) != 0;
         data.motorsDown = (state & (1 << 12)) != 0;
+        //ARDRONE_COM_LOST_MASK       = 1U << 13, /*!< Communication Lost : (1) com problem, (0) Com is ok */
         data.gyrometersDown = (state & (1 << 14)) != 0;
         data.batteryTooLow = (state & (1 << 15)) != 0;
         data.batteryTooHigh = (state & (1 << 16)) != 0;
