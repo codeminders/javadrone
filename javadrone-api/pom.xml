@@ -60,6 +60,7 @@
 				    </additionalProjectnatures>
 				    <buildcommands>
 					<buildcommand>org.eclipse.jdt.core.javabuilder</buildcommand>
+					<buildcommand>com.android.ide.eclipse.adt.ResourceManagerBuilder</buildcommand>
 					<buildcommand>com.android.ide.eclipse.adt.PreCompilerBuilder</buildcommand>
 					<buildcommand>com.android.ide.eclipse.adt.ApkBuilder</buildcommand>
 				    </buildcommands>
