@@ -3,11 +3,23 @@ package com.codeminders.ardrone;
 
 
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import com.codeminders.ardrone.controller.PS3Controller;
+import com.codeminders.ardrone.controller.SonyPS3Controller;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -25,8 +37,53 @@ public class MainActivity extends Activity implements DroneVideoListener {
     ImageView display;
     TextView state;
     Button connectButton;
+    PS3Controller controller;
+    Button connectPs3Button;
+    
+    UsbManager manager;
+    
+    ControllerThread ctrThread; 
+    
+    private static final String ACTION_USB_PERMISSION = "com.access.device.USB_PERMISSION";
     
     static MainActivity mainActivity;
+    
+    private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (ACTION_USB_PERMISSION.equals(action)) {
+                synchronized (this) {
+                    UsbDevice deviceConnected = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+
+                    if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+
+                        if (deviceConnected != null) {
+                           
+                            if (SonyPS3Controller.isA(deviceConnected)) {
+                                try {
+                                    controller = new SonyPS3Controller(deviceConnected, manager);
+                                    connectPs3Button.setEnabled(false);
+                                    connectPs3Button.setText("Connected");                     
+                                    // Start joystic reading thread
+                                    ctrThread = new ControllerThread(drone, controller);
+                                    ctrThread.setName("Controll Thread");
+                                    ctrThread.start();
+                                    
+                                } catch (Throwable e) {
+                                    connectPs3Button.setText("Error");                     
+                                }
+                            }
+
+                        }
+                    } else {
+                        connectPs3Button.setText("Denied");
+                        connectPs3Button.setEnabled(false);
+                    }
+                }
+            }
+        }
+    };
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,9 +109,29 @@ public class MainActivity extends Activity implements DroneVideoListener {
                     state.setText("Connecting...");
                     (new DroneStarter()).execute(MainActivity.drone); 
                     }
-             });
+        });
+        
+        manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        connectPs3Button = (Button) findViewById(R.id.ps3Button);
 
-       
+        connectPs3Button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
+                Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+                UsbDevice device = null;
+                while (deviceIterator.hasNext()) {
+                    device = deviceIterator.next();
+                    break;
+                }
+
+                if (null != device) {
+                    PendingIntent permissionIntent = PendingIntent.getBroadcast(mainActivity, 0, new Intent(ACTION_USB_PERMISSION), 0);
+                    IntentFilter permissionFilter = new IntentFilter(ACTION_USB_PERMISSION);
+                    mainActivity.registerReceiver(usbReceiver, permissionFilter);
+                    manager.requestPermission(device, permissionIntent);
+                }
+            }
+        });
     }
     
 
@@ -197,7 +274,6 @@ private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
             drone.setCombinedYawMode(true);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
             try {
                 drone.clearEmergencySignal();
                 drone.clearImageListeners();
@@ -205,7 +281,6 @@ private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
                 drone.clearStatusChangeListeners();
                 drone.disconnect();
             } catch (Exception e1) {
-                e1.printStackTrace();
             }
           
         }
