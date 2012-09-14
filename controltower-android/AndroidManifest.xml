@@ -25,9 +25,11 @@
 	<uses-permission android:name="android.permission.SIGNAL_PERSISTENT_PROCESSES" />
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-feature android:name="android.hardware.usb.host" />
+    
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="15" />
+        android:minSdkVersion="12"
+        android:targetSdkVersion="12" />
 
     <application
         android:icon="@drawable/ic_launcher"
