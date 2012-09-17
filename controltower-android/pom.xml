@@ -30,6 +30,15 @@
 	<sourceDirectory>src</sourceDirectory>
         <pluginManagement>
             <plugins>
+              <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+				  <source>1.6</source>
+				  <target>1.6</target>
+                </configuration>
+              </plugin>
                 <plugin>
                     <groupId>com.jayway.maven.plugins.android.generation2</groupId>
                     <artifactId>android-maven-plugin</artifactId>	
