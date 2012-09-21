@@ -4,9 +4,8 @@ package com.codeminders.ardrone.tools;
 import java.io.IOException;
 
 import com.codeminders.ardrone.controllers.*;
+import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
-import com.codeminders.hidapi.HIDDeviceInfo;
-import com.codeminders.hidapi.HIDManager;
 
 public class ControllerTest
 {
@@ -24,7 +23,7 @@ public class ControllerTest
     {
         try
         {
-            PS3Controller c = findController();
+            Controller c = findController();
             if(c == null)
             {
                 System.err.println("Controller not found");
@@ -38,7 +37,7 @@ public class ControllerTest
                 while(true)
                 {
 
-                    PS3ControllerState x = c.read();
+                    GameControllerState x = c.read();
                     System.err.println(x);
                     try
                     {
@@ -59,20 +58,9 @@ public class ControllerTest
 
     }
 
-    private static PS3Controller findController() throws IOException
+    private static Controller findController() throws IOException
     {
-
-        HIDDeviceInfo[] devs = HIDManager.getInstance().listDevices();
-        if (null != devs) {
-            for(int i = 0; i < devs.length; i++)
-            {
-                if(AfterGlowController.isA(devs[i]))
-                    return new AfterGlowController(devs[i]);
-                if(SonyPS3Controller.isA(devs[i]))
-                    return new SonyPS3Controller(devs[i]);
-            }
-        }
-        return null;
+        return HIDControllerFinder.findController();
     }
 
 }

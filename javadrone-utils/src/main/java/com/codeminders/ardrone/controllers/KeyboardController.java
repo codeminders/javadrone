@@ -7,9 +7,10 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
-public class KeyboardController extends PS3Controller implements KeyListener
+
+public class KeyboardController extends Controller implements KeyListener
 {
-    PS3ControllerState state = new PS3ControllerState();
+    GameControllerState state = new GameControllerState();
 
     public KeyboardController(JFrame frame)
     {
@@ -17,12 +18,12 @@ public class KeyboardController extends PS3Controller implements KeyListener
     }
 
     @Override
-    public PS3ControllerState read() throws IOException
+    public GameControllerState read() throws IOException
     {
-        PS3ControllerState s;
+        GameControllerState s;
         synchronized(state)
         {
-            s = new PS3ControllerState(state);
+            s = new GameControllerState(state);
         }
         return s;
     }
@@ -98,6 +99,26 @@ public class KeyboardController extends PS3Controller implements KeyListener
     @Override
     public void keyTyped(KeyEvent e)
     {
+    }
+
+    @Override
+    public void close() throws IOException {
+     // nothing to do;        
+    }
+
+    @Override
+    public String getName() {
+        return "Standart KeyboardController";
+    }
+
+    @Override
+    public String getManufacturerString() {
+        return "not loading implemented";
+    }
+
+    @Override
+    public String getProductString() {
+        return "not loading implemented";
     }
 
 }

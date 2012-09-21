@@ -1,44 +1,21 @@
 
-package com.codeminders.ardrone.controllers;
+package com.codeminders.ardrone.controllers.decoders;
 
 import java.io.IOException;
 import java.util.BitSet;
 
-import com.codeminders.hidapi.*;
+import com.codeminders.ardrone.controllers.GameControllerState;
+import com.codeminders.ardrone.controllers.ControllerData;
 
 /**
- * "Afterglow" controller for PS3
+ * "Afterglow" controller for PS3 state decodder
  * 
  * @author lord
  * 
  */
-public class AfterGlowController extends PS3Controller
+public class AfterGlowControllerDecoder implements ControllerStateDecoder
 {
-    private static final int VENDOR_ID        = 3695;
-    private static final int PRODUCT_ID       = 25346;
-
-    private static final int BUFSIZE          = 32;
-    private static final int EXPECTED_BUFSIZE = 27;
-
-    public static boolean isA(HIDDeviceInfo hidDeviceInfo)
-    {
-        return(hidDeviceInfo.getVendor_id() == VENDOR_ID && hidDeviceInfo.getProduct_id() == PRODUCT_ID);
-    }
-
-    private byte[] buf = new byte[BUFSIZE];
-
-    public AfterGlowController() throws HIDDeviceNotFoundException, IOException
-    {
-        dev = HIDManager.getInstance().openById(VENDOR_ID, PRODUCT_ID, null);
-        dev.enableBlocking();
-    }
-
-    public AfterGlowController(HIDDeviceInfo hidDeviceInfo) throws IOException
-    {
-        dev = hidDeviceInfo.open();
-        dev.enableBlocking();
-    }
-
+  
     private int joystickCoordConv(byte b)
     {
         int v = b < 0 ? b + 256 : b;
@@ -46,13 +23,9 @@ public class AfterGlowController extends PS3Controller
     }
 
     @Override
-    public synchronized PS3ControllerState read() throws IOException
+    public GameControllerState decodeState(ControllerData data) throws IOException
     {
-        int n = dev.read(buf);
-        if(n != EXPECTED_BUFSIZE)
-        {
-            throw new IOException("Received packed with unexpected size " + n);
-        }
+        byte[] buf = data.getBuffer();
 
         BitSet bs = new BitSet(13);
         for(int i = 0; i < 8; i++)
@@ -90,11 +63,10 @@ public class AfterGlowController extends PS3Controller
         int hatSwitchLeftRight = 0;
         int hatSwitchUpDown = 0;
 
-        PS3ControllerState res = new PS3ControllerState(square, cross, circle, triangle, L1, R1, L2, R2, select, start,
+        GameControllerState res = new GameControllerState(square, cross, circle, triangle, L1, R1, L2, R2, select, start,
                 leftJoystickPress, rightJoystickPress, PS, hatSwitchLeftRight, hatSwitchUpDown, leftJoystickX,
                 leftJoystickY, rightJoystickX, rightJoystickY);
 
-        // System.err.println(res.toString());
 
         return res;
     }

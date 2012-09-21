@@ -2,11 +2,11 @@
 package com.codeminders.ardrone.controllers;
 
 /**
- * Data structure describing state of generic PS-3 compatible game controller.
+ * Data structure describing state of generic compatible game controller.
  * 
  * @author lord
  */
-public class PS3ControllerState
+public class GameControllerState
 {
     // buttons with pictures
     protected boolean square;
@@ -44,7 +44,7 @@ public class PS3ControllerState
     protected int     rightJoystickX;
     protected int     rightJoystickY;
 
-    public PS3ControllerState(boolean square, boolean cross, boolean circle, boolean triangle, boolean l1, boolean r1,
+    public GameControllerState(boolean square, boolean cross, boolean circle, boolean triangle, boolean l1, boolean r1,
             boolean l2, boolean r2, boolean select, boolean start, boolean leftJoystickPress,
             boolean rightJoystickPress, boolean pS, int hatSwitchLeftRight, int hatSwitchUpDown, int leftJoystickX,
             int leftJoystickY, int rightJoystickX, int rightJoystickY)
@@ -70,7 +70,7 @@ public class PS3ControllerState
         this.rightJoystickY = rightJoystickY;
     }
 
-    public PS3ControllerState(PS3ControllerState o)
+    public GameControllerState(GameControllerState o)
     {
         this.square = o.square;
         this.cross = o.cross;
@@ -94,7 +94,7 @@ public class PS3ControllerState
 
     }
 
-    public PS3ControllerState()
+    public GameControllerState()
     {
     }
 

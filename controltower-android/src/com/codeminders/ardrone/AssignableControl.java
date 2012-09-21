@@ -1,12 +1,11 @@
 package com.codeminders.ardrone;
 
+import java.io.IOException;
+
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.ARDrone.Animation;
 import com.codeminders.ardrone.ARDrone.LED;
 import com.codeminders.ardrone.ARDrone.VideoChannel;
-
-import java.io.*;
-import java.util.logging.Level;
 
 
 /**
@@ -45,74 +44,14 @@ public class AssignableControl {
     private float frequency;
     private int duration;
     private int delay;
-    private String prefString;
+    
     private static final VideoChannel[] VIDEO_CYCLE = {VideoChannel.HORIZONTAL_ONLY,
         VideoChannel.VERTICAL_ONLY, VideoChannel.VERTICAL_IN_HORIZONTAL, VideoChannel.HORIZONTAL_IN_VERTICAL};
     private int video_index = 0;
-    private File recFile;
-
-    /**
-     * Creates the control from a string that is stored in the java preferences of this app
-     * @param prefString 
-     */
-    public AssignableControl(String prefString) {
-        String[] strings = prefString.split("/");
-        if (strings.length < 3) {
-            throw new IllegalStateException("preference string malformed");
-        }
-        button = ControllerButton.valueOf(strings[0]);
-        command = Command.valueOf(strings[1]);
-        delay = Integer.parseInt(strings[2]);
-        switch (command) {
-            case PLAY_ANIMATION:
-                anim = Animation.valueOf(strings[3]);
-                duration = Integer.parseInt(strings[4]);
-                break;
-            case PLAY_LED:
-                led = LED.valueOf(strings[3]);
-                frequency = Float.parseFloat(strings[4]);
-                duration = Integer.parseInt(strings[5]);
-                break;
-            case RECORD_VIDEO:
-            case TAKE_SNAPSHOT:
-                try {
-                    recFile = new File(strings[3].replace('?', File.separatorChar));
-                } catch (Exception e) {
-                }
-                break;
-
-        }
-        this.prefString = prefString;
-    }
-
-    public AssignableControl(ControllerButton button, LED led, int delay, float frequency, int duration) {
-        this.command = Command.PLAY_LED;
-        this.delay = delay;
-        this.led = led;
-        this.frequency = frequency;
-        this.duration = duration;
-        prefString = button.name() + "/" + command.name() + "/" + delay + "/" + led.name() + "/" + frequency + "/" + duration;
-    }
-
-    public AssignableControl(ControllerButton button, Animation anim, int delay, int duration) {
-        this.command = Command.PLAY_ANIMATION;
-        this.delay = delay;
-        this.anim = anim;
-        this.duration = duration;
-        prefString = button.name() + "/" + command.name() + "/" + delay + "/" + anim.name() + "/" + duration;
-    }
-
-    public AssignableControl(ControllerButton button, Command command, int delay, File file) {
-        this.command = command;
-        this.delay = delay;
-        this.recFile = file;
-        prefString = button.name() + "/" + command.name() + "/" + delay + "/" + file.getPath().replace(File.separatorChar, '?');
-    }
 
     public AssignableControl(ControllerButton button, Command command, int delay) {
         this.command = command;
         this.delay = delay;
-        prefString = button.name() + "/" + command.name() + "/" + delay;
     }
 
     /**
@@ -169,11 +108,6 @@ public class AssignableControl {
     }
 
     
-    /**
-     * Used for VIDEO_CYCLE commands to cycle the video channel
-     * @param drone
-     * @throws IOException 
-     */
     private void cycleVideoChannel(ARDrone drone) throws IOException {
         if (++video_index == VIDEO_CYCLE.length) {
             video_index = 0;
@@ -215,17 +149,5 @@ public class AssignableControl {
 
     public int getDelay() {
         return delay;
-    }
-
-    public File getRecFile() {
-        return recFile;
-    }
-
-    /**
-     * Gets the complete data of this object as a string for storing into java preferences
-     * @return 
-     */
-    public String getPrefString() {
-        return prefString;
     }
 }

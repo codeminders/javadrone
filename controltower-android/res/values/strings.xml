@@ -1,9 +1,8 @@
 <resources>
 
-    <string name="app_name">andaDrdrone</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">ControlTower</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">ControlTower</string>
     <string name="str_exit">Exit</string>
 
 </resources>

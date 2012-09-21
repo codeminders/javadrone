@@ -6,8 +6,9 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.codeminders.ardrone.controller.PS3Controller;
-import com.codeminders.ardrone.controller.SonyPS3Controller;
+import com.codeminders.ardrone.controller.usbhost.AfterGlowUsbHostController;
+import com.codeminders.ardrone.controller.usbhost.SonyPS3UsbHostController;
+import com.codeminders.ardrone.controller.usbhost.UsbHostController;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -31,14 +32,14 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements DroneVideoListener {
     
-    private static final long CONNECTION_TIMEOUT = 100000;
+    private static final long CONNECTION_TIMEOUT = 10000;
   
     static ARDrone drone;
     ImageView display;
     TextView state;
     Button connectButton;
-    PS3Controller controller;
-    Button connectPs3Button;
+    UsbHostController controller;
+    Button connectUsbControllerButton;
     
     UsbManager manager;
     
@@ -59,26 +60,37 @@ public class MainActivity extends Activity implements DroneVideoListener {
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 
                         if (deviceConnected != null) {
-                           
-                            if (SonyPS3Controller.isA(deviceConnected)) {
+                            boolean joystickFound = false;
+                            
+                            if (SonyPS3UsbHostController.isA(deviceConnected)) {
                                 try {
-                                    controller = new SonyPS3Controller(deviceConnected, manager);
-                                    connectPs3Button.setEnabled(false);
-                                    connectPs3Button.setText("Connected");                     
-                                    // Start joystic reading thread
-                                    ctrThread = new ControllerThread(drone, controller);
-                                    ctrThread.setName("Controll Thread");
-                                    ctrThread.start();
-                                    
+                                    controller = new SonyPS3UsbHostController(deviceConnected, manager);
+                                    joystickFound = true;
                                 } catch (Throwable e) {
-                                    connectPs3Button.setText("Error");                     
+                                    connectUsbControllerButton.setText("Error");                     
                                 }
+                            } else if (AfterGlowUsbHostController.isA(deviceConnected)) {
+                                try {
+                                    controller = new AfterGlowUsbHostController(deviceConnected, manager);
+                                    joystickFound = true;
+                                } catch (Throwable e) {
+                                    connectUsbControllerButton.setText("Error");                     
+                                }
+                            }
+                            
+                            if (joystickFound) {
+                                connectUsbControllerButton.setEnabled(false);
+                                connectUsbControllerButton.setText("Connected");          
+                                // Start joystick reading thread
+                                ctrThread = new ControllerThread(drone, controller);
+                                ctrThread.setName("Controll Thread");
+                                ctrThread.start();
                             }
 
                         }
                     } else {
-                        connectPs3Button.setText("Denied");
-                        connectPs3Button.setEnabled(false);
+                        connectUsbControllerButton.setText("Denied");
+                        connectUsbControllerButton.setEnabled(false);
                     }
                 }
             }
@@ -112,9 +124,9 @@ public class MainActivity extends Activity implements DroneVideoListener {
         });
         
         manager = (UsbManager) getSystemService(Context.USB_SERVICE);
-        connectPs3Button = (Button) findViewById(R.id.ps3Button);
+        connectUsbControllerButton = (Button) findViewById(R.id.ps3Button);
 
-        connectPs3Button.setOnClickListener(new View.OnClickListener() {
+        connectUsbControllerButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 HashMap<String, UsbDevice> deviceList = manager.getDeviceList();
                 Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();

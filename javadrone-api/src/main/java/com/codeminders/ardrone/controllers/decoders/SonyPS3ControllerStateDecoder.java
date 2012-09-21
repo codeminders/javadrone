@@ -1,64 +1,23 @@
-
-package com.codeminders.ardrone.controllers;
+package com.codeminders.ardrone.controllers.decoders;
 
 import java.io.IOException;
 import java.util.BitSet;
 
-import com.codeminders.hidapi.*;
+import com.codeminders.ardrone.controllers.GameControllerState;
+import com.codeminders.ardrone.controllers.ControllerData;
 
-public class SonyPS3Controller extends PS3Controller
-{
-    private static final int VENDOR_ID          = 1356;
-    private static final int PRODUCT_ID         = 616;
-
-    private static final int BUFSIZE            = 64;
-    private static final int EXPECTED_BUFSIZE   = 32;
-    private static final int EXPECTED_BUFSIZE_2 = 49;
-
-    private byte[]           buf                = new byte[BUFSIZE];
-
-
-    public static boolean isA(HIDDeviceInfo hidDeviceInfo)
-    {
-        return(hidDeviceInfo.getVendor_id() == VENDOR_ID && hidDeviceInfo.getProduct_id() == PRODUCT_ID);
-    }
-
-    public SonyPS3Controller() throws HIDDeviceNotFoundException, IOException
-    {
-        dev = HIDManager.getInstance().openById(VENDOR_ID, PRODUCT_ID, null);
-        if (null != dev) {
-        	dev.enableBlocking(); 
-        } else {
-        	throw new HIDDeviceNotFoundException("Device not found");
-        }
-    }
-
-    public SonyPS3Controller(HIDDeviceInfo hidDeviceInfo) throws IOException
-    {
-        dev = hidDeviceInfo.open();
-         if (null != dev) {
-        	dev.enableBlocking();
-	    } else {
-	    	throw new HIDDeviceNotFoundException("Device not found");
-	    }
-//        dev.close();
-    }
-
+public class SonyPS3ControllerStateDecoder implements ControllerStateDecoder {
+    
     private int joystickCoordConv(byte b)
     {
         int v = b < 0 ? b + 256 : b;
         return(v - 128);
     }
-
-    @Override
-    public PS3ControllerState read() throws IOException
-    {
-        int n = dev.read(buf);
-        if(n != EXPECTED_BUFSIZE && n != EXPECTED_BUFSIZE_2)
-        {
-            throw new IOException("Received packed with unexpected size " + n);
-        }
-
+    
+    public GameControllerState decodeState(ControllerData data) throws IOException {
+        
+        byte[] buf = data.getBuffer();
+        
         BitSet bs = new BitSet(24);
         for(int i = 0; i < 8; i++)
         {
@@ -105,7 +64,7 @@ public class SonyPS3Controller extends PS3Controller
         int hatSwitchLeftRight = 0;
         int hatSwitchUpDown = 0;
 
-        PS3ControllerState res = new PS3ControllerState(square, cross, circle, triangle, L1, R1, L2, R2, select, start,
+        GameControllerState res = new GameControllerState(square, cross, circle, triangle, L1, R1, L2, R2, select, start,
                 leftJoystickPress, rightJoystickPress, PS, hatSwitchLeftRight, hatSwitchUpDown, leftJoystickX,
                 leftJoystickY, rightJoystickX, rightJoystickY);
 
