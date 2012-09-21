@@ -8,11 +8,9 @@ package com.codeminders.controltower;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.io.IOException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.LogManager;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -25,18 +23,15 @@ import com.codeminders.ardrone.ARDrone.VideoChannel;
 import com.codeminders.ardrone.DroneStatusChangeListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
-import com.codeminders.ardrone.controllers.AfterGlowController;
+import com.codeminders.ardrone.controllers.Controller;
+import com.codeminders.ardrone.controllers.GameControllerState;
+import com.codeminders.ardrone.controllers.ControllerStateChange;
 import com.codeminders.ardrone.controllers.KeyboardController;
-import com.codeminders.ardrone.controllers.PS3Controller;
-import com.codeminders.ardrone.controllers.PS3ControllerState;
-import com.codeminders.ardrone.controllers.PS3ControllerStateChange;
-import com.codeminders.ardrone.controllers.SonyPS3Controller;
+import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
 import com.codeminders.controltower.config.AssignableControl.ControllerButton;
 import com.codeminders.controltower.config.ControlMap;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
-import com.codeminders.hidapi.HIDDeviceInfo;
 import com.codeminders.hidapi.HIDDeviceNotFoundException;
-import com.codeminders.hidapi.HIDManager;
 
 /**
  * The central class that represents the main window and also manages the
@@ -68,7 +63,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private final AtomicBoolean flipSticks = new AtomicBoolean(false);
     private final Preferences prefs = Preferences.userNodeForPackage(this.getClass());
     private ARDrone drone;
-    private final AtomicReference<PS3Controller> dev = new AtomicReference<PS3Controller>();
+    private final AtomicReference<Controller> dev = new AtomicReference<Controller>();
     private final VideoPanel video = new VideoPanel();
     private final DroneConfig droneConfigWindow;
     private final ControlConfig controlConfigWindow;
@@ -126,7 +121,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
      */
     private void initController()
     {
-        PS3Controller current = dev.get();
+        Controller current = dev.get();
         if(current != null)
         {
             try
@@ -159,27 +154,12 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
         }
     }
 
-    private static PS3Controller findController() throws IOException
+    private static Controller findController() throws IOException
     {
         if(!isHIDLibLoaded)
             return null;
 
-        HIDDeviceInfo[] devs = HIDManager.getInstance().listDevices();
-        if (null != devs) {
-            for(int i = 0; i < devs.length; i++)
-            {
-                System.out.println("" + devs[i]);
-                if(AfterGlowController.isA(devs[i]))
-                {
-                    return new AfterGlowController(devs[i]);
-                }
-                if(SonyPS3Controller.isA(devs[i]))
-                {
-                    return new SonyPS3Controller(devs[i]);
-                }
-            }
-        }
-        return null;
+        return HIDControllerFinder.findController();
     }
 
     private void updateLoop()
@@ -222,11 +202,11 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             System.err.println("Connected to the drone");
             try
             {
-                PS3ControllerState oldpad = null;
+                GameControllerState oldpad = null;
                 while(running.get())
                 {
-                    PS3ControllerState pad = dev.get().read();
-                    PS3ControllerStateChange pad_change = new PS3ControllerStateChange(oldpad, pad);
+                    GameControllerState pad = dev.get().read();
+                    ControllerStateChange pad_change = new ControllerStateChange(oldpad, pad);
                     oldpad = pad;
 
                     if(pad_change.isStartChanged() && pad_change.isStart())

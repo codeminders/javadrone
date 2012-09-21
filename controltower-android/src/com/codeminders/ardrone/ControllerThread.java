@@ -4,20 +4,20 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.codeminders.ardrone.AssignableControl.ControllerButton;
-import com.codeminders.ardrone.controller.PS3Controller;
-import com.codeminders.ardrone.controller.PS3ControllerState;
-import com.codeminders.ardrone.controller.PS3ControllerStateChange;
+import com.codeminders.ardrone.controllers.Controller;
+import com.codeminders.ardrone.controllers.ControllerStateChange;
+import com.codeminders.ardrone.controllers.GameControllerState;
 
 public class ControllerThread extends Thread{
     ARDrone drone;
-    PS3Controller controller;
+    Controller controller;
     private final ControlMap controlMap = new ControlMap();
     private static float CONTROL_THRESHOLD = 0.5f;
     private static final long READ_UPDATE_DELAY_MS = 5L;
     
     private final AtomicBoolean flipSticks = new AtomicBoolean(false);
     
-    public ControllerThread(ARDrone drone, PS3Controller controller) {
+    public ControllerThread(ARDrone drone, Controller controller) {
         super();
         this.drone = drone;
         this.controller = controller;
@@ -28,11 +28,11 @@ public class ControllerThread extends Thread{
     public void run() {
         try
         {
-            PS3ControllerState oldpad = null;
+            GameControllerState oldpad = null;
             while(true)
             {
-                PS3ControllerState pad = controller.read();
-                PS3ControllerStateChange pad_change = new PS3ControllerStateChange(oldpad, pad);
+                GameControllerState pad = controller.read();
+                ControllerStateChange pad_change = new ControllerStateChange(oldpad, pad);
                 oldpad = pad;
 
                 if(pad_change.isStartChanged() && pad_change.isStart())
@@ -145,7 +145,6 @@ public class ControllerThread extends Thread{
             try {
                 drone.disconnect();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

@@ -1,7 +1,7 @@
 
 package com.codeminders.ardrone.controllers;
 
-public class PS3ControllerStateChange extends PS3ControllerState
+public class ControllerStateChange extends GameControllerState
 {
     protected boolean squareChanged;
     protected boolean crossChanged;
@@ -36,7 +36,7 @@ public class PS3ControllerStateChange extends PS3ControllerState
      * @param o Old state
      * @param n New state
      */
-    public PS3ControllerStateChange(PS3ControllerState o, PS3ControllerState n)
+    public ControllerStateChange(GameControllerState o, GameControllerState n)
     {
         super(n);
 
