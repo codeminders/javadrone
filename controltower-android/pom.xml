@@ -76,13 +76,19 @@ limitations under the License.
     <dependency>
 	  <groupId>com.google.android</groupId>
 	  <artifactId>android</artifactId>
-	  <version>4.0.1.2</version>
+	  <version>4.1.1.4</version>
 	  <scope>provided</scope>
 	</dependency>
 	<dependency>
-      <groupId>com.codeminders</groupId>
-      <artifactId>javadrone-api</artifactId>
-      <version>${currentVersion}</version>
+	    <groupId>com.google.android</groupId>
+	    <artifactId>annotations</artifactId>
+	    <version>4.1.1.4</version>
+	    <scope>provided</scope>
+	</dependency>
+	<dependency>
+	  <groupId>com.codeminders</groupId>
+	  <artifactId>javadrone-api</artifactId>
+	  <version>${currentVersion}</version>
 	</dependency>
   </dependencies> 
 </project>

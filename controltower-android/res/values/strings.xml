@@ -3,6 +3,32 @@
     <string name="app_name">ControlTower</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">ControlTower</string>
+    <string name="title_activity_settings">Settings</string>
     <string name="str_exit">Exit</string>
-
+    
+    <string name="drone_state">AR.Drone State:</string>
+    <string name="default_state">DISCONNECTED</string>
+    <string name="display_desc">AR.Drone Camera signal</string>
+    <string name="btn_land">Land</string>
+    <string name="btn_take_off">TakeOff</string>
+    <string name="btn_connect">Connect</string>
+    <string name="btn_connect_ps3">Connect PS3</string>
+    <string name="usb_joystick_state">USB PS3 controller State:</string>
+    <string name="max_altitude">Altitude</string>
+    <string name="max_angle">Angle</string>
+    <string name="vertical_speed">Vertical Speed</string>
+    <string name="rotation_speed">Rotation Speed</string>
+    <string name="controller_deadzone">Controller Deadzone</string>
+    <string name="max_altitude_desc">Maximum drone altitude in meters</string>
+    <string name="max_angle_desc">Maximum bending angle for the drone in degrees</string>
+    <string name="vertical_speed_desc">Maximum vertical speed, in milimeters per second</string>
+    <string name="rotation_speed_desc">Maximum yaw speed, in degrees per second.</string>
+    <string name="controller_deadzone_desc">Minimum controller axis position change that will impact on drone, in percents</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_save">Save</string>
+    <string name="configuration">Configuration</string>
+    <string name="title_settings">Settings</string>
+    <string name="controller_configuration">USB Controller</string>
+    <string name="ardrone_configuration">AR.Drone</string>
+    
 </resources>
