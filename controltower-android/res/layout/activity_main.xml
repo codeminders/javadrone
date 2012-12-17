@@ -1,72 +1,104 @@
-<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ps3"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-    <ImageView
-        android:id="@+id/display"
-        android:layout_width="249dp"
-        android:layout_height="206dp"
-        android:layout_x="37dp"
-        android:layout_y="46dp"
-        android:src="@drawable/ic_action_search" />
+    <TableLayout
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content">
+	
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="172dp"
-        android:layout_height="wrap_content"
-        android:layout_x="70dp"
-        android:layout_y="5dp"
-        android:text="AR.Drone Connection State:"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/state_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10dp"
+            android:text="@string/drone_state"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/state"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="118dp"
-        android:layout_y="22dp"
-        android:text="DISCONNECTED"
-        android:textColor="#FF0000"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/default_state"
+            android:textColor="#FF0000"
+            android:textStyle="bold" />
+    </TableRow>
+    
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/usb_joystick_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="10dp"
+            android:text="@string/usb_joystick_state"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/joystick_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/default_state"
+            android:textColor="#FF0000"
+            android:textStyle="bold" />
+    </TableRow>
+    
+    </TableLayout>
+    
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="top"
+        android:layout_weight=".8"
+        android:paddingBottom="5dp" >
+
+        <ImageView
+            android:id="@+id/display"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/display_desc"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ardrone_front" />
+    </LinearLayout>
 
     <Button
-        android:id="@+id/land"
-        android:layout_width="wrap_content"
+        android:id="@+id/takeOffOrland"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_x="22dp"
-        android:layout_y="301dp"
         android:clickable="false"
-        android:text="Land"
+        android:text="@string/btn_take_off"
         android:visibility="visible" />
-
-    <Button
-        android:id="@+id/takeOff"
-        android:layout_width="wrap_content"
+    
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_x="234dp"
-        android:layout_y="301dp"
-        android:clickable="false"
-        android:longClickable="false"
-        android:text="TakeOff"
-        android:visibility="visible" />
-
-    <Button
-        android:id="@+id/connect"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="90dp"
-        android:layout_height="wrap_content"
-        android:layout_x="25dp"
-        android:layout_y="250dp"
-        android:text="Connect" />
-
-    <Button
-        android:id="@+id/ps3Button"
-        android:layout_width="116dp"
-        android:layout_height="wrap_content"
-        android:layout_x="128dp"
-        android:layout_y="251dp"
-        android:text="Connect PS3" />
-
-</AbsoluteLayout>
+        android:baselineAligned="false"
+        android:gravity="bottom"
+        android:weightSum="1.0">
+       
+	    <Button
+	        android:id="@+id/connect"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight=".5"
+	        android:text="@string/btn_connect" />
+	
+	    <Button
+	        android:id="@+id/ps3Button"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_weight=".5"
+	        android:text="@string/btn_connect_ps3" />
+    
+     </LinearLayout>
+    
+    </LinearLayout>

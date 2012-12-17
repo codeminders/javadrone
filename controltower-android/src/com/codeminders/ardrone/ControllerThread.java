@@ -12,7 +12,8 @@ public class ControllerThread extends Thread{
     ARDrone drone;
     Controller controller;
     private final ControlMap controlMap = new ControlMap();
-    private static float CONTROL_THRESHOLD = 0.5f;
+    private float controlThreshhold = 0.5f;
+
     private static final long READ_UPDATE_DELAY_MS = 5L;
     
     private final AtomicBoolean flipSticks = new AtomicBoolean(false);
@@ -91,22 +92,22 @@ public class ControllerThread extends Thread{
                     float vertical_speed = 0f;
                     float angular_speed = 0f;
 
-                    if(Math.abs(((float) leftX) / 128f) > CONTROL_THRESHOLD)
+                    if(Math.abs(((float) leftX) / 128f) > controlThreshhold)
                     {
                         left_right_tilt = ((float) leftX) / 128f;
                     }
 
-                    if(Math.abs(((float) leftY) / 128f) > CONTROL_THRESHOLD)
+                    if(Math.abs(((float) leftY) / 128f) > controlThreshhold)
                     {
                         front_back_tilt = ((float) leftY) / 128f;
                     }
 
-                    if(Math.abs(((float) rightX) / 128f) > CONTROL_THRESHOLD)
+                    if(Math.abs(((float) rightX) / 128f) > controlThreshhold)
                     {
                         angular_speed = ((float) rightX) / 128f;
                     }
 
-                    if(Math.abs(-1 * ((float) rightY) / 128f) > CONTROL_THRESHOLD)
+                    if(Math.abs(-1 * ((float) rightY) / 128f) > controlThreshhold)
                     {
                         vertical_speed = -1 * ((float) rightY) / 128f;
                     }
@@ -149,6 +150,12 @@ public class ControllerThread extends Thread{
             }
         }
     }
+
+
+    public void setControlThreshhold(float controlThreshhold) {
+        this.controlThreshhold = controlThreshhold;
+    }
+   
     
     
 }
