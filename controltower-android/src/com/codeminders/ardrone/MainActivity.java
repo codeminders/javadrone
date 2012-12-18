@@ -36,8 +36,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 @SuppressLint({ "NewApi", "NewApi", "NewApi", "NewApi" })
@@ -201,6 +205,23 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
         
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
+
+        
+        if (android.os.Build.VERSION.SDK_INT >= 14 && !ViewConfiguration.get(this).hasPermanentMenuKey()) {
+            LinearLayout layout = (LinearLayout) findViewById(R.id.bootomButtons);
+            Button btnSettings = new Button(this);
+            btnSettings.setText(R.string.btn_settings);
+            btnSettings.setLayoutParams(new LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            layout.addView(btnSettings);
+            btnSettings.setOnClickListener(new Button.OnClickListener(){
+    
+                @Override
+                public void onClick(View arg0) {
+                    startActivity(new Intent(arg0.getContext(), SettingsPrefs.class));
+                }});
+        }
     }
     
     private void droneOnConnected() {
@@ -210,6 +231,10 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
         loadDroneSettingsFromPref();
         connectButton.setEnabled(false);
         drone.addImageListener(this);
+        
+        if (null != ctrThread) {
+            ctrThread.setDrone(drone);
+        }
         
         if (btnTakeOffOrLand != null) {
             btnTakeOffOrLand.setVisibility(View.VISIBLE);
