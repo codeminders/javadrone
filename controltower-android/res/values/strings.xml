@@ -12,6 +12,7 @@
     <string name="btn_land">Land</string>
     <string name="btn_take_off">TakeOff</string>
     <string name="btn_connect">Connect</string>
+    <string name="btn_settings">Settings</string>
     <string name="btn_connect_ps3">Connect PS3</string>
     <string name="usb_joystick_state">USB PS3 controller State:</string>
     <string name="max_altitude">Altitude</string>

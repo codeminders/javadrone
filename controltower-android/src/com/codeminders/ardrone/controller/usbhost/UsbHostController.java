@@ -1,8 +1,8 @@
 package com.codeminders.ardrone.controller.usbhost;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
+import android.annotation.SuppressLint;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -16,10 +16,11 @@ import com.codeminders.ardrone.controllers.ControllerData;
 import com.codeminders.ardrone.controllers.GameControllerState;
 import com.codeminders.ardrone.controllers.decoders.ControllerStateDecoder;
 
+@SuppressLint("NewApi")
 public abstract class UsbHostController extends Controller {
     
     int bufferSize = 0;
-    ByteBuffer buffer;
+    byte[] buf;
 
     UsbDeviceConnection readDataConnection = null;
     UsbEndpoint usbEndpointRead = null;
@@ -32,20 +33,12 @@ public abstract class UsbHostController extends Controller {
     @Override
     public GameControllerState read() throws IOException
     {
-
-        GameControllerState res = null;
-        buffer.clear();
-        request.queue(buffer, bufferSize); 
-        requestQueued = readDataConnection.requestWait();  
-        if (request.equals(requestQueued))
-        {
-            byte[] buf = new byte[bufferSize + 1];
-            buffer.get(buf, 0, bufferSize);
-            
-            return decodder.decodeState(new ControllerData(buf, bufferSize + 1));
+        int i =  readDataConnection.bulkTransfer(usbEndpointRead, buf, bufferSize, 5);
+        if (i > 0) {
+            return decodder.decodeState(new ControllerData(buf, i + 1));
+        } else  {
+            return null;
         }
-        
-        return res;
     }
     
     public UsbHostController(UsbDevice dev, UsbManager manager, ControllerStateDecoder decodder) throws IOException
@@ -72,9 +65,7 @@ public abstract class UsbHostController extends Controller {
         }
         
         bufferSize = usbEndpointRead.getMaxPacketSize();
-        buffer = ByteBuffer.allocate(bufferSize + 1);
-        request = new UsbRequest();     
-        request.initialize(readDataConnection, usbEndpointRead);
+        buf = new byte[bufferSize + 1];
     }
     
     
@@ -96,5 +87,24 @@ public abstract class UsbHostController extends Controller {
         return "read api is not supported";
     }
     
+    private static final byte[] HEX_CHAR = new byte[]
+            { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
+    public static final String dumpBytes( byte[] buffer )
+    {
+        if ( buffer == null )
+        {
+            return "";
+        }
+
+        StringBuffer sb = new StringBuffer();
+
+        for ( int i = 0; i < buffer.length; i++ )
+        {
+            sb.append( "0x" ).append( ( char ) ( HEX_CHAR[( buffer[i] & 0x00F0 ) >> 4] ) ).append(
+                ( char ) ( HEX_CHAR[buffer[i] & 0x000F] ) ).append( " " );
+        }
+
+        return sb.toString();
+    }
 }

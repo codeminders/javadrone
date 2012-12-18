@@ -2,12 +2,14 @@ package com.codeminders.ardrone.controller.usbhost;
 
 import java.io.IOException;
 
+import android.annotation.SuppressLint;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 
 import com.codeminders.ardrone.controllers.decoders.AfterGlowControllerDecoder;
 import com.codeminders.ardrone.controllers.decoders.ControllerStateDecoder;
 
+@SuppressLint("NewApi")
 public class AfterGlowUsbHostController extends UsbHostController {
     
     private static final int VENDOR_ID        = 3695;

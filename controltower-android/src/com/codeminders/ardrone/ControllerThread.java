@@ -8,7 +8,7 @@ import com.codeminders.ardrone.controllers.Controller;
 import com.codeminders.ardrone.controllers.ControllerStateChange;
 import com.codeminders.ardrone.controllers.GameControllerState;
 
-public class ControllerThread extends Thread{
+public class ControllerThread extends Thread {
     ARDrone drone;
     Controller controller;
     private final ControlMap controlMap = new ControlMap();
@@ -33,6 +33,10 @@ public class ControllerThread extends Thread{
             while(true)
             {
                 GameControllerState pad = controller.read();
+                if (null == drone || null == pad) {
+                    continue;
+                }
+                
                 ControllerStateChange pad_change = new ControllerStateChange(oldpad, pad);
                 oldpad = pad;
 
@@ -156,6 +160,9 @@ public class ControllerThread extends Thread{
         this.controlThreshhold = controlThreshhold;
     }
    
-    
+    public void setDrone(ARDrone drone) {
+        this.drone = drone;
+    }
+
     
 }
