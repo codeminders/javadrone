@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.codeminders</groupId>
 	<artifactId>javadrone</artifactId>
-	<version>${currentVersion}</version>
+	<version>1.3</version>
 	<name>javadrone</name>
 	<packaging>pom</packaging>
 	<description>Java API and demo programs to control Parrot's AR.Drone</description>
@@ -14,7 +14,4 @@
 		<module>controltower</module>
 		<module>controltower-android</module>
 	</modules>
-	<properties>
-	    <currentVersion>1.3</currentVersion>
-	</properties>
 </project>
