@@ -68,4 +68,17 @@
 	                javadron:unitsRight="%"
 	                javadron:roundValue="true"/>
 </PreferenceCategory>
+<PreferenceCategory android:title="@string/application_configuration">
+      <CheckBoxPreference
+                    android:key="pref_autoconnect_ardrone"
+                    android:title="@string/autoconnect_ardrone"
+                    android:summary="@string/autoconnect_ardrone_desc"
+                    android:defaultValue="false" />
+      <CheckBoxPreference
+                    android:key="pref_autoconnect_ps3"
+                    android:title="@string/autoconnect_ps3"
+                    android:summary="@string/autoconnect_ps3_desc"
+                    android:defaultValue="false" />
+</PreferenceCategory>
+    
 </PreferenceScreen>
