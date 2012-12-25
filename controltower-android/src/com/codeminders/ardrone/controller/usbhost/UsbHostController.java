@@ -9,7 +9,6 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.hardware.usb.UsbRequest;
 
 import com.codeminders.ardrone.controllers.Controller;
 import com.codeminders.ardrone.controllers.ControllerData;
@@ -24,8 +23,6 @@ public abstract class UsbHostController extends Controller {
 
     UsbDeviceConnection readDataConnection = null;
     UsbEndpoint usbEndpointRead = null;
-    UsbRequest request;
-    UsbRequest requestQueued;
     UsbDevice dev;
     
     ControllerStateDecoder decodder;
@@ -71,10 +68,10 @@ public abstract class UsbHostController extends Controller {
     
     @Override
     public void close() throws IOException {
+        
        if (null != readDataConnection) {
            readDataConnection.close();
-       }
-        
+       }        
     }
     
     @Override

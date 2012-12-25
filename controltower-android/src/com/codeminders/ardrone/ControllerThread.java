@@ -3,6 +3,8 @@ package com.codeminders.ardrone;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import android.util.Log;
+
 import com.codeminders.ardrone.AssignableControl.ControllerButton;
 import com.codeminders.ardrone.controllers.Controller;
 import com.codeminders.ardrone.controllers.ControllerStateChange;
@@ -13,8 +15,14 @@ public class ControllerThread extends Thread {
     Controller controller;
     private final ControlMap controlMap = new ControlMap();
     private float controlThreshhold = 0.5f;
-
+    
+    Object lock = new Object();
+    boolean done = false;
+    
     private static final long READ_UPDATE_DELAY_MS = 5L;
+    private static final long FINIS_TIMEOUT = 2000; // 2 sec.
+    
+    private static final String TAG = ControllerThread.class.getSimpleName();
     
     private final AtomicBoolean flipSticks = new AtomicBoolean(false);
     
@@ -30,7 +38,7 @@ public class ControllerThread extends Thread {
         try
         {
             GameControllerState oldpad = null;
-            while(true)
+            while(!done)
             {
                 GameControllerState pad = controller.read();
                 if (null == drone || null == pad) {
@@ -143,14 +151,18 @@ public class ControllerThread extends Thread {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Faliled read data from controller" , e);
         }
         finally
         {
             try {
                 drone.disconnect();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Faliled to disconnect from drone" , e);
+            }
+            
+            synchronized (lock) {
+                lock.notify();
             }
         }
     }
@@ -163,6 +175,25 @@ public class ControllerThread extends Thread {
     public void setDrone(ARDrone drone) {
         this.drone = drone;
     }
-
+    
+    public void finish()
+    {
+        done = true;
+        try {
+            controller.close();
+        } catch (IOException ex) {
+            Log.e(TAG, "Closing controller connection" , ex);
+        }
+        
+        if (isAlive()) {
+            synchronized (lock) {
+                try {
+                    lock.wait(FINIS_TIMEOUT);
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "Finish process is interrupted" , e);
+                }
+            }
+        }
+    }
     
 }

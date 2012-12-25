@@ -79,38 +79,7 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
                     UsbDevice deviceConnected = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 
                     if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-
-                        if (deviceConnected != null) {
-                            boolean joystickFound = false;
-                            
-                            if (SonyPS3UsbHostController.isA(deviceConnected)) {
-                                try {
-                                    controller = new SonyPS3UsbHostController(deviceConnected, manager);
-                                    joystickFound = true;
-                                } catch (Throwable e) {
-                                    joystick_state.setText("Error");                     
-                                }
-                            } else if (AfterGlowUsbHostController.isA(deviceConnected)) {
-                                try {
-                                    controller = new AfterGlowUsbHostController(deviceConnected, manager);
-                                    joystickFound = true;
-                                } catch (Throwable e) {
-                                    joystick_state.setText("Error");                     
-                                }
-                            }
-                            
-                            if (joystickFound) {
-                                btnConnectUsbControllerButton.setEnabled(false);
-                                joystick_state.setText("Connected");  
-                                joystick_state.setTextColor(Color.GREEN);
-                                // Start joystick reading thread
-                                ctrThread = new ControllerThread(drone, controller);
-                                ctrThread.setName("Controll Thread");
-                                loadControllerDeadZone();
-                                ctrThread.start();
-                            }
-
-                        }
+                        tryConnectPS3Controller(deviceConnected);
                     } else {
                         joystick_state.setText("Denied");                       
                     }
@@ -150,17 +119,8 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
         final Button btnConnect = (Button) findViewById(R.id.connect);
         btnConnect.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
-                    WifiManager connManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-                    
-                    if (connManager.isWifiEnabled()) {
-                        state.setTextColor(Color.RED);
-                        state.setText("Connecting..." +  connManager.getConnectionInfo().getSSID());
-                        btnConnect.setEnabled(false);
-                        (new DroneStarter()).execute(MainActivity.drone); 
-                    } else {
-                        turnOnWiFiDialog.show();
-                    }
-                }          
+                    startARDroneConnection(btnConnect);
+                }
         });
         
        
@@ -179,11 +139,15 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
                         device = deviceIterator.next();
                         break;
                     }
-    
+             
                     if (null != device) {
-                        IntentFilter permissionFilter = new IntentFilter(ACTION_USB_PERMISSION);
-                        registerReceiver(usbReceiver, permissionFilter);
-                        manager.requestPermission(device, permissionIntent);
+                        if (!manager.hasPermission(device)) {
+                            IntentFilter permissionFilter = new IntentFilter(ACTION_USB_PERMISSION);
+                            registerReceiver(usbReceiver, permissionFilter);
+                            manager.requestPermission(device, permissionIntent); 
+                        } else {
+                            tryConnectPS3Controller(device);
+                        }
                     }
                 }
             });
@@ -223,6 +187,55 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
                 }});
         }
     }
+    
+    private void tryConnectPS3Controller(UsbDevice device) {
+        if (device != null) {
+            boolean joystickFound = false;
+            
+            if (SonyPS3UsbHostController.isA(device)) {
+                try {
+                    controller = new SonyPS3UsbHostController(device, manager);
+                    joystickFound = true;
+                } catch (Throwable e) {
+                    joystick_state.setText("Error");                     
+                }
+            } else if (AfterGlowUsbHostController.isA(device)) {
+                try {
+                    controller = new AfterGlowUsbHostController(device, manager);
+                    joystickFound = true;
+                } catch (Throwable e) {
+                    joystick_state.setText("Error");                     
+                }
+            }
+            
+            if (joystickFound) {
+                btnConnectUsbControllerButton.setEnabled(false);
+                joystick_state.setText("Connected");  
+                joystick_state.setTextColor(Color.GREEN);
+                // Start joystick reading thread
+                ctrThread = new ControllerThread(drone, controller);
+                ctrThread.setName("Controll Thread");
+                loadControllerDeadZone();
+                ctrThread.start();
+            } else {
+                joystick_state.setText("Not recognized"); 
+            }
+
+        }
+    }
+    
+    private void startARDroneConnection(final Button btnConnect) {
+        WifiManager connManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        
+        if (connManager.isWifiEnabled()) {
+            state.setTextColor(Color.RED);
+            state.setText("Connecting..." +  connManager.getConnectionInfo().getSSID());
+            btnConnect.setEnabled(false);
+            (new DroneStarter()).execute(MainActivity.drone); 
+        } else {
+            turnOnWiFiDialog.show();
+        }
+    }       
     
     private void droneOnConnected() {
         
@@ -289,21 +302,46 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
             startActivity(new Intent(this, SettingsPrefs.class));
             break;
         case R.id.menu_exit:
-            exitOptionsDialog();
+            finish();
             break;
         }
         return true;
           
     }
     
-    private void exitOptionsDialog()
-    {
-        try {
-            drone.disconnect();
-        } catch (Exception e) {
-            Log.e(TAG, "failed to stop ar. drone", e);
+    public static String PREF_AUTOCONNECT_DRONE = "pref_autoconnect_ardrone";
+    public static String PREF_AUTOCONNECT_PS3 = "pref_autoconnect_ps3";
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        if (prefs.getBoolean(PREF_AUTOCONNECT_DRONE, false)) {
+            connectButton.performClick();
         }
-        finish();
+        if (prefs.getBoolean(PREF_AUTOCONNECT_PS3, false)) {
+            btnConnectUsbControllerButton.performClick();
+        }
+        
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        releaseResourses();        
+    }
+
+    private void releaseResourses() {
+        if (null != ctrThread && ctrThread.isAlive()) { 
+            ctrThread.finish();
+        }
+        if (null != drone) {
+            try {
+                drone.disconnect();
+            } catch (Exception e) {
+                Log.e(TAG, "failed to stop ar. drone", e);
+            }
+        }
     }
     
     @Override
