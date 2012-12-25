@@ -4,15 +4,24 @@
 	<parent>
 		<groupId>com.codeminders</groupId>
 	        <artifactId>javadrone</artifactId>
-		<version>${currentVersion}</version>
+		<version>1.3</version>
 	</parent>
     
 	<artifactId>javadrone-api</artifactId>
-	<name>javadrone-api</name>
+	<packaging>jar</packaging>
+	<name>Java API to control Parrot's AR.Drone</name>
+	<version>1.3</version>
 	<description>Java API (without using native code) to control AR.Drone</description>
-
+	<url>http://code.google.com/p/javadrone</url>
+	<licenses>
+	  <license>
+	    <name>New BSD License</name>
+	    <url>http://opensource.org/licenses/BSD-3-Clause</url>
+	    <distribution>repo</distribution>  
+	  </license>
+	</licenses>
 	<build>
-		<finalName>javadrone-api-${currentVersion}</finalName>
+		<finalName>javadrone-api</finalName>
 		<plugins>
 			<plugin>
 			    <groupId>org.apache.maven.plugins</groupId>
@@ -68,4 +77,70 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+	  <profile>  
+	  <id>snapshots</id>   
+	      <repositories>  
+		  <repository>  
+		      <id>sonatype-nexus-staging</id>
+		      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		      <releases>  
+			  <enabled>false</enabled>   
+		      </releases>  
+		      <snapshots>  
+			  <enabled>true</enabled>   
+		      </snapshots>  
+		  </repository>  
+	    </repositories>  
+	  </profile>
+	  <profile>  
+	    <id>release</id> 
+	    <build>
+		<plugins>
+		    <plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-gpg-plugin</artifactId>
+			  <executions>
+			    <execution>
+			      <id>sign-artifacts</id>
+			      <phase>verify</phase>
+			      <goals>
+				<goal>sign</goal>
+			      </goals>
+			    </execution>
+			  </executions>
+		    </plugin>
+		</plugins>
+	</build>
+	</profile>
+        </profiles>
+	<scm>
+	  <connection>scm:hg:http://code.google.com/p/javadrone</connection>
+	  <developerConnection>scm:hg:https://code.google.com/p/javadrone</developerConnection>
+	  <url>http://code.google.com/p/javadrone</url>
+	</scm>
+	<developers>
+	  <developer>
+	    <id>lord</id>
+	    <name>Vadim Zaliva</name>
+	    <email>lord@codeminders.com</email>
+	  </developer>
+	  <developer>
+	    <id>Alexander Sova</id>
+	    <name>Vadim Zaliva</name>
+	    <email>bird@codeminders.com</email>
+	  </developer>
+	</developers>
+	<distributionManagement>
+	  <repository>
+	      <id>sonatype-nexus-staging</id>
+	      <name>Nexus Release Repository</name>
+	      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+	  </repository>
+	  <snapshotRepository>
+	      <id>sonatype-nexus-snapshots</id>
+	      <name>Nexus Snapshots Repository</name>
+	      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+	  </snapshotRepository>
+	</distributionManagement>
 </project>
