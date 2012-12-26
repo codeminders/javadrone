@@ -316,11 +316,29 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
     protected void onResume() {
         super.onResume();
         
+        if (null != drone) {
+            drone.resumeNavData();
+            drone.resumeVideo();
+        }
+        
+        /*
         if (prefs.getBoolean(PREF_AUTOCONNECT_DRONE, false)) {
             connectButton.performClick();
         }
         if (prefs.getBoolean(PREF_AUTOCONNECT_PS3, false)) {
             btnConnectUsbControllerButton.performClick();
+        }
+        */
+        
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        
+        if (null != drone) {
+            drone.pauseNavData();
+            drone.pauseVideo();
         }
         
     }
