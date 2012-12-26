@@ -23,6 +23,7 @@ public abstract class DataReader implements Runnable {
     ARDrone                    drone;
     protected Selector         selector;
     private boolean            done;
+    private boolean            pauseFlag;
     private InetAddress        drone_addr;
 	private int                data_port;
     
@@ -65,9 +66,9 @@ public abstract class DataReader implements Runnable {
                 selector.close();
         } catch (IOException iox) 
         {
-            // Ignore
+            iox.printStackTrace();
         }
-
+        
         if (!channel.socket().isClosed()) {
             channel.socket().close();
         }
@@ -77,8 +78,15 @@ public abstract class DataReader implements Runnable {
                 channel.disconnect();
         } catch (IOException iox) 
         {
-            // Ignore
+            iox.printStackTrace();
         }
+        
+        try {
+            channel.close();
+        } catch (IOException iox) {
+            iox.printStackTrace();
+        }
+        
     }
     
     @Override
@@ -91,6 +99,15 @@ public abstract class DataReader implements Runnable {
             timeOfLastMessage = System.currentTimeMillis();
             while(!done)
             {
+                if (pauseFlag) {
+                    synchronized(this) {
+                        if (pauseFlag) {
+                           wait();
+                           timeOfLastMessage = 1; // will automatically reconnect channel
+                        }
+                    }
+                }
+                
                 selector.select(MAX_TMEOUT);
                 if(done)
                 {
@@ -122,6 +139,10 @@ public abstract class DataReader implements Runnable {
                     {
                         channel.write(trigger_buffer);
                         channel.register(selector, SelectionKey.OP_READ);
+                        // prepare buffer for new reconnection attempt
+                        trigger_buffer.clear();
+                        trigger_buffer.put(TRIGGER_BYTES);
+                        trigger_buffer.flip();
                     } 
                     else if(key.isReadable())
                     {
@@ -143,12 +164,23 @@ public abstract class DataReader implements Runnable {
 
     abstract void handleData(ByteBuffer buf, int len) throws Exception;
 
-    public void finish()
-    {
+    public synchronized void finish()
+    {  
+        if (pauseFlag) {
+           resumeReading();
+        }
         done = true;
         if (null != selector) {
             selector.wakeup();
         }
     }
+    
+    public synchronized void pauseReading() {
+        pauseFlag = true;
+    }
 	
+    public synchronized void resumeReading() {
+        pauseFlag = false;
+        notify();
+    }
 }

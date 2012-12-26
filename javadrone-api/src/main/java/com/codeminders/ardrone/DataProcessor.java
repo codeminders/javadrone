@@ -31,7 +31,9 @@ public abstract class DataProcessor extends Thread {
             if (nextEmpty) { 
                 synchronized (lock) {
                     try {
-                        lock.wait();
+                        if (nextEmpty) {
+                            lock.wait();
+                        }
                     } catch (InterruptedException e) {
                         done = true;
                     }   
@@ -67,11 +69,11 @@ public abstract class DataProcessor extends Thread {
             nextBuffer.clear();
             nextBuffer.put(infBuffer);
             nextBuffer.flip();
-            nextEmpty = false; 
             nextDataBufferLength = len;
         }
         
         synchronized (lock) {
+            nextEmpty = false;
             lock.notify(); 
         }
     }

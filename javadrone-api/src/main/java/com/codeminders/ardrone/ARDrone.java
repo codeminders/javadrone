@@ -645,5 +645,29 @@ public class ARDrone
             }
         }
     }
+    
+    public void pauseNavData() {
+      if (null != nav_data_reader) {
+          nav_data_reader.pauseReading();
+      }   
+    }
+    
+    public void resumeNavData() {
+        if (null != nav_data_reader) {
+            nav_data_reader.resumeReading();
+        }   
+    }
+    
+    public void pauseVideo() {
+        if (null != video_reader_thread) {
+            video_reader.pauseReading();
+        }   
+    }
+    
+    public void resumeVideo() {
+        if (null != video_reader_thread) {
+            video_reader.resumeReading();
+        } 
+    }
 
 }
