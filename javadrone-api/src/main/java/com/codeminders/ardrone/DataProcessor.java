@@ -70,10 +70,10 @@ public abstract class DataProcessor extends Thread {
             nextBuffer.put(infBuffer);
             nextBuffer.flip();
             nextDataBufferLength = len;
+            nextEmpty = false;
         }
         
         synchronized (lock) {
-            nextEmpty = false;
             lock.notify(); 
         }
     }
