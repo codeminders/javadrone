@@ -127,13 +127,12 @@ public class ARDrone
     private List<DroneVideoListener>        image_listeners   = new LinkedList<DroneVideoListener>();
     private List<NavDataListener>           navdata_listeners = new LinkedList<NavDataListener>();
 
-    private static int                      navDataReconnectTimeout = 1000; // 1 second
-
-    private static int                      videoReconnectTimeout   = 1000; // 1 second
+    private int                             navDataReconnectTimeout = 1000; // 1 second
+    private int                             videoReconnectTimeout   = 1000; // 1 second
 
     public ARDrone() throws UnknownHostException
     {
-        this(InetAddress.getByAddress(DEFAULT_DRONE_IP), navDataReconnectTimeout, videoReconnectTimeout);
+        this(InetAddress.getByAddress(DEFAULT_DRONE_IP), 1000, 1000);
     }
 
     public ARDrone(InetAddress drone_addr, int navDataReconnectTimeout, int videoReconnectTimeout)

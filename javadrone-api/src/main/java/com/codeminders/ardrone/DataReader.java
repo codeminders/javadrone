@@ -66,7 +66,7 @@ public abstract class DataReader implements Runnable {
                 selector.close();
         } catch (IOException iox) 
         {
-            iox.printStackTrace();
+            // ignore
         }
         
         if (!channel.socket().isClosed()) {
@@ -78,13 +78,13 @@ public abstract class DataReader implements Runnable {
                 channel.disconnect();
         } catch (IOException iox) 
         {
-            iox.printStackTrace();
+           // ignore
         }
         
         try {
             channel.close();
         } catch (IOException iox) {
-            iox.printStackTrace();
+            // ignore
         }
         
     }
@@ -114,8 +114,8 @@ public abstract class DataReader implements Runnable {
                     disconnect();
                     break;
                 }
-                Set readyKeys = selector.selectedKeys();
-                Iterator iterator = readyKeys.iterator();
+                Set<SelectionKey> readyKeys = selector.selectedKeys();
+                Iterator<SelectionKey> iterator = readyKeys.iterator();
                 
                 if (!iterator.hasNext()) {
                     if (timeOfLastMessage > 0 && System.currentTimeMillis() - timeOfLastMessage > reconnect_timeout ) {

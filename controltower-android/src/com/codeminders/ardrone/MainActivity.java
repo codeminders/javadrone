@@ -4,6 +4,7 @@ package com.codeminders.ardrone;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -255,15 +256,6 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
             btnTakeOffOrLand.setEnabled(true);
             btnTakeOffOrLand.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
-                    try
-                    {
-                        drone.clearEmergencySignal();
-                        drone.trim(); 
-                    } catch(Throwable e)
-                    {
-                        Log.e(TAG, "Faliled init drone" , e);
-                    }
-        
                     if (btnTakeOffOrLand.getText().equals(getString(R.string.btn_land))) {
                         try
                         {
@@ -277,6 +269,8 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
                     } else  {                        
                         try
                         {
+                            drone.clearEmergencySignal();
+                            drone.trim(); 
                             drone.takeOff();
                         } catch(Throwable e)
                         {
@@ -411,6 +405,7 @@ private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
             MainActivity.drone = drone;
             drone.connect();
             drone.clearEmergencySignal();
+            drone.trim();
             drone.waitForReady(CONNECTION_TIMEOUT);
             drone.playLED(1, 10, 4);
             drone.selectVideoChannel(ARDrone.VideoChannel.HORIZONTAL_ONLY);
@@ -468,6 +463,7 @@ private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
     public static String DRONE_MAX_VERT_SPEED_PARAM_NAME = "control:control_vz_max";
     public static String DRONE_MAX_EULA_ANGLE = "control:euler_angle_max";
     public static String DRONE_MAX_ALTITUDE = "control:altitude_max";
+    DecimalFormat twoDForm = new DecimalFormat("#.##");
 
     private void loadDroneSettingsFromPref() {
             droneLoadMaxAltitude();
@@ -479,7 +475,7 @@ private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
             
     private void drobeLoadMaxRotationSpeed() {
         if (null != drone && prefs.contains(PREF_MAX_ROTATION_SPEED)) {
-            setDroneParam(DRONE_MAX_YAW_PARAM_NAME, String.valueOf(prefs.getFloat(PREF_MAX_ROTATION_SPEED, 50f) * Math.PI / 180f));
+            setDroneParam(DRONE_MAX_YAW_PARAM_NAME, twoDForm.format(prefs.getFloat(PREF_MAX_ROTATION_SPEED, 50f) * Math.PI / 180f).replace(',', '.'));
         } 
     }
 
@@ -498,7 +494,7 @@ private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
 
     private void droneLoadMaxAngle() {
         if (null != drone && prefs.contains(PREF_MAX_ANGLE)) {
-            setDroneParam(DRONE_MAX_EULA_ANGLE, String.valueOf(prefs.getFloat(PREF_MAX_ANGLE, 6f) * Math.PI / 180f));
+            setDroneParam(DRONE_MAX_EULA_ANGLE, twoDForm.format(prefs.getFloat(PREF_MAX_ANGLE, 6f) * Math.PI / 180f).replace(',', '.'));
         } 
     }
 
@@ -514,6 +510,7 @@ private class DroneStarter extends AsyncTask<ARDrone, Integer, Boolean> {
             public void run() {
                 try {
                     drone.setConfigOption(name, value);
+                    Log.d(TAG, "Drone parameter (" + name + ") is SET to value: " + value);
                 } catch (IOException ex) {
                     Log.e(TAG, "Failed to set drone parameter (" + name + ") to value: " + value , ex);
                 }
