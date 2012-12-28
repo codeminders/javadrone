@@ -71,6 +71,8 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
     
     SharedPreferences prefs;
     
+    boolean isVisible = true; 
+            
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -186,7 +188,15 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
                 public void onClick(View arg0) {
                     startActivity(new Intent(arg0.getContext(), SettingsPrefs.class));
                 }});
+        }          
+        
+        if (prefs.getBoolean(PREF_AUTOCONNECT_DRONE, false)) {
+            connectButton.performClick();
         }
+        if (prefs.getBoolean(PREF_AUTOCONNECT_PS3, false)) {
+            btnConnectUsbControllerButton.performClick();
+        }
+       
     }
     
     private void tryConnectPS3Controller(UsbDevice device) {
@@ -309,27 +319,17 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
     @Override
     protected void onResume() {
         super.onResume();
-        
+        isVisible = true;
         if (null != drone) {
             drone.resumeNavData();
             drone.resumeVideo();
         }
-        
-        /*
-        if (prefs.getBoolean(PREF_AUTOCONNECT_DRONE, false)) {
-            connectButton.performClick();
-        }
-        if (prefs.getBoolean(PREF_AUTOCONNECT_PS3, false)) {
-            btnConnectUsbControllerButton.performClick();
-        }
-        */
-        
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        
+        isVisible = false;
         if (null != drone) {
             drone.pauseNavData();
             drone.pauseVideo();
@@ -359,7 +359,9 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
     @Override
     public void frameReceived(int startX, int startY, int w, int h,
             int[] rgbArray, int offset, int scansize) {
-        (new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute();
+        if (isVisible) {
+            (new VideoDisplayer(startX, startY, w, h, rgbArray, offset, scansize)).execute(); 
+        }
     }
 
 
