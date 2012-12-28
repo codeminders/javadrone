@@ -58,7 +58,7 @@
 				<descriptors>
 					<descriptor>src/main/assembly/src.xml</descriptor>
 				</descriptors>
-				<finalName>${artifactId}-full-${version}</finalName>
+				<finalName>${artifactId}-full</finalName>
 				<appendAssemblyId>false</appendAssemblyId>
 			</configuration>
 			<executions>
@@ -76,8 +76,47 @@
 			  <artifactId>maven-eclipse-plugin</artifactId>
 			  <version>2.9</version>
 		</plugin>
+		<plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>exec-maven-plugin</artifactId>
+              <version>1.2.1</version>
+              <executions>
+		          <execution>
+		            <goals>
+		              <goal>java</goal>
+		            </goals>
+		          </execution>
+		          </executions>
+              <configuration>
+                  <mainClass>com.codeminders.controltower.ControlTower</mainClass>
+              </configuration>
+          </plugin>
 	  </plugins>
 	</build>
+	<profiles>
+	  <profile>
+	       <id>runTower</id>
+	        <build>
+		        <plugins>
+		            <plugin>
+		                <groupId>org.codehaus.mojo</groupId>
+		                <artifactId>exec-maven-plugin</artifactId>
+		                <version>1.2.1</version>
+		                <executions>
+				          <execution>
+				            <goals>
+				              <goal>java</goal>
+				            </goals>
+				          </execution>
+				        </executions>
+		                <configuration>
+		                    <mainClass>com.codeminders.controltower.ControlTower</mainClass>
+		                </configuration>
+		            </plugin>
+		        </plugins>
+    		</build>
+	  </profile>
+    </profiles>  
 	<dependencies>
 	    <dependency>
 		    <groupId>com.codeminders</groupId>
