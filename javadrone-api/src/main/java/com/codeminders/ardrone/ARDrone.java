@@ -669,4 +669,8 @@ public class ARDrone
         } 
     }
 
+    public State getState() {
+        return state;
+    }
+    
 }
