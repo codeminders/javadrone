@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.codeminders.ardrone.ARDrone.State;
 import com.codeminders.ardrone.controller.usbhost.AfterGlowUsbHostController;
 import com.codeminders.ardrone.controller.usbhost.SonyPS3UsbHostController;
 import com.codeminders.ardrone.controller.usbhost.UsbHostController;
@@ -266,6 +267,14 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
             btnTakeOffOrLand.setEnabled(true);
             btnTakeOffOrLand.setOnClickListener(new View.OnClickListener()  {
                 public void onClick(View v) {
+                    
+                    if (null == drone || drone.getState() == State.DISCONNECTED) {
+                        state.setText("Disconnected");
+                        state.setTextColor(Color.RED);
+                        connectButton.setEnabled(true);
+                        return;
+                    }
+                    
                     if (btnTakeOffOrLand.getText().equals(getString(R.string.btn_land))) {
                         try
                         {
