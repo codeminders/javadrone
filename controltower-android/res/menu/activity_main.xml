@@ -2,6 +2,9 @@
     <item android:id="@+id/menu_settings"
         android:title="@string/menu_settings"
         android:orderInCategory="100" />
+    <item android:id="@+id/ps3_help"
+        android:title="@string/ps3_buttons"
+        android:orderInCategory="101" />
     <item android:id="@+id/menu_exit"
         android:title="@string/str_exit"
         android:orderInCategory="101" />

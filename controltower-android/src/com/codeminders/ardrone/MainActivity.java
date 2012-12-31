@@ -305,6 +305,9 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
         case R.id.menu_settings:
             startActivity(new Intent(this, SettingsPrefs.class));
             break;
+        case R.id.ps3_help:
+            startActivity(new Intent(this, PS3ControllerHelp.class));
+            break;
         case R.id.menu_exit:
             finish();
             break;
