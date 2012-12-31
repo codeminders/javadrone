@@ -30,7 +30,12 @@
             android:label="@string/title_settings"
             android:theme="@android:style/Theme.Black">
          </activity>
-        
+         <activity
+            android:name=".PS3ControllerHelp"
+            android:label="@string/title_ps3_controller_help"
+            android:screenOrientation="portrait">
+         </activity>
+
     </application>
 
 </manifest>
