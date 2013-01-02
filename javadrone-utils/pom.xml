@@ -61,6 +61,13 @@
 			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>local</id>
+			<name>Local repository</name>
+			<url>file:${basedir}/../lib/maven</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>com.codeminders</groupId>
@@ -71,6 +78,11 @@
 			<groupId>com.codeminders</groupId>
 			<artifactId>hidapi</artifactId>
 			<version>1.1</version>
+		</dependency>
+		 <dependency>
+			<groupId>com.twilight</groupId>
+			<artifactId>h264-decoder</artifactId>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 </project>
