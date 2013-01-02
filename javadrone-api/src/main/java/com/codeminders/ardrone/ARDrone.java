@@ -11,6 +11,10 @@ import java.util.logging.Logger;
 
 import com.codeminders.ardrone.NavData.FlyingState;
 import com.codeminders.ardrone.commands.*;
+import com.codeminders.ardrone.data.decoder.DataDecoder;
+import com.codeminders.ardrone.data.decoder.NavDataDecoder;
+import com.codeminders.ardrone.data.decoder.VideoDataDecoder;
+import com.codeminders.ardrone.data.reader.UDPDataReaderAndDecoder;
 
 public class ARDrone
 {
@@ -100,6 +104,9 @@ public class ARDrone
 
     private static final int                NAVDATA_PORT      = 5554;
     private static final int                VIDEO_PORT        = 5555;
+    private static final int                NAVDATA_BUFFER_SIZE = 4096;
+    private static final int                VIDEO_BUFFER_SIZE = 100 * 1024;
+    
     // private static final int CONTROL_PORT = 5559;
 
     final static byte[]                     DEFAULT_DRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
@@ -110,8 +117,9 @@ public class ARDrone
 
     private CommandQueue                    cmd_queue         = new CommandQueue(CMD_QUEUE_SIZE);
 
-    private NavDataReader                   nav_data_reader;
-    private VideoReader                     video_reader;
+    private UDPDataReaderAndDecoder         nav_data_reader;
+    private UDPDataReaderAndDecoder         video_reader;
+    private DataDecoder                     ext_video_data_decoder;
     private CommandSender                   cmd_sender;
 
     private Thread                          nav_data_reader_thread;
@@ -287,12 +295,24 @@ public class ARDrone
             cmd_sending_thread.setName("Command Sender");
             cmd_sending_thread.start();
 
-            nav_data_reader = new NavDataReader(this, drone_addr, NAVDATA_PORT, navDataReconnectTimeout);
+            NavDataDecoder nav_data_decoder = new NavDataDecoder(this, NAVDATA_BUFFER_SIZE);
+            nav_data_decoder.start();
+            
+            nav_data_reader = new UDPDataReaderAndDecoder(this, drone_addr, NAVDATA_PORT, NAVDATA_BUFFER_SIZE, navDataReconnectTimeout, nav_data_decoder);
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.setName("NavData Reader");
             nav_data_reader_thread.start();
 
-            video_reader = new VideoReader(this, drone_addr, VIDEO_PORT, videoReconnectTimeout);
+            DataDecoder video_data_decoder;
+            if (null != ext_video_data_decoder) {
+                video_data_decoder = ext_video_data_decoder;
+            } else {
+                VideoDataDecoder video_decoder = new VideoDataDecoder(this, VIDEO_BUFFER_SIZE);
+                video_decoder.start();
+                video_data_decoder = video_decoder;
+            }
+            
+            video_reader = new UDPDataReaderAndDecoder(this, drone_addr, VIDEO_PORT, VIDEO_BUFFER_SIZE, videoReconnectTimeout, video_data_decoder);
             video_reader_thread = new Thread(video_reader);
             video_reader_thread.setName("Video Reader");
             video_reader_thread.start();
@@ -672,5 +692,10 @@ public class ARDrone
     public State getState() {
         return state;
     }
+
+    public void setExternalVideoDataDecoder(DataDecoder ext_video_data_decoder) {
+        this.ext_video_data_decoder = ext_video_data_decoder;
+    }
+
     
 }

@@ -1,4 +1,4 @@
-package com.codeminders.ardrone;
+package com.codeminders.ardrone.data.reader;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -13,7 +13,9 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public abstract class DataReader implements Runnable {
+import com.codeminders.ardrone.ARDrone;
+
+public abstract class UDPDataReader implements Runnable {
 	
     private int reconnect_timeout;
     private static final int MAX_TMEOUT = 500;
@@ -30,12 +32,12 @@ public abstract class DataReader implements Runnable {
 	private long               timeOfLastMessage = 0;
 	private int                buffer_size;
 	
-	
 	static final byte[] TRIGGER_BYTES = { 0x01, 0x00, 0x00, 0x00 };
 	
 	ByteBuffer trigger_buffer = ByteBuffer.allocate(TRIGGER_BYTES.length);
+
     
-    public DataReader(ARDrone drone, InetAddress drone_addr, int data_port, int buffer_size, int reconnect_timeout) throws ClosedChannelException, IOException {
+    public UDPDataReader(ARDrone drone, InetAddress drone_addr, int data_port, int buffer_size, int reconnect_timeout) throws ClosedChannelException, IOException {
         super();
         this.drone = drone;
         this.drone_addr = drone_addr;
@@ -162,7 +164,7 @@ public abstract class DataReader implements Runnable {
 
     }
 
-    abstract void handleData(ByteBuffer buf, int len) throws Exception;
+    public abstract void handleData(ByteBuffer buf, int len) throws Exception;
 
     public synchronized void finish()
     {  

@@ -1,8 +1,17 @@
-package com.codeminders.ardrone;
+package com.codeminders.ardrone.data.decoder;
 
 import java.nio.ByteBuffer;
 
-public abstract class DataProcessor extends Thread {
+import com.codeminders.ardrone.ARDrone;
+
+/**
+ * Data processing is taking some time. We constantly receive income data. 
+ * If system is under decoding of current data packet and we receive two more
+ * current realization of data processing mechanism will process only last data packet that was received.    
+ *
+ * This class makes an assumption - that we receive a complete amount of data in one chunk. 
+ */
+public abstract class OnlyActualDataDecoder extends Thread implements DataDecoder {
     
     ARDrone   drone;
     ByteBuffer worckInbuf;
@@ -15,7 +24,7 @@ public abstract class DataProcessor extends Thread {
     
     Object lock = new Object();
     
-    public DataProcessor(ARDrone drone, int buffer_size) {
+    public OnlyActualDataDecoder(ARDrone drone, int buffer_size) {
         super();
         this.drone = drone;
         worckInbuf = ByteBuffer.allocate(buffer_size);
@@ -54,16 +63,15 @@ public abstract class DataProcessor extends Thread {
                 } 
             }
             
-            processData(worckInbuf, worckInDataBufferLength);
+            decodeActualData(worckInbuf, worckInDataBufferLength);
             
         }
 
     }
-
-
-    abstract void processData(ByteBuffer inbuf, int len);
     
-    public void addDataToProcess(ByteBuffer infBuffer, int len) {
+    abstract void decodeActualData(ByteBuffer infBuffer, int len);
+
+    public void decodeData(ByteBuffer infBuffer, int len) {
         
         synchronized (nextBuffer) {
             nextBuffer.clear();
