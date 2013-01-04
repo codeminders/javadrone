@@ -28,7 +28,6 @@ import com.codeminders.ardrone.controllers.GameControllerState;
 import com.codeminders.ardrone.controllers.ControllerStateChange;
 import com.codeminders.ardrone.controllers.KeyboardController;
 import com.codeminders.ardrone.controllers.hid.manager.HIDControllerFinder;
-import com.codeminders.ardrone.decoder.TestH264DataDecoder;
 import com.codeminders.controltower.config.AssignableControl.ControllerButton;
 import com.codeminders.controltower.config.ControlMap;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
@@ -197,8 +196,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
             });
 
             System.err.println("Connecting to the drone");
-            TestH264DataDecoder extVideoDecoder = new TestH264DataDecoder(drone, 102400);
-            drone.setExternalVideoDataDecoder(extVideoDecoder);
             drone.connect();
             drone.waitForReady(CONNECT_TIMEOUT);
             drone.clearEmergencySignal();
