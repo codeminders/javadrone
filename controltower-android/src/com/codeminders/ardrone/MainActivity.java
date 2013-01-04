@@ -54,6 +54,7 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
     static ARDrone drone;
     
     ImageView display;
+    ImageView ps3Image;
     TextView state;
     TextView joystick_state;
     Button connectButton;
@@ -108,6 +109,7 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
         state = (TextView) findViewById(R.id.state);
         joystick_state = (TextView) findViewById(R.id.joystick_state);
         display =  (ImageView) findViewById(R.id.display);
+        ps3Image =  (ImageView) findViewById(R.id.ps3image);
         connectButton = (Button) findViewById(R.id.connect);
         
         btnTakeOffOrLand = (Button) findViewById(R.id.takeOffOrland);
@@ -198,6 +200,11 @@ public class MainActivity extends Activity implements DroneVideoListener, OnShar
             btnConnectUsbControllerButton.performClick();
         }
        
+        findViewById(R.id.ps3imagesmall).setOnClickListener(new View.OnClickListener()  {
+            public void onClick(View v) {
+                ps3Image.setVisibility(ps3Image.getVisibility() != View.INVISIBLE ? View.INVISIBLE : View.VISIBLE);
+            }
+        });
     }
     
     private void tryConnectPS3Controller(UsbDevice device) {

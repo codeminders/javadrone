@@ -84,5 +84,10 @@
 			<artifactId>h264-decoder</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+		      <groupId>org.jcodec</groupId>
+		      <artifactId>jcodec</artifactId>
+		      <version>0.0.5</version>
+	        </dependency>
 	</dependencies>
 </project>

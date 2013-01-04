@@ -53,14 +53,15 @@
     </TableLayout>
     
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
+    <FrameLayout
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:layout_width="fill_parent"
+	    android:layout_height="0dp"
         android:layout_gravity="top"
         android:layout_weight=".8"
         android:paddingBottom="5dp" >
-
-        <ImageView
+    
+     <ImageView
             android:id="@+id/display"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
@@ -68,7 +69,27 @@
             android:contentDescription="@string/display_desc"
             android:scaleType="fitCenter"
             android:src="@drawable/ardrone_front" />
-    </LinearLayout>
+     
+      <ImageView
+            android:id="@+id/ps3image"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:adjustViewBounds="true"
+            android:visibility="invisible"
+            android:contentDescription="@string/display_desc"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sixaxis_controller_decription_portrait" />
+      
+       <ImageView
+            android:id="@+id/ps3imagesmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/display_desc"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sixaxis_controller_decription_portrait_smal" 
+            android:layout_gravity="top|right"/>
+    </FrameLayout>
 
     <Button
         android:id="@+id/takeOffOrland"
