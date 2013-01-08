@@ -14,6 +14,8 @@ import com.codeminders.ardrone.commands.*;
 import com.codeminders.ardrone.data.decoder.DataDecoder;
 import com.codeminders.ardrone.data.decoder.NavDataDecoder;
 import com.codeminders.ardrone.data.decoder.VideoDataDecoder;
+import com.codeminders.ardrone.data.logger.ChannelDataLogger;
+import com.codeminders.ardrone.data.logger.file.AsyncFileChannelDataLogger;
 import com.codeminders.ardrone.data.reader.UDPDataReaderAndDecoder;
 
 public class ARDrone
@@ -280,11 +282,27 @@ public class ARDrone
     }
 
     /**
+     * Initiate drone connection procedure. 
+     * With input data channel logging
+     * 
+     * @throws IOException
+     */
+    public void connectWithChannelLoging(String logDirectory) throws IOException
+    {
+        connect(new AsyncFileChannelDataLogger(logDirectory, "video"), new AsyncFileChannelDataLogger(logDirectory, "navdata"));
+    }
+    
+    /**
      * Initiate drone connection procedure.
      * 
      * @throws IOException
      */
     public void connect() throws IOException
+    {
+        connect(null, null);
+    }
+    
+    private void connect(ChannelDataLogger videoLogger, ChannelDataLogger navdataLogger) throws IOException
     {
         try
         {
@@ -298,7 +316,7 @@ public class ARDrone
             NavDataDecoder nav_data_decoder = new NavDataDecoder(this, NAVDATA_BUFFER_SIZE);
             nav_data_decoder.start();
             
-            nav_data_reader = new UDPDataReaderAndDecoder(this, drone_addr, NAVDATA_PORT, NAVDATA_BUFFER_SIZE, navDataReconnectTimeout, nav_data_decoder);
+            nav_data_reader = new UDPDataReaderAndDecoder(this, drone_addr, NAVDATA_PORT, NAVDATA_BUFFER_SIZE, navDataReconnectTimeout, nav_data_decoder, navdataLogger);
             nav_data_reader_thread = new Thread(nav_data_reader);
             nav_data_reader_thread.setName("NavData Reader");
             nav_data_reader_thread.start();
@@ -312,7 +330,7 @@ public class ARDrone
                 video_data_decoder = video_decoder;
             }
             
-            video_reader = new UDPDataReaderAndDecoder(this, drone_addr, VIDEO_PORT, VIDEO_BUFFER_SIZE, videoReconnectTimeout, video_data_decoder);
+            video_reader = new UDPDataReaderAndDecoder(this, drone_addr, VIDEO_PORT, VIDEO_BUFFER_SIZE, videoReconnectTimeout, video_data_decoder, videoLogger);
             video_reader_thread = new Thread(video_reader);
             video_reader_thread.setName("Video Reader");
             video_reader_thread.start();
