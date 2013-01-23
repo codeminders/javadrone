@@ -9,14 +9,17 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.codeminders.ardrone.NavData.FlyingState;
+import com.codeminders.ardrone.data.ARDroneDataReader;
+import com.codeminders.ardrone.data.ChannelProcessor;
+import com.codeminders.ardrone.data.navdata.FlyingState;
+import com.codeminders.ardrone.data.navdata.Mode;
+import com.codeminders.ardrone.data.reader.LigthUDPDataReader;
+import com.codeminders.ardrone.data.reader.UDPDataReader;
 import com.codeminders.ardrone.commands.*;
-import com.codeminders.ardrone.data.decoder.DataDecoder;
-import com.codeminders.ardrone.data.decoder.NavDataDecoder;
-import com.codeminders.ardrone.data.decoder.VideoDataDecoder;
-import com.codeminders.ardrone.data.logger.ChannelDataLogger;
-import com.codeminders.ardrone.data.logger.file.AsyncFileChannelDataLogger;
-import com.codeminders.ardrone.data.reader.UDPDataReaderAndDecoder;
+import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10NavDataDecoder;
+import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10VideoDataDecoder;
+import com.codeminders.ardrone.data.logger.ARDroneDataReaderAndLogWrapper;
+import com.codeminders.ardrone.data.logger.DataLogger;
 
 public class ARDrone
 {
@@ -119,14 +122,13 @@ public class ARDrone
 
     private CommandQueue                    cmd_queue         = new CommandQueue(CMD_QUEUE_SIZE);
 
-    private UDPDataReaderAndDecoder         nav_data_reader;
-    private UDPDataReaderAndDecoder         video_reader;
-    private DataDecoder                     ext_video_data_decoder;
+    private ChannelProcessor                drone_nav_channel_processor;
+    private ChannelProcessor                drone_video_channel_processor;
+
     private CommandSender                   cmd_sender;
 
-    private Thread                          nav_data_reader_thread;
     private Thread                          cmd_sending_thread;
-    private Thread                          video_reader_thread;
+
 
     private boolean                         combinedYawMode   = true;
 
@@ -139,6 +141,9 @@ public class ARDrone
 
     private int                             navDataReconnectTimeout = 1000; // 1 second
     private int                             videoReconnectTimeout   = 1000; // 1 second
+
+    private VideoDataDecoder                ext_video_data_decoder;
+    private NavDataDecoder                  ext_nav_data_decoder;
 
     public ARDrone() throws UnknownHostException
     {
@@ -280,17 +285,6 @@ public class ARDrone
                 cmd_queue.add(new EmergencyCommand());
         }
     }
-
-    /**
-     * Initiate drone connection procedure. 
-     * With input data channel logging
-     * 
-     * @throws IOException
-     */
-    public void connectWithChannelLoging(String logDirectory) throws IOException
-    {
-        connect(new AsyncFileChannelDataLogger(logDirectory, "video"), new AsyncFileChannelDataLogger(logDirectory, "navdata"));
-    }
     
     /**
      * Initiate drone connection procedure.
@@ -302,7 +296,7 @@ public class ARDrone
         connect(null, null);
     }
     
-    private void connect(ChannelDataLogger videoLogger, ChannelDataLogger navdataLogger) throws IOException
+    public void connect(DataLogger videoLogger, DataLogger navdataLogger) throws IOException
     {
         try
         {
@@ -312,28 +306,33 @@ public class ARDrone
             cmd_sending_thread = new Thread(cmd_sender);
             cmd_sending_thread.setName("Command Sender");
             cmd_sending_thread.start();
-
-            NavDataDecoder nav_data_decoder = new NavDataDecoder(this, NAVDATA_BUFFER_SIZE);
-            nav_data_decoder.start();
             
-            nav_data_reader = new UDPDataReaderAndDecoder(this, drone_addr, NAVDATA_PORT, NAVDATA_BUFFER_SIZE, navDataReconnectTimeout, nav_data_decoder, navdataLogger);
-            nav_data_reader_thread = new Thread(nav_data_reader);
-            nav_data_reader_thread.setName("NavData Reader");
-            nav_data_reader_thread.start();
+            enableVideo();
+            enableAutomaticVideoBitrate();
 
-            DataDecoder video_data_decoder;
-            if (null != ext_video_data_decoder) {
-                video_data_decoder = ext_video_data_decoder;
-            } else {
-                VideoDataDecoder video_decoder = new VideoDataDecoder(this, VIDEO_BUFFER_SIZE);
-                video_decoder.start();
-                video_data_decoder = video_decoder;
-            }
+
+            NavDataDecoder nav_data_decoder = (null == ext_nav_data_decoder) ?
+                    new  ARDrone10NavDataDecoder(this, NAVDATA_BUFFER_SIZE)
+                    :
+                    ext_nav_data_decoder;
+                    
+            ARDroneDataReader nav_data_reader = (null == navdataLogger) ? 
+                    new LigthUDPDataReader(drone_addr, NAVDATA_PORT, navDataReconnectTimeout) 
+                    :
+                    new ARDroneDataReaderAndLogWrapper(new LigthUDPDataReader(drone_addr, NAVDATA_PORT, navDataReconnectTimeout), navdataLogger);
+                    
+            drone_nav_channel_processor = new ChannelProcessor(nav_data_reader, nav_data_decoder);
             
-            video_reader = new UDPDataReaderAndDecoder(this, drone_addr, VIDEO_PORT, VIDEO_BUFFER_SIZE, videoReconnectTimeout, video_data_decoder, videoLogger);
-            video_reader_thread = new Thread(video_reader);
-            video_reader_thread.setName("Video Reader");
-            video_reader_thread.start();
+            VideoDataDecoder video_data_decoder = (null == ext_video_data_decoder) ? 
+                    new ARDrone10VideoDataDecoder(this, VIDEO_BUFFER_SIZE)
+                    :
+                    ext_video_data_decoder;
+            ARDroneDataReader video_data_reader =  (null == videoLogger) ?  
+                    new UDPDataReader(drone_addr, VIDEO_PORT, videoReconnectTimeout)
+                    :
+                    new ARDroneDataReaderAndLogWrapper(new UDPDataReader(drone_addr, VIDEO_PORT, videoReconnectTimeout), videoLogger);
+            
+            drone_video_channel_processor = new ChannelProcessor(video_data_reader, video_data_decoder);       
 
             changeState(State.CONNECTING);
 
@@ -365,11 +364,11 @@ public class ARDrone
         if(cmd_queue != null)
             cmd_queue.add(new QuitCommand());
 
-        if(nav_data_reader != null)
-            nav_data_reader.finish();
+        if(drone_nav_channel_processor != null)
+            drone_nav_channel_processor.finish();
 
-        if(video_reader != null)
-            video_reader.finish();
+        if(drone_video_channel_processor != null)
+            drone_video_channel_processor.finish();
 
         if(cmd_socket != null)
             cmd_socket.close();
@@ -393,6 +392,15 @@ public class ARDrone
     {
         setConfigOption("video:bitrate_control_mode", "1");
     }
+    public void enableVideo() throws IOException
+    {
+        setConfigOption("general:video_enable", "TRUE");
+    }
+    public void disableVideo() throws IOException
+    {
+        setConfigOption("general:video_enable", "FALSE");
+    }
+    
 
     public void hover() throws IOException
     {
@@ -446,12 +454,11 @@ public class ARDrone
     public void move(float left_right_tilt, float front_back_tilt, float vertical_speed, float angular_speed)
             throws IOException
     {
-        cmd_queue
-                .add(new MoveCommand(combinedYawMode, left_right_tilt, front_back_tilt, vertical_speed, angular_speed));
+        cmd_queue.add(new MoveCommand(combinedYawMode, left_right_tilt, front_back_tilt, vertical_speed, angular_speed));
     }
 
     // Callback used by receiver
-    public void navDataReceived(NavData nd)
+    protected void navDataReceived(NavData nd)
     {
         if(nd.isBatteryTooLow() || nd.isNotEnoughPower())
         {
@@ -487,10 +494,10 @@ public class ARDrone
                                        // LAND/TAKEOFF comand
                                        // instead of nuking the whole queue?
                     changeState(State.DEMO);
-                } else if(state != State.BOOTSTRAP && nd.getMode() == NavData.Mode.BOOTSTRAP)
+                } else if(state != State.BOOTSTRAP && nd.getMode() == Mode.BOOTSTRAP)
                 {
                     changeState(State.BOOTSTRAP);
-                } else if(state == State.BOOTSTRAP && nd.getMode() == NavData.Mode.DEMO)
+                } else if(state == State.BOOTSTRAP && nd.getMode() == Mode.DEMO)
                 {
                     changeState(State.DEMO);
                 }
@@ -623,7 +630,7 @@ public class ARDrone
     }
 
     // Callback used by VideoReciver
-    public void videoFrameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize)
+    protected void videoFrameReceived(int startX, int startY, int w, int h, int[] rgbArray, int offset, int scansize)
     {
         synchronized(image_listeners)
         {
@@ -682,28 +689,27 @@ public class ARDrone
             }
         }
     }
-    
     public void pauseNavData() {
-      if (null != nav_data_reader) {
-          nav_data_reader.pauseReading();
+      if (null != drone_nav_channel_processor) {
+          drone_nav_channel_processor.pause();
       }   
     }
     
     public void resumeNavData() {
-        if (null != nav_data_reader) {
-            nav_data_reader.resumeReading();
+        if (null != drone_nav_channel_processor) {
+            drone_nav_channel_processor.resume();
         }   
     }
     
     public void pauseVideo() {
-        if (null != video_reader_thread) {
-            video_reader.pauseReading();
+        if (null != drone_video_channel_processor) {
+            drone_video_channel_processor.pause();
         }   
     }
     
     public void resumeVideo() {
-        if (null != video_reader_thread) {
-            video_reader.resumeReading();
+        if (null != drone_video_channel_processor) {
+            drone_video_channel_processor.resume();
         } 
     }
 
@@ -711,8 +717,12 @@ public class ARDrone
         return state;
     }
 
-    public void setExternalVideoDataDecoder(DataDecoder ext_video_data_decoder) {
+    public void setExternalVideoDataDecoder(VideoDataDecoder ext_video_data_decoder) {
         this.ext_video_data_decoder = ext_video_data_decoder;
+    }
+    
+    public void setExternalVideoDataDecoder(NavDataDecoder ext_nav_data_decoder) {
+        this.ext_nav_data_decoder = ext_nav_data_decoder;
     }
 
     

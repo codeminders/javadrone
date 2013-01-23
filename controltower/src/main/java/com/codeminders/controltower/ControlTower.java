@@ -44,7 +44,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 {
 
     private static final long READ_UPDATE_DELAY_MS = 5L;
-    private static final long CONNECT_TIMEOUT = 8000L;
+    private static final long CONNECT_TIMEOUT = 10000L;
     private static float CONTROL_THRESHOLD = 0.5f;
     private final ImageIcon droneOn = new ImageIcon(
         getClass().getResource("/com/codeminders/controltower/images/drone_on.gif"));
@@ -76,7 +76,6 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     static
     {
         isHIDLibLoaded = ClassPathLibraryLoader.loadNativeHIDLibrary();
-        SLF4JBridgeHandler.install();
     }
 
     /**
@@ -706,6 +705,10 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
      */
     public static void main(String args[])
     {
+        if (!SLF4JBridgeHandler.isInstalled()) {
+            SLF4JBridgeHandler.install();
+        }
+        
         final ControlTower tower = new ControlTower();
         java.awt.EventQueue.invokeLater(new Runnable()
         {

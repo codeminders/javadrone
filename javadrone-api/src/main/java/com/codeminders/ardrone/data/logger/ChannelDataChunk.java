@@ -7,23 +7,23 @@ import java.io.IOException;
 public class ChannelDataChunk {
     
     byte[] data;
-    long ioDelay;
+    long timemark;
     
-    public ChannelDataChunk(byte[] data, long ioDelay) {
+    public ChannelDataChunk(byte[] data, long timemark) {
         super();
         this.data = data;
-        this.ioDelay = ioDelay;
+        this.timemark = timemark;
     }
     
     public byte[] getData() {
         return data;
     }
     public long getIoDelay() {
-        return ioDelay;
+        return timemark;
     }
 
     public void writeToStream(DataOutputStream out) throws IOException {
-        out.writeLong(ioDelay);
+        out.writeLong(timemark);
         out.writeInt(data.length);
         out.write(data, 0, data.length);
     }

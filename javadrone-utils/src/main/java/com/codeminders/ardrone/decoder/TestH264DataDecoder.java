@@ -1,21 +1,21 @@
 package com.codeminders.ardrone.decoder;
 
-import java.nio.ByteBuffer;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import com.codeminders.ardrone.ARDrone;
-import com.codeminders.ardrone.data.decoder.DataDecoder;
+import com.codeminders.ardrone.VideoDataDecoder;
 import com.twilight.h264.decoder.AVFrame;
 import com.twilight.h264.decoder.AVPacket;
 import com.twilight.h264.decoder.H264Decoder;
 import com.twilight.h264.decoder.MpegEncContext;
 import com.twilight.h264.player.FrameUtils;
 
-public class TestH264DataDecoder implements DataDecoder {
+public class TestH264DataDecoder extends VideoDataDecoder {
 
     ARDrone drone;
+    
     int buffer_size;
-    //public static final int INBUF_SIZE = 65535;
     public int INBUF_SIZE;
     
     H264Decoder codec;
@@ -36,7 +36,7 @@ public class TestH264DataDecoder implements DataDecoder {
     
     
     public TestH264DataDecoder(ARDrone drone, int buffer_size) {
-        super();
+        super(drone);
         this.drone = drone;
         this.buffer_size = buffer_size;
         INBUF_SIZE = buffer_size;
@@ -65,16 +65,17 @@ public class TestH264DataDecoder implements DataDecoder {
     }
 
     @Override
-    public void decodeData(ByteBuffer fin, int len) {
+    public void run() {
         
+        InputStream fin = getDataReader().getDataStream();
         try {
             // avpkt must contain exactly 1 NAL Unit in order for decoder to decode correctly.
             // thus we must read until we get next NAL header before sending it to decoder.
             // Find 1st NAL
             int[] cacheRead = new int[3];
-            cacheRead[0] = fin.getInt();
-            cacheRead[1] = fin.getInt();
-            cacheRead[2] = fin.getInt();
+            cacheRead[0] = fin.read();
+            cacheRead[1] = fin.read();
+            cacheRead[2] = fin.read();
             
             while(!(
                     cacheRead[0] == 0x00 &&
@@ -83,7 +84,7 @@ public class TestH264DataDecoder implements DataDecoder {
                     )) {
                  cacheRead[0] = cacheRead[1];
                  cacheRead[1] = cacheRead[2];
-                 cacheRead[2] = fin.getInt();
+                 cacheRead[2] = fin.read();
             } // while
             
             boolean hasMoreNAL = true;
@@ -95,11 +96,11 @@ public class TestH264DataDecoder implements DataDecoder {
             while(hasMoreNAL) { // TODO: Possible error because we use not file 
                 dataPointer = 4;
                 // Find next NAL
-                cacheRead[0] = fin.getInt();
+                cacheRead[0] = fin.read();
                 if(cacheRead[0]==-1) hasMoreNAL = false;
-                cacheRead[1] = fin.getInt();
+                cacheRead[1] = fin.read();
                 if(cacheRead[1]==-1) hasMoreNAL = false;
-                cacheRead[2] = fin.getInt();
+                cacheRead[2] = fin.read();
                 if(cacheRead[2]==-1) hasMoreNAL = false;
                 while(!(
                         cacheRead[0] == 0x00 &&
@@ -109,7 +110,7 @@ public class TestH264DataDecoder implements DataDecoder {
                      inbuf_int[dataPointer++] = cacheRead[0];
                      cacheRead[0] = cacheRead[1];
                      cacheRead[1] = cacheRead[2];
-                     cacheRead[2] = fin.getInt();
+                     cacheRead[2] = fin.read();
                     if(cacheRead[2]==-1) hasMoreNAL = false;
                 } // while
 
@@ -135,7 +136,7 @@ public class TestH264DataDecoder implements DataDecoder {
                             }
                             FrameUtils.YUV2RGB(picture, buffer);       
                             
-                            drone.videoFrameReceived(0, 0, picture.imageWidth ,picture.imageHeight, buffer, 0,  picture.imageWidth);                     
+                            notifyDroneWithDecodedFrame(0, 0, picture.imageWidth ,picture.imageHeight, buffer, 0,  picture.imageWidth);                     
                         }
                         avpkt.size -= len;
                         avpkt.data_offset += len;

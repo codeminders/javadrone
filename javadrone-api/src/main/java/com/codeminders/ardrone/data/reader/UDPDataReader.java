@@ -1,6 +1,7 @@
 package com.codeminders.ardrone.data.reader;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -10,40 +11,32 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import com.codeminders.ardrone.ARDrone;
+import com.codeminders.ardrone.data.ARDroneDataReader;
 
-public abstract class UDPDataReader implements Runnable {
+public class UDPDataReader implements ARDroneDataReader {
 	
-    private int reconnect_timeout;
-    private static final int MAX_TMEOUT = 500;
-    private Logger log = Logger.getLogger(this.getClass().getName());
+    private int timeout;
     
     protected DatagramChannel  channel;
-    ARDrone                    drone;
     protected Selector         selector;
-    private boolean            done;
-    private boolean            pauseFlag;
+    
     private InetAddress        drone_addr;
 	private int                data_port;
     
-	private long               timeOfLastMessage = 0;
 	private int                buffer_size;
 	
-	static final byte[] TRIGGER_BYTES = { 0x01, 0x00, 0x00, 0x00 };
+	static final byte[]        TRIGGER_BYTES = { 0x01, 0x00, 0x00, 0x00 };
 	
-	ByteBuffer trigger_buffer = ByteBuffer.allocate(TRIGGER_BYTES.length);
-
+	ByteBuffer                 trigger_buffer = ByteBuffer.allocate(TRIGGER_BYTES.length);
+	ByteBuffer                 inbuf = ByteBuffer.allocate(buffer_size);
     
-    public UDPDataReader(ARDrone drone, InetAddress drone_addr, int data_port, int buffer_size, int reconnect_timeout) throws ClosedChannelException, IOException {
+    public UDPDataReader(InetAddress drone_addr, int data_port, int timeout) throws ClosedChannelException, IOException {
         super();
-        this.drone = drone;
         this.drone_addr = drone_addr;
         this.data_port = data_port;
-        this.buffer_size = buffer_size;
-        this.reconnect_timeout = reconnect_timeout;
+
+        this.timeout = timeout;
         
         trigger_buffer.put(TRIGGER_BYTES);
         trigger_buffer.flip();
@@ -92,97 +85,52 @@ public abstract class UDPDataReader implements Runnable {
     }
     
     @Override
-    public void run()
+    public int readDataBlock(byte[] buf) throws IOException
     {
-        try
-        {
-            ByteBuffer inbuf = ByteBuffer.allocate(buffer_size);
-            done = false;
-            timeOfLastMessage = System.currentTimeMillis();
-            while(!done)
-            {
-                if (pauseFlag) {
-                    synchronized(this) {
-                        if (pauseFlag) {
-                           wait();
-                           timeOfLastMessage = 1; // will automatically reconnect channel
-                        }
-                    }
-                }
-                
-                selector.select(MAX_TMEOUT);
-                if(done)
-                {
-                    disconnect();
-                    break;
-                }
-                Set<SelectionKey> readyKeys = selector.selectedKeys();
-                Iterator<SelectionKey> iterator = readyKeys.iterator();
-                
-                if (!iterator.hasNext()) {
-                    if (timeOfLastMessage > 0 && System.currentTimeMillis() - timeOfLastMessage > reconnect_timeout ) {
-                        log.fine("Data Timeout in " + reconnect_timeout + "ms. reached. Attemting to reconnect" );
-                        disconnect();
-                        try {
-                            connect();
-                        } catch (Exception e) {                           
-                            log.log(Level.FINE, "Failed to re-connect", e);
-                        }
-                        timeOfLastMessage = System.currentTimeMillis();
-                    }
-                }
-                while(iterator.hasNext())
-                {
-                    timeOfLastMessage = System.currentTimeMillis();
-                    SelectionKey key = (SelectionKey) iterator.next();
-                    iterator.remove();
-                    
-                    if(key.isWritable())
-                    {
-                        channel.write(trigger_buffer);
-                        channel.register(selector, SelectionKey.OP_READ);
-                        // prepare buffer for new reconnection attempt
-                        trigger_buffer.clear();
-                        trigger_buffer.put(TRIGGER_BYTES);
-                        trigger_buffer.flip();
-                    } 
-                    else if(key.isReadable())
-                    {
-                        inbuf.clear(); 
-                        int len = channel.read(inbuf);
-                        inbuf.flip();
-                        handleData(inbuf, len);
-                    }
-                }
-            }
-        } catch(Exception e)
-        {
-            if (!done) {
-                drone.changeToErrorState(e);
+        int len = 0;
+        selector.select(timeout);
+        Set<SelectionKey> readyKeys = selector.selectedKeys();
+        Iterator<SelectionKey> iterator = readyKeys.iterator();
+
+        while (iterator.hasNext()) {
+            SelectionKey key = (SelectionKey) iterator.next();
+            iterator.remove();
+
+            if (key.isWritable()) {
+                channel.write(trigger_buffer);
+                channel.register(selector, SelectionKey.OP_READ);
+                // prepare buffer for new reconnection attempt
+                trigger_buffer.clear();
+                trigger_buffer.put(TRIGGER_BYTES);
+                trigger_buffer.flip();
+            } else if (key.isReadable()) {
+                return channel.read(ByteBuffer.wrap(buf));
             }
         }
-
+        
+        return len;
     }
-
-    public abstract void handleData(ByteBuffer buf, int len) throws Exception;
 
     public synchronized void finish()
     {  
-        if (pauseFlag) {
-           resumeReading();
-        }
-        done = true;
         if (null != selector) {
             selector.wakeup();
         }
     }
-    
-    public synchronized void pauseReading() {
-        pauseFlag = true;
+
+    @Override
+    public InputStream getDataStream() {
+        return null;
     }
-	
-    public synchronized void resumeReading() {
-        pauseFlag = false;
-        notify();
+
+    @Override
+    public boolean isStreamSupported() {
+        return false;
+    }
+
+    @Override
+    public void reconnect() throws IOException {
+        disconnect();
+        connect();
     }
 }

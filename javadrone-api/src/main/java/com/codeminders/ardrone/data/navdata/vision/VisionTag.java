@@ -1,5 +1,7 @@
 
-package com.codeminders.ardrone;
+package com.codeminders.ardrone.data.navdata.vision;
+
+import com.codeminders.ardrone.data.navdata.NavDataFormatException;
 
 public class VisionTag
 {
