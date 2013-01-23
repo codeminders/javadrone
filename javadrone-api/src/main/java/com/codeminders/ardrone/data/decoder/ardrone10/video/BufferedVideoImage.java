@@ -1,6 +1,5 @@
-package com.codeminders.ardrone.video;
+package com.codeminders.ardrone.data.decoder.ardrone10.video;
 
-import java.nio.ByteBuffer;
 
 // Copyright (C) 2007-2011, PARROT SA, all rights reserved.
 
@@ -105,7 +104,6 @@ public class BufferedVideoImage
      * Length of one row of pixels in the destination image in bytes.
      */
     private int pixelRowSize;
-    private ByteBuffer imageStream;
     private byte[] imageStreamByteArray;
     private int imageStreamCapacity;
     private ImageSlice imageSlice;
@@ -127,11 +125,10 @@ public class BufferedVideoImage
      * @param ByteBuffer stream
      *      A ByteBuffer full of the bytes that represent the image to be decoded.
      */
-    public void addImageStream(ByteBuffer stream)
+    public void addImageStream(byte[] imageStreamByteArray, int actualDatalength)
     {
-        imageStream = stream;
-        imageStreamByteArray = imageStream.array();
-        imageStreamCapacity = imageStream.capacity();
+        this.imageStreamByteArray = imageStreamByteArray;
+        imageStreamCapacity = actualDatalength;
         processStream();
     }
     

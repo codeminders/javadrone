@@ -8,13 +8,14 @@ import java.util.Date;
 
 import java.util.logging.Logger;
 
-import com.codeminders.ardrone.data.logger.ChannelDataLogger;
+import com.codeminders.ardrone.data.logger.DataLogger;
 import com.codeminders.ardrone.data.logger.ChannelDataChunk;
 
 
-public class AsyncFileChannelDataLogger implements ChannelDataLogger {
+public class AsyncFileChannelDataLogger implements DataLogger {
     
     private static final int DAFAULT_QUEUE_CAPACITY = 128;
+    private static final int DAFAULT_STREAM_QUEUE_CAPACITY = 32 * 1024; // 32 Kb;
 
     private Logger log = Logger.getLogger(getClass().getName());
     
@@ -23,6 +24,7 @@ public class AsyncFileChannelDataLogger implements ChannelDataLogger {
     private static char indexSeparator = '_';
     
     SaveToFile toFile;
+    SaveStreamToFile streamFile;
     
     public AsyncFileChannelDataLogger(String logDirPath, String filePrefix) throws ClosedChannelException,
             IOException {
@@ -30,14 +32,22 @@ public class AsyncFileChannelDataLogger implements ChannelDataLogger {
         validate(logDirPath, filePrefix);
         shiftIndexOfPreviousLogFiles(logDirPath, filePrefix);
         
-        toFile = new SaveToFile(new File(logDirPath + File.separatorChar + getFileName(filePrefix)+ getFileExt())  , DAFAULT_QUEUE_CAPACITY);
+        toFile = new SaveToFile(new File(logDirPath + File.separatorChar + getFileName(filePrefix) + "-chunk" + getFileExt())  , DAFAULT_QUEUE_CAPACITY);
+        toFile.start();
+        
+        streamFile = new SaveStreamToFile(new File(logDirPath + File.separatorChar + getFileName(filePrefix)+ "-stream" + getFileExt())  , DAFAULT_STREAM_QUEUE_CAPACITY);
         toFile.start();
     }
    
 
-
+    @Override
     public void log(ChannelDataChunk data) {
           toFile.toFile(data);
+    }
+    
+    @Override
+    public void logStreamContent(int data) {
+        streamFile.toFile(data);
     }
     
     private void validate(String logDirPath, String filePrefix) {
@@ -100,7 +110,15 @@ public class AsyncFileChannelDataLogger implements ChannelDataLogger {
         try {
             toFile.join(1000);
         } catch (InterruptedException e) {
-            log.severe("Error. Faild to wat till file logger is topped is aborded");
+            log.severe("Error. Faild to wait till file logger is topped or aborded");
+        } 
+        
+        streamFile.finish();
+        
+        try {
+            streamFile.join(1000);
+        } catch (InterruptedException e) {
+            log.severe("Error. Faild to wait till stream file logger is topped or aborded");
         } 
     }
 

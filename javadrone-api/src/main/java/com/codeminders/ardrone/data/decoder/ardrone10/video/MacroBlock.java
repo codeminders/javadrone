@@ -1,5 +1,5 @@
 
-package com.codeminders.ardrone.video;
+package com.codeminders.ardrone.data.decoder.ardrone10.video;
 
 // Copyright � 2007-2011, PARROT SA, all rights reserved.
 
@@ -32,15 +32,15 @@ package com.codeminders.ardrone.video;
 // may be used to endorse or promote products derived from this software without
 // specific prior written permission.
 
-class ImageSlice
+class MacroBlock
 {
-    MacroBlock[] MacroBlocks;
+    short[][] DataBlocks;
 
-    ImageSlice(int macroBlockCount)
+    MacroBlock()
     {
-        MacroBlocks = new MacroBlock[macroBlockCount];
+        DataBlocks = new short[6][];
 
-        for(int index = 0; index < macroBlockCount; index++)
-            MacroBlocks[index] = new MacroBlock();
+        for(int index = 0; index < 6; index++)
+            DataBlocks[index] = new short[64];
     }
 }

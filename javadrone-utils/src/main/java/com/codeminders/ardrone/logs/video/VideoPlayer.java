@@ -14,7 +14,7 @@ import javax.swing.JFrame;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.DroneVideoListener;
-import com.codeminders.ardrone.data.decoder.VideoDataDecoder;
+import com.codeminders.ardrone.VideoDataDecoder;
 import com.codeminders.ardrone.decoder.FileDataReaderAndDecoder;
 
 public class VideoPlayer implements Runnable, DroneVideoListener {
@@ -64,29 +64,31 @@ public class VideoPlayer implements Runnable, DroneVideoListener {
 
     @Override
     public void run() {
+        
+        //TODO: play decoded content;
 
-        try {
-            File in = new File(fileName);
+//        try {
+//            File in = new File(fileName);
+//
+//            VideoDataDecoder video_decoder = new VideoDataDecoder(drone, 100 * 1024);
+//
+//            FileDataReaderAndDecoder video_reader = new FileDataReaderAndDecoder(in, video_decoder);
+//
+//            video_decoder.start();
+//
+//            Thread video_reader_thread = new Thread(video_reader);
+//            video_reader_thread.setName("Video Reader");
+//            video_reader_thread.start();
+//            
+//            video_reader_thread.join();
+//
+//            video_decoder.finish();
 
-            VideoDataDecoder video_decoder = new VideoDataDecoder(drone, 100 * 1024);
-
-            FileDataReaderAndDecoder video_reader = new FileDataReaderAndDecoder(in, video_decoder);
-
-            video_decoder.start();
-
-            Thread video_reader_thread = new Thread(video_reader);
-            video_reader_thread.setName("Video Reader");
-            video_reader_thread.start();
-            
-            video_reader_thread.join();
-
-            video_decoder.finish();
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

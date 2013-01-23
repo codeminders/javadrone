@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
 
-import com.codeminders.ardrone.data.decoder.DataDecoder;
+import com.codeminders.ardrone.data.DataDecoder;
 import com.codeminders.ardrone.data.reader.FileDataReader;
 
 public class FileDataReaderAndDecoder extends FileDataReader {
@@ -18,7 +18,7 @@ public class FileDataReaderAndDecoder extends FileDataReader {
 
     @Override
     public void handleData(ByteBuffer inbuf, int len) throws Exception {
-        dataDecoder.decodeData(inbuf, len);
+//        dataDecoder.decodeData(inbuf, len);
     }
 
 }
