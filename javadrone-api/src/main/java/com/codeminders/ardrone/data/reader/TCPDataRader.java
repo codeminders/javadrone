@@ -22,7 +22,7 @@ public class TCPDataRader  implements ARDroneDataReader  {
     
     private InputStream        socketInput;
     
-    public TCPDataRader(InetAddress drone_addr, int data_port, int buffer_size, int timeout) throws IOException {
+    public TCPDataRader(InetAddress drone_addr, int data_port, int timeout) throws IOException {
         super();
         
         this.drone_addr = drone_addr;

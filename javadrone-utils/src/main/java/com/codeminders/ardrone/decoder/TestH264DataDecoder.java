@@ -2,6 +2,8 @@ package com.codeminders.ardrone.decoder;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.codeminders.ardrone.ARDrone;
 import com.codeminders.ardrone.VideoDataDecoder;
@@ -13,10 +15,9 @@ import com.twilight.h264.player.FrameUtils;
 
 public class TestH264DataDecoder extends VideoDataDecoder {
 
-    ARDrone drone;
+    Logger  log = Logger.getLogger(this.getClass().getName());
     
-    int buffer_size;
-    public int INBUF_SIZE;
+    public static final int INBUF_SIZE = 65535;
     
     H264Decoder codec;
     MpegEncContext c = null;
@@ -35,12 +36,9 @@ public class TestH264DataDecoder extends VideoDataDecoder {
     int dataPointer;
     
     
-    public TestH264DataDecoder(ARDrone drone, int buffer_size) {
+    public TestH264DataDecoder(ARDrone drone) {
         super(drone);
-        this.drone = drone;
-        this.buffer_size = buffer_size;
-        INBUF_SIZE = buffer_size;
-        
+
         avpkt = new AVPacket();
         avpkt.av_init_packet();
         
@@ -143,14 +141,14 @@ public class TestH264DataDecoder extends VideoDataDecoder {
                     }
                 } catch(Exception ie) {
                     // Any exception, we should try to proceed reading next packet!
-                    ie.printStackTrace();
+                    log.log(Level.FINEST, "Error decodeing frame", ie);
                 } // try
                 
             } // while
                     
     
-        } catch(Exception e) {
-            e.printStackTrace();
+        } catch(Exception ex) {
+            log.log(Level.FINEST, "Error in decoder initialization", ex);
         }  
 
 

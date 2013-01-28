@@ -14,12 +14,15 @@ import com.codeminders.ardrone.data.ChannelProcessor;
 import com.codeminders.ardrone.data.navdata.FlyingState;
 import com.codeminders.ardrone.data.navdata.Mode;
 import com.codeminders.ardrone.data.reader.LigthUDPDataReader;
+import com.codeminders.ardrone.data.reader.TCPDataRader;
 import com.codeminders.ardrone.data.reader.UDPDataReader;
 import com.codeminders.ardrone.commands.*;
 import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10NavDataDecoder;
 import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10VideoDataDecoder;
 import com.codeminders.ardrone.data.logger.ARDroneDataReaderAndLogWrapper;
 import com.codeminders.ardrone.data.logger.DataLogger;
+import com.codeminders.ardrone.version.DroneVersionReader;
+import com.codeminders.ardrone.version.ftp.DroneFTPversionReader;
 
 public class ARDrone
 {
@@ -111,14 +114,13 @@ public class ARDrone
     private static final int                VIDEO_PORT        = 5555;
     private static final int                NAVDATA_BUFFER_SIZE = 4096;
     private static final int                VIDEO_BUFFER_SIZE = 100 * 1024;
-    
-    // private static final int CONTROL_PORT = 5559;
 
     final static byte[]                     DEFAULT_DRONE_IP  = { (byte) 192, (byte) 168, (byte) 1, (byte) 1 };
 
+    private static final int                DEFAULT_DRONE_VERSION = 1;
+
     private InetAddress                     drone_addr;
     private DatagramSocket                  cmd_socket;
-    // private Socket control_socket;
 
     private CommandQueue                    cmd_queue         = new CommandQueue(CMD_QUEUE_SIZE);
 
@@ -144,6 +146,8 @@ public class ARDrone
 
     private VideoDataDecoder                ext_video_data_decoder;
     private NavDataDecoder                  ext_nav_data_decoder;
+    
+    private DroneVersionReader              versionReader;
 
     public ARDrone() throws UnknownHostException
     {
@@ -155,6 +159,8 @@ public class ARDrone
         this.drone_addr = drone_addr;
         this.navDataReconnectTimeout = navDataReconnectTimeout;
         this.videoReconnectTimeout = videoReconnectTimeout;
+        
+        this.versionReader = new DroneFTPversionReader(drone_addr);
     }
 
     public void addImageListener(DroneVideoListener l)
@@ -295,11 +301,20 @@ public class ARDrone
     {
         connect(null, null);
     }
-    
+
     public void connect(DataLogger videoLogger, DataLogger navdataLogger) throws IOException
     {
         try
         {
+            int version = DEFAULT_DRONE_VERSION;
+            try {
+                String versionStr = versionReader.readDroneVersion();
+                log.log(Level.FINER, "Drone version string: " + versionStr);
+                version = Integer.parseInt(versionStr.substring(0, versionStr.indexOf('.')));
+            } catch (NumberFormatException e) {
+                log.log(Level.SEVERE, "Failed to discover drone version. Using configuration for drone version: " + version, e);
+            }
+            
             cmd_socket = new DatagramSocket();
 
             cmd_sender = new CommandSender(cmd_queue, this, drone_addr, cmd_socket);
@@ -309,7 +324,6 @@ public class ARDrone
             
             enableVideo();
             enableAutomaticVideoBitrate();
-
 
             NavDataDecoder nav_data_decoder = (null == ext_nav_data_decoder) ?
                     new  ARDrone10NavDataDecoder(this, NAVDATA_BUFFER_SIZE)
@@ -324,15 +338,17 @@ public class ARDrone
             drone_nav_channel_processor = new ChannelProcessor(nav_data_reader, nav_data_decoder);
             
             VideoDataDecoder video_data_decoder = (null == ext_video_data_decoder) ? 
-                    new ARDrone10VideoDataDecoder(this, VIDEO_BUFFER_SIZE)
+                    getVideoDecoder(version)
                     :
                     ext_video_data_decoder;
             ARDroneDataReader video_data_reader =  (null == videoLogger) ?  
-                    new UDPDataReader(drone_addr, VIDEO_PORT, videoReconnectTimeout)
+                    getVideoReader(version)
                     :
                     new ARDroneDataReaderAndLogWrapper(new UDPDataReader(drone_addr, VIDEO_PORT, videoReconnectTimeout), videoLogger);
             
-            drone_video_channel_processor = new ChannelProcessor(video_data_reader, video_data_decoder);       
+            if (null != video_data_reader && null != video_data_decoder) {
+                drone_video_channel_processor = new ChannelProcessor(video_data_reader, video_data_decoder);
+            }
 
             changeState(State.CONNECTING);
 
@@ -341,6 +357,29 @@ public class ARDrone
             changeToErrorState(ex);
             throw ex;
         }
+    }
+
+    private VideoDataDecoder getVideoDecoder(int version) throws IOException {
+        switch (version) {
+            case 1:
+                return   new ARDrone10VideoDataDecoder(this, VIDEO_BUFFER_SIZE);
+            case 2:
+                 return null; // no decoder implemented yet
+            default:
+                return   new ARDrone10VideoDataDecoder(this, VIDEO_BUFFER_SIZE);
+        }
+      
+    }
+    
+    private ARDroneDataReader getVideoReader(int version) throws IOException {
+        switch (version) {
+            case 1:
+                return new LigthUDPDataReader(drone_addr, VIDEO_PORT, videoReconnectTimeout);
+            case 2:
+                return new TCPDataRader(drone_addr, VIDEO_PORT, videoReconnectTimeout);
+            default:
+                return new LigthUDPDataReader(drone_addr, VIDEO_PORT, videoReconnectTimeout);
+            }
     }
 
     public void disableAutomaticVideoBitrate() throws IOException
@@ -724,6 +763,17 @@ public class ARDrone
     public void setExternalVideoDataDecoder(NavDataDecoder ext_nav_data_decoder) {
         this.ext_nav_data_decoder = ext_nav_data_decoder;
     }
-
+    /**
+     * Read Drone version.
+     * @return Drone version string e.g. "1.10.10". null - if version can't be obtained
+     */
+    public String getDroneVersion() {
+        try {
+            return versionReader.readDroneVersion();
+        } catch (IOException e) {
+           log.log(Level.SEVERE, "Failed to read drone version.", e);
+        }
+        return null;
+    }
     
 }
