@@ -1,26 +1,41 @@
 
 package com.codeminders.ardrone;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.*;
+import java.io.InputStream;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.List;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.codeminders.ardrone.commands.ConfigureCommand;
+import com.codeminders.ardrone.commands.ControlCommand;
+import com.codeminders.ardrone.commands.EmergencyCommand;
+import com.codeminders.ardrone.commands.FlatTrimCommand;
+import com.codeminders.ardrone.commands.HoverCommand;
+import com.codeminders.ardrone.commands.KeepAliveCommand;
+import com.codeminders.ardrone.commands.LandCommand;
+import com.codeminders.ardrone.commands.MoveCommand;
+import com.codeminders.ardrone.commands.PlayAnimationCommand;
+import com.codeminders.ardrone.commands.PlayLEDCommand;
+import com.codeminders.ardrone.commands.QuitCommand;
+import com.codeminders.ardrone.commands.TakeOffCommand;
 import com.codeminders.ardrone.data.ARDroneDataReader;
 import com.codeminders.ardrone.data.ChannelProcessor;
+import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10NavDataDecoder;
+import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10VideoDataDecoder;
+import com.codeminders.ardrone.data.logger.ARDroneDataReaderAndLogWrapper;
+import com.codeminders.ardrone.data.logger.DataLogger;
 import com.codeminders.ardrone.data.navdata.FlyingState;
 import com.codeminders.ardrone.data.navdata.Mode;
 import com.codeminders.ardrone.data.reader.LigthUDPDataReader;
 import com.codeminders.ardrone.data.reader.TCPDataRader;
 import com.codeminders.ardrone.data.reader.UDPDataReader;
-import com.codeminders.ardrone.commands.*;
-import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10NavDataDecoder;
-import com.codeminders.ardrone.data.decoder.ardrone10.ARDrone10VideoDataDecoder;
-import com.codeminders.ardrone.data.logger.ARDroneDataReaderAndLogWrapper;
-import com.codeminders.ardrone.data.logger.DataLogger;
 import com.codeminders.ardrone.version.DroneVersionReader;
 import com.codeminders.ardrone.version.ftp.DroneFTPversionReader;
 
@@ -112,6 +127,8 @@ public class ARDrone
 
     private static final int                NAVDATA_PORT      = 5554;
     private static final int                VIDEO_PORT        = 5555;
+    private static final int                CONTROL_PORT      = 5559;
+    
     private static final int                NAVDATA_BUFFER_SIZE = 4096;
     private static final int                VIDEO_BUFFER_SIZE = 100 * 1024;
 
@@ -774,6 +791,53 @@ public class ARDrone
            log.log(Level.SEVERE, "Failed to read drone version.", e);
         }
         return null;
+    }
+    /**
+     * Reads drone configuration content. Please execute this method only when drone is connected, 
+     * otherwise method will stick on waiting data from drone control port.
+     * @return current values of Drone configuration, information about software, motors, tilt limitation etc.
+     * Please see ARDrone Developers guide (Section 8.1 Reading the drone configuration) for full list of parameters. 
+     * null if any error occurred
+     */
+    public synchronized String readDroneConfiguration() {
+       
+        String ret = null;
+        synchronized (this) {
+            Socket socket = null;
+            try {
+                socket = new Socket(drone_addr.getHostAddress(), CONTROL_PORT);
+                
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                byte[] buffer = new byte[1024];
+                int readCount;
+                InputStream  in =  socket.getInputStream();
+                cmd_queue.add(new ControlCommand(4, 0));
+                boolean continueReading = true;
+                while(continueReading && ((readCount = in.read(buffer)) > 0))
+                {
+                    bos.write(buffer, 0, readCount);
+                    try {
+                        Thread.sleep(100); // TODO: figure out something more complex. This code is required in order to give drone time to send content
+                    } catch (InterruptedException e) {
+                        log.log(Level.SEVERE, "Interrupted", e);
+                    }
+                    continueReading = in.available() > 0;
+                }
+                bos.close();
+
+                ret = new String(bos.toByteArray(), "ASCII");
+            } catch (IOException ex) {
+                log.log(Level.SEVERE, "Error. Fialed to read drone configuration", ex);
+            } finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    log.log(Level.SEVERE, "Error. Close Drone TCP controll chanel", e);
+                }
+            }
+        }
+        
+        return ret;
     }
     
 }
