@@ -45,7 +45,8 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     private static final long READ_UPDATE_DELAY_MS = 5L;
     private static final long CONNECT_TIMEOUT = 10000L;
-    private static float CONTROL_THRESHOLD = 0.5f;
+    private static final float DEFAULT_CONTROL_THRESHOLD = 0.05f;
+
     private final ImageIcon droneOn = new ImageIcon(
         getClass().getResource("/com/codeminders/controltower/images/drone_on.gif"));
     private final ImageIcon droneOff = new ImageIcon(
@@ -70,6 +71,8 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
     private final KeyboardControlConfig keyboardControlConfigWindow;
     private final BottomGaugePanel gauges = new BottomGaugePanel();
     private final ControlMap controlMap = new ControlMap();
+
+    private float controlThreshold = DEFAULT_CONTROL_THRESHOLD;
 
     private static boolean isHIDLibLoaded = false;
 
@@ -256,47 +259,52 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
                     {
                         // Detecting if we need to move the drone
 
-                        int leftX = pad.getLeftJoystickX();
-                        int leftY = pad.getLeftJoystickY();
+                        float leftX = pad.getLeftJoystickX() / 128f;
+                        float leftY = pad.getLeftJoystickY() / 128f;
 
-                        int rightX = pad.getRightJoystickX();
-                        int rightY = pad.getRightJoystickY();
+                        float rightX = pad.getRightJoystickX() / 128f;
+                        float rightY = pad.getRightJoystickY() / 128f;
 
-                        float left_right_tilt = 0f;
-                        float front_back_tilt = 0f;
-                        float vertical_speed = 0f;
-                        float angular_speed = 0f;
+                        float leftRightTilt = 0f;
+                        float frontBackTilt = 0f;
+                        float verticalSpeed = 0f;
+                        float angularSpeed = 0f;
 
-                        if(Math.abs(((float) leftX) / 128f) > CONTROL_THRESHOLD)
+                        float ct = 1 - controlThreshold;
+
+                        if(Math.abs(leftX) > controlThreshold)
                         {
-                            left_right_tilt = ((float) leftX) / 128f;
+                            leftRightTilt = (leftX >= 0.0f ? (leftX - controlThreshold) / ct
+                                                           : (leftX + controlThreshold) / ct);
                         }
 
-                        if(Math.abs(((float) leftY) / 128f) > CONTROL_THRESHOLD)
+                        if(Math.abs(leftY) > controlThreshold)
                         {
-                            front_back_tilt = ((float) leftY) / 128f;
+                            frontBackTilt = (leftY >= 0.0f ? (leftY - controlThreshold) / ct
+                                                           : (leftY + controlThreshold) / ct);
                         }
 
-                        if(Math.abs(((float) rightX) / 128f) > CONTROL_THRESHOLD)
+                        if(Math.abs(rightX) > controlThreshold)
                         {
-                            angular_speed = ((float) rightX) / 128f;
+                            angularSpeed = (rightX >= 0.0f ? (rightX - controlThreshold) / ct
+                                                           : (rightX + controlThreshold) / ct);
                         }
 
-                        if(Math.abs(-1 * ((float) rightY) / 128f) > CONTROL_THRESHOLD)
+                        if(Math.abs(rightY) > controlThreshold)
                         {
-                            vertical_speed = -1 * ((float) rightY) / 128f;
+                            verticalSpeed = -1 * (rightY >= 0.0f ? (rightY - controlThreshold) / ct
+                                                                 : (rightY + controlThreshold) / ct);
                         }
 
-                        if(left_right_tilt != 0 || front_back_tilt != 0 || vertical_speed != 0 || angular_speed != 0)
+                        if(leftRightTilt != 0 || frontBackTilt != 0 || verticalSpeed != 0 || angularSpeed != 0)
                         {
                             if(flipSticks.get())
                             {
-                                drone.move(angular_speed, -1 * vertical_speed, -1 * front_back_tilt, left_right_tilt);
+                                drone.move(angularSpeed, -1 * verticalSpeed, -1 * frontBackTilt, leftRightTilt);
                             }
                             else
                             {
-                                drone.move(left_right_tilt, front_back_tilt, vertical_speed, angular_speed);
-
+                                drone.move(leftRightTilt, frontBackTilt, verticalSpeed, angularSpeed);
                             }
                         }
                         else
@@ -475,7 +483,7 @@ public class ControlTower extends javax.swing.JFrame implements DroneStatusChang
 
     public void setControlThreshold(float sens)
     {
-        CONTROL_THRESHOLD = sens;
+        controlThreshold = sens;
     }
 
     /**
