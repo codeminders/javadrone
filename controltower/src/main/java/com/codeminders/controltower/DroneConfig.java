@@ -68,10 +68,10 @@ public class DroneConfig extends javax.swing.JDialog {
         }
         try {
             drone.setConfigOption("control:altitude_max", maxAltitude.getValue() + "");
-            drone.setConfigOption("control:euler_angle_max", (((float) maxAngle.getValue()) / 100.0f) + "");
+            drone.setConfigOption("control:euler_angle_max", (maxAngle.getValue() / 100.0f) + "");
             drone.setConfigOption("control:control_vz_max", maxSpeed.getValue() + "");
-            drone.setConfigOption("control:control_yaw", (((float) maxYaw.getValue()) / 100.0f) + "");
-            tower.setControlThreshold(((float) controllerDeadzone.getValue()) / 100.0f);
+            drone.setConfigOption("control:control_yaw", (maxYaw.getValue() / 100.0f) + "");
+            tower.setControlThreshold(controllerDeadzone.getValue() / 100.0f);
         } catch (IOException ex) {
             Logger.getLogger(DroneConfig.class.getName()).error("Exception Setting data: {0}", ex);
         }
