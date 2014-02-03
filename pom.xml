@@ -12,6 +12,6 @@
 		<module>javadrone-api</module>
 		<module>javadrone-utils</module>
 		<module>controltower</module>
-		<module>controltower-android</module>
+		<!--<module>controltower-android</module>-->
 	</modules>
 </project>
