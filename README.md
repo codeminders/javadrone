@@ -20,7 +20,7 @@ please contact [Codeminders](http://www.codeminders.com/) for a quote.
 
 
 ## Pages ##
-  * ControlTower - demo navigation program using this API
+  * [ControlTower](https://github.com/vzaliva/javadrone/blob/wiki/ControlTower) - demo navigation program using this API
   * ControlTowerAndroid - demo navigation Android App using this API
   * GameController - information about supported controllers
   * BuildInstructions - Build instructions
