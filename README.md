@@ -22,9 +22,9 @@ please contact [Codeminders](http://www.codeminders.com/) for a quote.
 ## Pages ##
   * [ControlTower](https://github.com/vzaliva/javadrone/blob/wiki/ControlTower.md) - demo navigation program using this API
   * [ControlTowerAndroid](https://github.com/vzaliva/javadrone/blob/wiki/ControlTowerAndroid.md) - demo navigation Android App using this API
-  * [GameController]](https://github.com/vzaliva/javadrone/blob/wiki/GameController.md) - information about supported controllers
-  * [BuildInstructions]](https://github.com/vzaliva/javadrone/blob/wiki/BuildInstructions.md) - Build instructions
-  * [FrequentlyAskedQuestions]](https://github.com/vzaliva/javadrone/blob/wiki/FrequentlyAskedQuestions.md) - FAQ
+  * [GameController](https://github.com/vzaliva/javadrone/blob/wiki/GameController.md) - information about supported controllers
+  * [BuildInstructions](https://github.com/vzaliva/javadrone/blob/wiki/BuildInstructions.md) - Build instructions
+  * [FrequentlyAskedQuestions](https://github.com/vzaliva/javadrone/blob/wiki/FrequentlyAskedQuestions.md) - FAQ
 
 ## Links ##
   * [Official AR.Drone API project](https://projects.ardrone.org/projects/show/ardrone-api)
